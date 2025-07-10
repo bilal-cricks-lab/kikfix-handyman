@@ -7,6 +7,8 @@ enum IMAGES {
     boarding3 = require('../assets/images/boarding3.png'),
     boarding4 = require('../assets/images/boarding4.png'),
     arrowRight = require('../assets/images/arrowright.png'),
-}
+    email = require('../assets/images/email.png'),
+    password = require('../assets/images/password.png'),
+    user = require('../assets/images/user.png'),}
 
 export default IMAGES;

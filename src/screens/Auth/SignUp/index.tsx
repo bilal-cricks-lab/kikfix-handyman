@@ -4,23 +4,27 @@ import {
   View,
   SafeAreaView,
   Image,
-  Pressable,
 } from 'react-native';
 import React from 'react';
-import IMAGES from '../../constants/Images';
+import IMAGES from '../../../constants/Images';
 import {
   fontScale,
   horizontalScale,
   verticalScale,
-} from '../../utils/screenSize';
-import TEXT from '../../constants/Text';
-import useInputText from '../../data/InputText';
-import InputFields from '../../components/TextInput';
-import CustomButton from '../../components/Button';
+} from '../../../utils/screenSize';
+import TEXT from '../../../constants/Text';
+import useInputText from '../../../data/InputText';
+import InputFields from '../../../components/TextInput';
+import CustomButton from '../../../components/Button';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import StackParamList from '../../../types/stack.types';
+
+type NavigationProps = NativeStackNavigationProp<StackParamList, 'SignUp'>;
 
 const SignUp = () => {
+  const navigation = useNavigation<NavigationProps>();
   const { input } = useInputText();
-
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.logoTextPos}>
@@ -33,9 +37,9 @@ const SignUp = () => {
       </View>
       <View style={styles.formContainer}>
         <View style={styles.inputFieldView}>
-          {InputFields({ inputData: input })}
+          <InputFields inputData={input} />
           <CustomButton
-            title="Sign Up"
+            title={TEXT.signUpCon}
             style={styles.btnSignUp}
             onPress={() => {}}
             textStyle={styles.btnSignUpText}
@@ -45,7 +49,7 @@ const SignUp = () => {
       <View style={styles.footerContainer}>
         <Text style={styles.footerText}>{TEXT.alreadyHaveAccount}</Text>
         <Text
-          // onPress={() => navigation.navigate('Login')}
+          onPress={() => navigation.navigate('SignIn')}
           style={styles.footerLink}
         >
           {TEXT.signinText}

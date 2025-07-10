@@ -1,5 +1,8 @@
 import React from "react";
 import InputText from "../../types/input.types";
+import { TextInput } from "react-native";
+import { PhoneInputRef } from 'rn-phone-input-field';
+
 /* const useInputText = (inputTexts: InputText[]) => {
     const inputRefs = React.useRef<{ [key: string]: React.RefObject<any> }>({});
 
@@ -24,10 +27,11 @@ import InputText from "../../types/input.types";
 
 const useInputText = () => {
     // Create a ref for the input text
-    const full_name = React.useRef<any>(null);
-    const email_Phone = React.useRef<any>(null);
-    const password = React.useRef<any>(null);
-
+    const full_name = React.useRef<TextInput>(null as unknown as TextInput);
+    const email_Phone = React.useRef<TextInput>(null as unknown as TextInput);
+    const password = React.useRef<TextInput>(null as unknown as TextInput);
+    const phone_ref = React.useRef<PhoneInputRef>(null as unknown as PhoneInputRef);
+    
     const input: InputText[] = [
         {
             id: 'FullName',
@@ -44,8 +48,13 @@ const useInputText = () => {
         {
             id: 'Password',
             ref: password,
-            keyboardType: 'default'
-        }
+            keyboardType: 'default',
+            nextRef: phone_ref,
+        },
+        {
+            id: 'PhoneNumber',
+            keyboardType: 'phone-pad',
+            ref: phone_ref as React.RefObject<TextInput | PhoneInputRef>,}
     ]
     return {
         input

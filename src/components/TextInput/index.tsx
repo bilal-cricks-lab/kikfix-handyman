@@ -1,7 +1,14 @@
 import React, { JSX } from 'react';
-import { View, TextInput, StyleSheet } from 'react-native';
+import { View, TextInput, StyleSheet, Image } from 'react-native';
 import InputText from '../../types/input.types';
-import { fontScale, horizontalScale, verticalScale } from '../../utils/screenSize';
+import {
+  fontScale,
+  horizontalScale,
+  verticalScale,
+} from '../../utils/screenSize';
+import PhoneInputText from '../PhoneInput';
+import { getIcon } from '../../utils/icons';
+import phoneInput from 'rn-phone-input-field';
 
 interface InputFieldsProps {
   inputData: InputText[];
@@ -9,46 +16,53 @@ interface InputFieldsProps {
 
 const InputFields = ({ inputData }: InputFieldsProps): JSX.Element[] => {
   return inputData.map(({ id, ref, keyboardType, nextRef }) => {
-    //   const isFocused = focusedField === feild;
+    if (id === 'PhoneNumber') {
+      return (
+        <View key={id}>
+          <PhoneInputText
+            onChange={val => {}}
+            ref={ref as React.RefObject<phoneInput.PhoneInputRef>}
+            value=""
+          />
+        </View>
+      );
+    }
     return (
       <View key={id} style={{ position: 'relative' }}>
         <TextInput
-          ref={ref}
+          ref={ref as React.RefObject<TextInput>}
           returnKeyType={
-            id === 'Email Address'
+            id === 'FullName'
               ? 'next'
-              : id === 'Username'
+              : id === 'EmailPhone'
+              ? 'next'
+              : id === 'Password'
               ? 'next'
               : 'done'
           }
-          keyboardType={keyboardType || 'default'}
-          style={[
-            styles.inputText,
-            //   {borderColor: isFocused ? '#33b056' : '#f0f0f0'},
-          ]}
-          // onChangeText={handleInputChange(feild)}
+          placeholderTextColor={'#D9D9D9'}
+          keyboardType={keyboardType}
+          style={[styles.inputText]}
           placeholder={id}
-          // value={
-          //   feild === 'Email Address'
-          //     ? email
-          //     : feild === 'Username'
-          //     ? displayName
-          //     : password
-          // }
-          onSubmitEditing={() => nextRef?.current?.focus()}
-          // placeholderTextColor={isFocused ? '#33b056' : '#d8d8d8'}
-          // onFocus={() => handleFocus(feild)}
-          // onBlur={handleBlur}
+          onSubmitEditing={() => {
+            if (nextRef?.current && nextRef?.current.focus) {
+              nextRef.current.focus();
+            }
+          }}
           secureTextEntry={id === 'Password'}
         />
         <View
           style={{
             position: 'absolute',
-            left: horizontalScale(15),
-            top: '25%',
+            right: horizontalScale(20),
+            top: '35%',
           }}
         >
-          {/* {getIcon(feild, isFocused)} */}
+          <Image
+            source={getIcon(id)}
+            style={{ tintColor: 'black' }}
+            resizeMode="contain"
+          />
         </View>
       </View>
     );
@@ -56,13 +70,13 @@ const InputFields = ({ inputData }: InputFieldsProps): JSX.Element[] => {
 };
 
 const styles = StyleSheet.create({
-  inputText: { 
+  inputText: {
     padding: verticalScale(10),
     paddingLeft: horizontalScale(18),
     fontFamily: 'Poppins-Regular',
     lineHeight: verticalScale(25),
     fontSize: fontScale(15),
-    color: '#D9D9D9',
+    color: 'black',
     width: horizontalScale(330),
     height: verticalScale(50),
     borderWidth: 1,
