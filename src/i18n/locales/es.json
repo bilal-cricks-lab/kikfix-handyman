@@ -1,0 +1,113 @@
+{
+  "common": {
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "close": "Cerrar",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "submit": "Enviar",
+    "confirm": "Confirmar",
+    "yes": "Sí",
+    "no": "No"
+  },
+  "auth": {
+    "signUp": "Registrarse",
+    "signIn": "Iniciar Sesión",
+    "signOut": "Cerrar Sesión",
+    "email": "Correo Electrónico",
+    "password": "Contraseña",
+    "confirmPassword": "Confirmar Contraseña",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "alreadyHaveAccount": "¿Ya tienes una cuenta?",
+    "dontHaveAccount": "¿No tienes una cuenta?",
+    "createAccount": "Crear Cuenta",
+    "welcomeBack": "Bienvenido de Vuelta",
+    "signUpText": "Crea tu cuenta para comenzar con KikFix",
+    "signInText": "Inicia sesión en tu cuenta",
+    "signUpCon": "Registrarse",
+    "signInCon": "Iniciar Sesión",
+    "resetPassword": "Restablecer Contraseña",
+    "sendResetLink": "Enviar Enlace de Restablecimiento"
+  },
+  "onboarding": {
+    "welcome": "Bienvenido a KikFix",
+    "step1": {
+      "title": "Arregla tus Zapatillas",
+      "description": "Servicios profesionales de reparación y restauración de zapatillas"
+    },
+    "step2": {
+      "title": "Cuidado Experto",
+      "description": "Nuestros técnicos certificados devuelven la vida a tus zapatos"
+    },
+    "step3": {
+      "title": "Servicio Rápido",
+      "description": "Tiempos de entrega rápidos con calidad garantizada"
+    },
+    "step4": {
+      "title": "Comenzar",
+      "description": "Reserva tu primera reparación y experimenta la diferencia"
+    },
+    "skip": "Saltar",
+    "next": "Siguiente",
+    "getStarted": "Comenzar"
+  },
+  "navigation": {
+    "home": "Inicio",
+    "profile": "Perfil",
+    "settings": "Configuración",
+    "orders": "Pedidos",
+    "services": "Servicios",
+    "about": "Acerca de",
+    "contact": "Contacto",
+    "help": "Ayuda"
+  },
+  "services": {
+    "title": "Nuestros Servicios",
+    "sneakerRepair": "Reparación de Zapatillas",
+    "soleReplacement": "Reemplazo de Suela",
+    "colorRestoration": "Restauración de Color",
+    "deepCleaning": "Limpieza Profunda",
+    "customization": "Personalización",
+    "bookService": "Reservar Servicio",
+    "viewDetails": "Ver Detalles"
+  },
+  "profile": {
+    "title": "Perfil",
+    "personalInfo": "Información Personal",
+    "orders": "Mis Pedidos",
+    "favorites": "Favoritos",
+    "settings": "Configuración",
+    "help": "Ayuda y Soporte",
+    "about": "Acerca de KikFix",
+    "logout": "Cerrar Sesión"
+  },
+  "settings": {
+    "title": "Configuración",
+    "language": "Idioma",
+    "notifications": "Notificaciones",
+    "privacy": "Privacidad",
+    "security": "Seguridad",
+    "about": "Acerca de",
+    "version": "Versión"
+  },
+  "validation": {
+    "required": "Este campo es obligatorio",
+    "email": "Por favor ingresa una dirección de correo válida",
+    "password": "La contraseña debe tener al menos 8 caracteres",
+    "passwordMatch": "Las contraseñas deben coincidir",
+    "phone": "Por favor ingresa un número de teléfono válido"
+  },
+  "errors": {
+    "networkError": "Error de red. Por favor verifica tu conexión.",
+    "serverError": "Error del servidor. Por favor intenta más tarde.",
+    "unknownError": "Ocurrió un error desconocido.",
+    "invalidCredentials": "Correo o contraseña inválidos.",
+    "emailExists": "Ya existe una cuenta con este correo."
+  }
+} 
