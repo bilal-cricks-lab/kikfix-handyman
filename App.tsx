@@ -5,15 +5,23 @@
  * @format
  */
 
-import { NavigationContainer } from "@react-navigation/native";
-import StackNav from "./src/navigation/StackNavigator";
+import React from 'react';
+import { SafeAreaView, StatusBar } from 'react-native';
+import DesignSystemShowcase from './src/components/DesignSystem/DesignSystemShowcase';
 
-function App() {
+// Import i18n configuration
+import './src/i18n';
+import { LanguageProvider } from './src/i18n/LanguageContext';
+
+const App: React.FC = () => {
   return (
-    <NavigationContainer>
-      <StackNav/>
-    </NavigationContainer>
+    <LanguageProvider>
+      <SafeAreaView className="flex-1 bg-gray-100">
+        <StatusBar barStyle="dark-content" backgroundColor="#f3f4f6" />
+        <DesignSystemShowcase />
+      </SafeAreaView>
+    </LanguageProvider>
   );
-}
+};
 
 export default App;

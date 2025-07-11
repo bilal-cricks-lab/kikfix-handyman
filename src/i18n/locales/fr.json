@@ -1,0 +1,113 @@
+{
+  "common": {
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "close": "Fermer",
+    "back": "Retour",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "submit": "Soumettre",
+    "confirm": "Confirmer",
+    "yes": "Oui",
+    "no": "Non"
+  },
+  "auth": {
+    "signUp": "S'inscrire",
+    "signIn": "Se connecter",
+    "signOut": "Se déconnecter",
+    "email": "E-mail",
+    "password": "Mot de passe",
+    "confirmPassword": "Confirmer le mot de passe",
+    "forgotPassword": "Mot de passe oublié ?",
+    "alreadyHaveAccount": "Vous avez déjà un compte ?",
+    "dontHaveAccount": "Vous n'avez pas de compte ?",
+    "createAccount": "Créer un compte",
+    "welcomeBack": "Bon retour",
+    "signUpText": "Créez votre compte pour commencer avec KikFix",
+    "signInText": "Connectez-vous à votre compte",
+    "signUpCon": "S'inscrire",
+    "signInCon": "Se connecter",
+    "resetPassword": "Réinitialiser le mot de passe",
+    "sendResetLink": "Envoyer le lien de réinitialisation"
+  },
+  "onboarding": {
+    "welcome": "Bienvenue sur KikFix",
+    "step1": {
+      "title": "Réparer vos Sneakers",
+      "description": "Services professionnels de réparation et restauration de sneakers"
+    },
+    "step2": {
+      "title": "Soins experts",
+      "description": "Nos techniciens certifiés redonnent vie à vos chaussures"
+    },
+    "step3": {
+      "title": "Service rapide",
+      "description": "Délais d'exécution rapides avec qualité garantie"
+    },
+    "step4": {
+      "title": "Commencer",
+      "description": "Réservez votre première réparation et découvrez la différence"
+    },
+    "skip": "Passer",
+    "next": "Suivant",
+    "getStarted": "Commencer"
+  },
+  "navigation": {
+    "home": "Accueil",
+    "profile": "Profil",
+    "settings": "Paramètres",
+    "orders": "Commandes",
+    "services": "Services",
+    "about": "À propos",
+    "contact": "Contact",
+    "help": "Aide"
+  },
+  "services": {
+    "title": "Nos Services",
+    "sneakerRepair": "Réparation de Sneakers",
+    "soleReplacement": "Remplacement de Semelle",
+    "colorRestoration": "Restauration de Couleur",
+    "deepCleaning": "Nettoyage en Profondeur",
+    "customization": "Personnalisation",
+    "bookService": "Réserver un Service",
+    "viewDetails": "Voir les Détails"
+  },
+  "profile": {
+    "title": "Profil",
+    "personalInfo": "Informations Personnelles",
+    "orders": "Mes Commandes",
+    "favorites": "Favoris",
+    "settings": "Paramètres",
+    "help": "Aide et Support",
+    "about": "À propos de KikFix",
+    "logout": "Se déconnecter"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "language": "Langue",
+    "notifications": "Notifications",
+    "privacy": "Confidentialité",
+    "security": "Sécurité",
+    "about": "À propos",
+    "version": "Version"
+  },
+  "validation": {
+    "required": "Ce champ est obligatoire",
+    "email": "Veuillez saisir une adresse e-mail valide",
+    "password": "Le mot de passe doit contenir au moins 8 caractères",
+    "passwordMatch": "Les mots de passe doivent correspondre",
+    "phone": "Veuillez saisir un numéro de téléphone valide"
+  },
+  "errors": {
+    "networkError": "Erreur réseau. Veuillez vérifier votre connexion.",
+    "serverError": "Erreur serveur. Veuillez réessayer plus tard.",
+    "unknownError": "Une erreur inconnue s'est produite.",
+    "invalidCredentials": "E-mail ou mot de passe invalide.",
+    "emailExists": "Un compte avec cet e-mail existe déjà."
+  }
+} 

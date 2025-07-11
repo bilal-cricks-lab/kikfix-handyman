@@ -1,129 +1,65 @@
-import {
-  Text,
-  StyleSheet,
-  View,
-  SafeAreaView,
-  Image,
-} from 'react-native';
 import React from 'react';
+import { View, Image, Text } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useTranslation } from 'react-i18next';
+import StackParamList from '../../../types/stack.types';
 import IMAGES from '../../../constants/Images';
-import {
-  fontScale,
-  horizontalScale,
-  verticalScale,
-} from '../../../utils/screenSize';
-import TEXT from '../../../constants/Text';
 import useInputText from '../../../data/InputText';
 import InputFields from '../../../components/TextInput';
 import CustomButton from '../../../components/Button';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import StackParamList from '../../../types/stack.types';
+
+// Import design system tokens
+import { typography, colors, spacing } from '../../../design-system';
 
 type NavigationProps = NativeStackNavigationProp<StackParamList, 'SignUp'>;
 
 const SignUp = () => {
   const navigation = useNavigation<NavigationProps>();
+  const { t } = useTranslation();
   const { input } = useInputText();
+
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.logoTextPos}>
-        <View style={styles.imagePos}>
-          <Image source={IMAGES.logo} style={styles.imageStyle} />
+    <SafeAreaView className="flex-1 bg-white">
+      <View style={{ padding: spacing.lg }}>
+        {/* Header Section */}
+        <View className="items-center mb-12">
+          <View className="mb-5">
+            <Image source={IMAGES.logo} className="w-[170px] h-[71px]" />
+          </View>
+          <View className="items-center">
+            <Text style={typography.body} className="text-black-300 text-center w-[300px]">
+              {t('auth.signUpText')}
+            </Text>
+          </View>
         </View>
-        <View style={styles.welcomePos}>
-          <Text style={styles.welcomeTextStyle}>{TEXT.signUpText}</Text>
+
+        {/* Form Section */}
+        <View className="flex-1">
+          <View className="items-center space-y-6">
+            <InputFields inputData={input} />
+            <CustomButton
+              title={t('auth.signUpCon')}
+              onPress={() => {}}
+              style={{ backgroundColor: colors.primary[500], padding: spacing.lg }}
+              textStyle={{ color: colors.white[500], ...typography.body }}
+            />
+          </View>
         </View>
-      </View>
-      <View style={styles.formContainer}>
-        <View style={styles.inputFieldView}>
-          <InputFields inputData={input} />
-          <CustomButton
-            title={TEXT.signUpCon}
-            style={styles.btnSignUp}
-            onPress={() => {}}
-            textStyle={styles.btnSignUpText}
-          />
+
+        {/* Footer Section */}
+        <View className="flex-row justify-center items-center space-x-2 mb-2">
+          <Text style={typography.body} className="text-black-300">
+            {t('auth.alreadyHaveAccount')}
+          </Text>
+          <Text style={typography.link} onPress={() => navigation.navigate('SignIn')} className="text-primary-500">
+            {t('auth.signIn')}
+          </Text>
         </View>
-      </View>
-      <View style={styles.footerContainer}>
-        <Text style={styles.footerText}>{TEXT.alreadyHaveAccount}</Text>
-        <Text
-          onPress={() => navigation.navigate('SignIn')}
-          style={styles.footerLink}
-        >
-          {TEXT.signinText}
-        </Text>
       </View>
     </SafeAreaView>
   );
 };
 
 export default SignUp;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#ffffff',
-  },
-  logoTextPos: {
-    marginTop: verticalScale(50),
-    gap: verticalScale(20),
-  },
-  imagePos: {
-    alignItems: 'center',
-  },
-  imageStyle: {
-    width: horizontalScale(170),
-    height: verticalScale(71),
-  },
-  welcomePos: {
-    alignItems: 'center',
-  },
-  welcomeTextStyle: {
-    fontSize: fontScale(16),
-    fontFamily: 'Poppins-Regular',
-    color: '#545454',
-    width: horizontalScale(300),
-    textAlign: 'center',
-  },
-  formContainer: {
-    marginTop: verticalScale(50),
-  },
-  inputFieldView: {
-    alignItems: 'center',
-    marginTop: verticalScale(20),
-    gap: verticalScale(25),
-  },
-  btnSignUp: {
-    width: horizontalScale(330),
-    height: verticalScale(50),
-    backgroundColor: '#28A94D',
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  btnSignUpText: {
-    color: '#FFFFFF',
-    fontSize: fontScale(16),
-    fontFamily: 'Poppins-SemiBold',
-  },
-  footerContainer: {
-    flex: 1,
-    alignItems: 'flex-end',
-    justifyContent: 'center',
-    flexDirection: 'row',
-    gap: horizontalScale(10),
-    bottom: verticalScale(5),
-  },
-  footerText: {
-    color: '#545454',
-    fontSize: fontScale(15),
-    fontFamily: 'Poppins-Regular',
-  },
-  footerLink: {
-    color: '#1A693B',
-    fontSize: fontScale(15),
-    fontFamily: 'Poppins-Regular',
-  },
-});

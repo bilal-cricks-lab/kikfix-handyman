@@ -1,0 +1,113 @@
+{
+  "common": {
+    "loading": "جاري التحميل...",
+    "error": "خطأ",
+    "success": "نجح",
+    "cancel": "إلغاء",
+    "save": "حفظ",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "close": "إغلاق",
+    "back": "رجوع",
+    "next": "التالي",
+    "previous": "السابق",
+    "submit": "إرسال",
+    "confirm": "تأكيد",
+    "yes": "نعم",
+    "no": "لا"
+  },
+  "auth": {
+    "signUp": "إنشاء حساب",
+    "signIn": "تسجيل الدخول",
+    "signOut": "تسجيل الخروج",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "confirmPassword": "تأكيد كلمة المرور",
+    "forgotPassword": "نسيت كلمة المرور؟",
+    "alreadyHaveAccount": "لديك حساب بالفعل؟",
+    "dontHaveAccount": "ليس لديك حساب؟",
+    "createAccount": "إنشاء حساب",
+    "welcomeBack": "مرحباً بعودتك",
+    "signUpText": "أنشئ حسابك للبدء مع KikFix",
+    "signInText": "سجل الدخول إلى حسابك",
+    "signUpCon": "إنشاء حساب",
+    "signInCon": "تسجيل الدخول",
+    "resetPassword": "إعادة تعيين كلمة المرور",
+    "sendResetLink": "إرسال رابط إعادة التعيين"
+  },
+  "onboarding": {
+    "welcome": "مرحباً بك في KikFix",
+    "step1": {
+      "title": "أصلح حذاءك الرياضي",
+      "description": "خدمات إصلاح واستعادة الأحذية الرياضية الاحترافية"
+    },
+    "step2": {
+      "title": "رعاية خبيرة",
+      "description": "فنيونا المعتمدون يعيدون الحياة لحذائك"
+    },
+    "step3": {
+      "title": "خدمة سريعة",
+      "description": "أوقات تسليم سريعة مع ضمان الجودة"
+    },
+    "step4": {
+      "title": "ابدأ الآن",
+      "description": "احجز إصلاحك الأول واختبر الفرق"
+    },
+    "skip": "تخطي",
+    "next": "التالي",
+    "getStarted": "ابدأ الآن"
+  },
+  "navigation": {
+    "home": "الرئيسية",
+    "profile": "الملف الشخصي",
+    "settings": "الإعدادات",
+    "orders": "الطلبات",
+    "services": "الخدمات",
+    "about": "حول",
+    "contact": "اتصل بنا",
+    "help": "المساعدة"
+  },
+  "services": {
+    "title": "خدماتنا",
+    "sneakerRepair": "إصلاح الأحذية الرياضية",
+    "soleReplacement": "استبدال النعل",
+    "colorRestoration": "استعادة اللون",
+    "deepCleaning": "تنظيف عميق",
+    "customization": "تخصيص",
+    "bookService": "احجز خدمة",
+    "viewDetails": "عرض التفاصيل"
+  },
+  "profile": {
+    "title": "الملف الشخصي",
+    "personalInfo": "المعلومات الشخصية",
+    "orders": "طلباتي",
+    "favorites": "المفضلة",
+    "settings": "الإعدادات",
+    "help": "المساعدة والدعم",
+    "about": "حول KikFix",
+    "logout": "تسجيل الخروج"
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "language": "اللغة",
+    "notifications": "الإشعارات",
+    "privacy": "الخصوصية",
+    "security": "الأمان",
+    "about": "حول",
+    "version": "الإصدار"
+  },
+  "validation": {
+    "required": "هذا الحقل مطلوب",
+    "email": "يرجى إدخال عنوان بريد إلكتروني صحيح",
+    "password": "كلمة المرور يجب أن تكون 8 أحرف على الأقل",
+    "passwordMatch": "كلمات المرور يجب أن تتطابق",
+    "phone": "يرجى إدخال رقم هاتف صحيح"
+  },
+  "errors": {
+    "networkError": "خطأ في الشبكة. يرجى التحقق من اتصالك.",
+    "serverError": "خطأ في الخادم. يرجى المحاولة مرة أخرى لاحقاً.",
+    "unknownError": "حدث خطأ غير معروف.",
+    "invalidCredentials": "بريد إلكتروني أو كلمة مرور غير صحيحة.",
+    "emailExists": "يوجد حساب بهذا البريد الإلكتروني بالفعل."
+  }
+} 
