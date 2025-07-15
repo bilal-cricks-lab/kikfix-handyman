@@ -1,72 +1,73 @@
+import { fontScale } from '../utils/screenSize';
 import { TextStyle } from 'react-native';
 
 // Typography variants based on the exact design specifications you provided
 export const typography = {
   h1: {
-    fontSize: 24,
+    fontSize: fontScale(24),
     lineHeight: 34,
     fontFamily: 'Poppins-Bold',
     fontWeight: '700' as TextStyle['fontWeight'],
     textTransform: 'capitalize' as TextStyle['textTransform'],
   },
   h2: {
-    fontSize: 22,
+    fontSize: fontScale(22),
     lineHeight: 32,
     fontFamily: 'Poppins-Bold',
     fontWeight: '700' as TextStyle['fontWeight'],
     textTransform: 'capitalize' as TextStyle['textTransform'],
   },
   h3: {
-    fontSize: 20,
+    fontSize: fontScale(20),
     lineHeight: 30,
     fontFamily: 'Poppins-Bold',
     fontWeight: '700' as TextStyle['fontWeight'],
     textTransform: 'capitalize' as TextStyle['textTransform'],
   },
   h4: {
-    fontSize: 18,
+    fontSize: fontScale(18),
     lineHeight: 28,
     fontFamily: 'Poppins-Bold',
     fontWeight: '700' as TextStyle['fontWeight'],
     textTransform: 'capitalize' as TextStyle['textTransform'],
   },
   h5: {
-    fontSize: 16,
+    fontSize: fontScale(16),
     lineHeight: 26,
     fontFamily: 'Poppins-Bold',
     fontWeight: '700' as TextStyle['fontWeight'],
     textTransform: 'capitalize' as TextStyle['textTransform'],
   },
   h6: {
-    fontSize: 14,
+    fontSize: fontScale(14),
     lineHeight: 24,
     fontFamily: 'Poppins-Bold',
     fontWeight: '700' as TextStyle['fontWeight'],
     textTransform: 'capitalize' as TextStyle['textTransform'],
   },
   body: {
-    fontSize: 16,
+    fontSize: fontScale(16),
     lineHeight: 26,
     fontFamily: 'Poppins-Regular',
     fontWeight: '400' as TextStyle['fontWeight'],
     textTransform: 'capitalize' as TextStyle['textTransform'],
   },
   bodySmall: {
-    fontSize: 14,
+    fontSize: fontScale(14),
     lineHeight: 24,
     fontFamily: 'Poppins-Regular',
     fontWeight: '400' as TextStyle['fontWeight'],
     textTransform: 'capitalize' as TextStyle['textTransform'],
   },
   bodyXs: {
-    fontSize: 12,
+    fontSize: fontScale(12),
     lineHeight: 22,
     fontFamily: 'Poppins-Regular',
     fontWeight: '400' as TextStyle['fontWeight'],
     textTransform: 'capitalize' as TextStyle['textTransform'],
   },
   link: {
-    fontSize: 12,
+    fontSize: fontScale(12),
     lineHeight: 22,
     fontFamily: 'Poppins-SemiBold',
     fontWeight: '600' as TextStyle['fontWeight'],

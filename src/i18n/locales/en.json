@@ -33,10 +33,13 @@
     "signUpCon": "Sign Up",
     "signInCon": "Sign In",
     "resetPassword": "Reset Password",
+    "yourTrusted": "Your trusted handyman service platform",
     "sendResetLink": "Send Reset Link"
   },
   "onboarding": {
     "welcome": "Welcome to KikFix",
+    "choose": "Choose how you'd like to use our platform",
+    "trusted": "Trusted by thousands of homeowners and service professionals across the country",
     "step1": {
       "title": "Fix Your Kicks",
       "description": "Professional sneaker repair and restoration services"
@@ -109,5 +112,27 @@
     "unknownError": "An unknown error occurred.",
     "invalidCredentials": "Invalid email or password.",
     "emailExists": "An account with this email already exists."
+  },
+  "serviceProv": {
+    "provide": "I Provide Services",
+    "join": "Join our network of professionals and grow your handyman business",
+    "receive": "Receive job requests in your area",
+    "set": "Set your own rates and schedule",
+    "get": "Get paid securely and promptly",
+    "build": "Build your reputation and grow"
+  },
+  "serviceCus": {
+    "service": "I need services",
+    "find": "Find and book trusted handymen for your home repair and maintenance needs",
+    "browse": "Browse verified professionals",
+    "get": "Get instant quotes and book services",
+    "track": "Track progress and communicate",
+    "rate": "Rate and review completed work"
+  },
+  "feature": {
+    "active": "Active Users",
+    "verified": "Verified Pros",
+    "average": "Average Rating",
+    "secured": "Secured"
   }
 } 

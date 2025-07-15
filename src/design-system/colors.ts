@@ -41,6 +41,11 @@ export const colors = {
     800: '#000000',  // black-800
     900: '#000000',  // black-900
   },
+
+  // Blue color
+  blue: {
+    50: '#2563eb'
+  },
   
   // White color scale
   white: {

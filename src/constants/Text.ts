@@ -12,6 +12,8 @@ enum TEXT {
     signinText = 'Sign In',
     alreadyHaveAccount = 'Already Have An Account?',
     signUpCon = 'Sign Up',
+    needService = 'I need Services',
+    find = 'Find and book trusted handymen for your home repair and maintenance needs'
 }
 
 export default TEXT;
