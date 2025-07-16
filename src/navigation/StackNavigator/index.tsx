@@ -1,9 +1,10 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
 import Splash from '../../screens/Splash';
-import SignUp from '../../screens/Auth/SignUp';
 import StackParamList from '../../types/stack.types';
 import SignIn from '../../screens/Auth/SignIn';
+import CustomerDashboard from '../../screens/Customer/dasboard';
+import HandymanDashboard from '../../screens/Handyman/dashboard';
 
 const Stack = createNativeStackNavigator<StackParamList>();
 
@@ -19,21 +20,32 @@ const StackNav = () => {
       />
       <Stack.Screen
         name="Boarding"
-        component={React.lazy(() => import('../../screens/OnBoarding'))}
+        component={React.lazy(() => import('../../screens/Auth/OnBoarding'))}
         options={{
           headerShown: false,
         }}
       />
       <Stack.Screen
-        name="SignUp"
-        component={SignUp}
+        name="SignIn"
+        component={SignIn}
         options={{
           headerShown: false,
         }}
       />
-      <Stack.Screen name='SignIn' component={SignIn} options={{
-        headerShown: false
-      }}/>
+      <Stack.Screen
+        name="Cust"
+        component={CustomerDashboard}
+        options={{
+          headerShown: true,
+        }}
+      />
+      <Stack.Screen
+        name="Serv"
+        component={HandymanDashboard}
+        options={{
+          headerShown: true,
+        }}
+      />
     </Stack.Navigator>
   );
 };

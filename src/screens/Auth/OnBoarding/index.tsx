@@ -6,14 +6,15 @@ import {
   LucideUsers,
   LucideWrench,
 } from 'lucide-react-native';
-import ServiceCard from '../../components/ServiceCard';
+import ServiceCard from '../../../components/ServiceCard';
 import { t } from 'i18next';
-import { colors } from '../../design-system/colors';
-import { typography } from '../../design-system/typography';
-import { fontScale, verticalScale } from '../../utils/screenSize';
-import FeatureItem from '../../components/FeatureItem';
+import { colors } from '../../../design-system/colors';
+import { typography } from '../../../design-system/typography';
+import { verticalScale } from '../../../utils/screenSize';
+import FeatureItem from '../../../components/FeatureItem';
 import { NavigationProp } from '@react-navigation/native';
 import StackParamList from '@/types/stack.types';
+import LogoText from '../../../components/LogoText';
 
 export default function OnBoarding() {
   const navigation = useNavigation<NavigationProp<StackParamList>>();
@@ -46,38 +47,21 @@ export default function OnBoarding() {
         }}
       >
         {/* Logo Section */}
-        <View className="items-center gap-4">
-          <View
-            className="w-20 h-20 bg-[#22c55e] rounded-3xl shadow-black-500 items-center justify-center"
-            style={{
-              shadowColor: 'grey',
-              shadowOpacity: 0.8,
-              shadowOffset: {
-                width: 2,
-                height: 2,
-              },
-              elevation: 10,
-              shadowRadius: 10,
-            }}
-          >
-            <Text className="text-3xl font-bold text-white-50">K</Text>
-          </View>
-          <Text
-            className=" text-gray-900"
-            style={{
-              fontFamily: 'Poppins-Bold',
-              fontSize: fontScale(24),
-            }}
-          >
-            {t('onboarding.welcome')}
-          </Text>
-          <Text
-            className="text-[18px] text-gray-600 text-center max-w-[320px]"
-            style={typography.bodySmall}
-          >
-            {t('onboarding.choose')}
-          </Text>
-        </View>
+        <LogoText
+          customLogo={{
+            shadowColor: 'grey',
+            shadowOpacity: 0.8,
+            shadowOffset: {
+              width: 2,
+              height: 2,
+            },
+            elevation: 10,
+            shadowRadius: 10,
+          }}
+          title={t('onboarding.welcome')}
+          subtitle={t('onboarding.choose')} 
+          logoSource={0}        
+          />
 
         {/* Card Section */}
         <ServiceCard
@@ -87,7 +71,7 @@ export default function OnBoarding() {
           bullets={service_Text_Cus}
           buttonText="Continue as Customer"
           themeColor="#2563eb"
-          onPress={() => {}}
+          onPress={() => navigation.navigate('SignIn')}
         />
         <ServiceCard
           icon={<LucideWrench size={32} color={colors.primary[400]} />}

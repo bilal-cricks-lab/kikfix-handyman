@@ -34,27 +34,32 @@ const useInputText = () => {
     
     const input: InputText[] = [
         {
-            id: 'FullName',
+            id: 'Full Name',
             ref: full_name,
             keyboardType: 'default',
-            nextRef: email_Phone
+            nextRef: email_Phone,
+            placeHolder: 'Enter your full name'
         },
         {
-            id: 'EmailPhone',
+            id: 'Email',
             ref: email_Phone,
             keyboardType: 'email-address',
-            nextRef: password
+            nextRef: password,
+            placeHolder: 'Enter your email'
         },
         {
             id: 'Password',
             ref: password,
             keyboardType: 'default',
             nextRef: phone_ref,
+            placeHolder: 'Create a password'
         },
         {
-            id: 'PhoneNumber',
-            keyboardType: 'phone-pad',
-            ref: phone_ref as React.RefObject<TextInput | PhoneInputRef>,}
+            id: 'Confirm Password',
+            ref: password,
+            keyboardType: 'default',
+            placeHolder: 'Confirm your password'
+        }
     ]
     return {
         input

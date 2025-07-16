@@ -11,6 +11,7 @@ type InputText = {
     | React.RefObject<TextInput>
     // | React.RefObject<PhoneInput>
     | React.RefObject<PhoneInputRef>;
+  placeHolder: string;
 };
 
 export default InputText;

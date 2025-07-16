@@ -8,6 +8,9 @@ type CustomButtonProps = {
   textStyle?: object;
   iconStyle?: object;
   disabled?: boolean;
+  key?: string | number;
+  className?: string;
+  classNameText?: string;
 };
 
 export default CustomButtonProps;

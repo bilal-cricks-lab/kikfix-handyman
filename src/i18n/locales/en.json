@@ -17,8 +17,8 @@
     "no": "No"
   },
   "auth": {
-    "signUp": "Sign Up",
-    "signIn": "Sign In",
+    "signUp": "Create Account",
+    "signIn": "Login",
     "signOut": "Sign Out",
     "email": "Email",
     "password": "Password",
