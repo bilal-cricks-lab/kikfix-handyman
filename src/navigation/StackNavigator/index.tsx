@@ -1,7 +1,7 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
 import Splash from '../../screens/Splash';
-import StackParamList from '../../types/stack.types';
+import StackParamList from '../../types/stack';
 import SignIn from '../../screens/Auth/SignIn';
 import CustomerDashboard from '../../screens/Customer/dasboard';
 import HandymanDashboard from '../../screens/Handyman/dashboard';
@@ -10,7 +10,7 @@ const Stack = createNativeStackNavigator<StackParamList>();
 
 const StackNav = () => {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator initialRouteName='Cust'>
       <Stack.Screen
         name="Splash"
         component={Splash}
@@ -36,14 +36,14 @@ const StackNav = () => {
         name="Cust"
         component={CustomerDashboard}
         options={{
-          headerShown: true,
+          headerShown: false,
         }}
       />
       <Stack.Screen
         name="Serv"
         component={HandymanDashboard}
         options={{
-          headerShown: true,
+          headerShown: false,
         }}
       />
     </Stack.Navigator>

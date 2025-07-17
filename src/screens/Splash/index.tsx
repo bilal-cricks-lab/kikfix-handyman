@@ -3,7 +3,7 @@ import { StyleSheet, Image, SafeAreaView, View } from 'react-native';
 import IMAGES from '../../constants/Images';
 import { horizontalScale, verticalScale } from '../../utils/screenSize';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import StackParamList from '../../types/stack.types';
+import StackParamList from '../../types/stack';
 
 type NavigationProps = NativeStackScreenProps<StackParamList, 'Splash'>;
 

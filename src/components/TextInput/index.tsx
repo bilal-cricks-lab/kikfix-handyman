@@ -1,6 +1,6 @@
 import React, { JSX } from 'react';
 import { View, TextInput, StyleSheet, Image, Text } from 'react-native';
-import InputText from '../../types/input.types';
+import InputText from '../../types/input';
 import {
   fontScale,
   horizontalScale,
@@ -13,7 +13,7 @@ interface InputFieldsProps {
 }
 
 const InputFields = ({ inputData }: InputFieldsProps): JSX.Element[] => {
-  return inputData.map(({ id, ref, keyboardType, nextRef, placeHolder }) => {
+  return inputData.map(({ id, ref, keyboardType, nextRef, placeHolder, value, onChangeText }) => {
     return (
       <View key={id} style={{}}>
         <View style={{ gap: verticalScale(10) }}>
@@ -29,6 +29,8 @@ const InputFields = ({ inputData }: InputFieldsProps): JSX.Element[] => {
                 ? 'next'
                 : 'done'
             }
+            value={value}
+            onChangeText={onChangeText}
             placeholderTextColor={'grey'}
             keyboardType={keyboardType}
             style={[styles.inputText]}

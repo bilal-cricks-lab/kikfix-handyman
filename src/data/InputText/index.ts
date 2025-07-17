@@ -1,7 +1,6 @@
-import React from "react";
-import InputText from "../../types/input.types";
-import { TextInput } from "react-native";
-import { PhoneInputRef } from 'rn-phone-input-field';
+import InputText from '../../types/input';
+import { useFormRefs } from '../../hooks/useFormRefs';
+import { useState } from 'react';
 
 /* const useInputText = (inputTexts: InputText[]) => {
     const inputRefs = React.useRef<{ [key: string]: React.RefObject<any> }>({});
@@ -26,44 +25,50 @@ import { PhoneInputRef } from 'rn-phone-input-field';
 } */
 
 const useInputText = () => {
-    // Create a ref for the input text
-    const full_name = React.useRef<TextInput>(null as unknown as TextInput);
-    const email_Phone = React.useRef<TextInput>(null as unknown as TextInput);
-    const password = React.useRef<TextInput>(null as unknown as TextInput);
-    const phone_ref = React.useRef<PhoneInputRef>(null as unknown as PhoneInputRef);
-    
-    const input: InputText[] = [
-        {
-            id: 'Full Name',
-            ref: full_name,
-            keyboardType: 'default',
-            nextRef: email_Phone,
-            placeHolder: 'Enter your full name'
-        },
-        {
-            id: 'Email',
-            ref: email_Phone,
-            keyboardType: 'email-address',
-            nextRef: password,
-            placeHolder: 'Enter your email'
-        },
-        {
-            id: 'Password',
-            ref: password,
-            keyboardType: 'default',
-            nextRef: phone_ref,
-            placeHolder: 'Create a password'
-        },
-        {
-            id: 'Confirm Password',
-            ref: password,
-            keyboardType: 'default',
-            placeHolder: 'Confirm your password'
-        }
-    ]
-    return {
-        input
+  const form_Ref = useFormRefs().form;
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const input: InputText[] = [
+    {
+      id: 'Full Name',
+      ref: form_Ref.full_name,
+      keyboardType: 'default',
+      nextRef: form_Ref.email_Phone,
+      placeHolder: 'Enter your full name',
+    },
+    {
+      id: 'Email',
+      ref: form_Ref.email_Phone,
+      keyboardType: 'email-address',
+      value: email,
+      onChangeText: (text: string) => setEmail(text),
+      nextRef: form_Ref.password,
+      placeHolder: 'Enter your email',
+    },
+    {
+      id: 'Password',
+      ref: form_Ref.password,
+      keyboardType: 'default',
+      onChangeText: (text: string) => setPassword(text),
+      nextRef: form_Ref.confirm_password,
+      value: password,
+      placeHolder: 'Create a password',
+    },
+    {
+      id: 'Confirm Password',
+      ref: form_Ref.confirm_password,
+      keyboardType: 'default',
+      placeHolder: 'Confirm your password',
+    },
+  ];
+  return {
+    input,
+    formValue: {
+        email, 
+        password
     }
-}
+  };
+};
 
 export default useInputText;

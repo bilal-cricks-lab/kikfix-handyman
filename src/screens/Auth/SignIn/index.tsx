@@ -1,13 +1,13 @@
 import { horizontalScale, verticalScale } from '../../../utils/screenSize';
 import IMAGES from '../../../constants/Images';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   View,
   Text,
-  TouchableOpacity,
   ScrollView,
   SafeAreaView,
   StyleSheet,
+  Alert,
 } from 'react-native';
 import { colors, typography } from '../../../design-system';
 import InputFields from '../../../components/TextInput';
@@ -16,21 +16,43 @@ import CustomButton from '../../../components/Button';
 import { t } from 'i18next';
 import LogoText from '../../../components/LogoText';
 import { NavigationProp } from '@react-navigation/native';
-import StackParamList from '@/types/stack.types';
+import StackParamList from '@/types/stack';
 import { useNavigation } from '@react-navigation/native';
+import { Login } from '../../../services/authServices';
 
 export default function AuthScreen() {
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
-  const { input } = useInputText();
+  const [loading, setLoading] = useState(false);
+  const { input, formValue } = useInputText();
   const filterInput = input.filter(
     item => item.id === 'Email' || item.id === 'Password',
   );
   const navigation = useNavigation<NavigationProp<StackParamList>>();
+
+  const onLogin = async () => {
+    setLoading(true);
+    try {
+      const data = {
+        email: formValue.email,
+        password: formValue.password,
+      };
+      const response = await Login(data);
+      console.log(response);
+      response.data.user_type === 'user'
+        ? navigation.navigate('Cust')
+        : navigation.navigate('Serv');
+      setLoading(false);
+    } catch (error: any) {
+      console.error('Login Error:');
+      setLoading(false);
+      Alert.alert('Login Error:', error.message);
+    }
+  };
+
   return (
     <SafeAreaView className="flex-1" style={styles.container}>
       <ScrollView>
         <View className="w-full max-w-md bg-white p-8 shadow-sm">
-
           {/* Logo + Title */}
           <LogoText
             imageBack={styles.imageView}
@@ -40,7 +62,7 @@ export default function AuthScreen() {
           />
 
           {/* Tabs */}
-          <View className="flex-row bg-gray-100 rounded-3xl p-1 mt-12">
+          <View className="flex-row bg-gray-100 rounded-3xl p-1 mt-6">
             {['login', 'register'].map(tab => (
               <CustomButton
                 key={tab}
@@ -64,10 +86,14 @@ export default function AuthScreen() {
               </View>
               <CustomButton
                 className="rounded-md py-2 mt-10 h-12 items-center justify-center"
-                style={{ backgroundColor: colors.primary[40] }}
-                title={t('auth.signIn')}
+                style={{
+                  backgroundColor: loading
+                    ? colors.secondary[50]
+                    : colors.secondary[400],
+                }}
+                title={loading ? 'Logging....' : t('auth.signIn')}
                 textStyle={{ ...typography.h5, color: colors.white[50] }}
-                onPress={() => navigation.navigate("Serv")}
+                onPress={onLogin}
               />
             </View>
           ) : (
@@ -93,13 +119,12 @@ export default function AuthScreen() {
           </View>
 
           {/* Continue as Guest */}
-          <TouchableOpacity className="border rounded-md py-2 h-12 items-center justify-center"
-          onPress={() => navigation.navigate("Cust")}
-          >
-            <Text className="text-center text-gray-700 font-medium">
-              Continue as Guest
-            </Text>
-          </TouchableOpacity>
+          <CustomButton
+            className="border rounded-md py-2 h-12 items-center justify-center"
+            title="Continue as Guest"
+            classNameText="text-center text-gray-700 font-medium"
+            onPress={() => navigation.navigate('Cust')}
+          />
         </View>
       </ScrollView>
     </SafeAreaView>

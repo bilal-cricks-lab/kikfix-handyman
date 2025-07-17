@@ -3,7 +3,7 @@ import { View, Image, Text, Animated } from 'react-native';
 import { horizontalScale } from '../../utils/screenSize';
 import Slides from '../../data/Slides';
 import { styles } from './styles';
-import SlideItem from '../../types/slide.types';
+import SlideItem from '../../types/slide';
 
 const Slide = ({
   item,

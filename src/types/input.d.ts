@@ -5,13 +5,12 @@ import { PhoneInputRef } from '../components/PhoneInput';
 
 type InputText = {
   id: string;
-  ref: React.RefObject<TextInput> | React.RefObject<PhoneInputRef>;
+  ref: React.RefObject<TextInput> | null;
   keyboardType?: 'default' | 'email-address' | 'numeric' | 'phone-pad';
-  nextRef?:
-    | React.RefObject<TextInput>
-    // | React.RefObject<PhoneInput>
-    | React.RefObject<PhoneInputRef>;
+  nextRef?: React.RefObject<TextInput> | null
   placeHolder: string;
+  value?: string;
+  onChangeText?: (text) => void 
 };
 
 export default InputText;

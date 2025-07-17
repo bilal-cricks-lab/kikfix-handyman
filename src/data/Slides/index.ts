@@ -1,6 +1,6 @@
 import IMAGES from "../../constants/Images";
 import TEXT from "../../constants/Text";
-import SlideItem from "../../types/slide.types";
+import SlideItem from "../../types/slide";
 
 const Slides: SlideItem[] = [
     {

@@ -6,11 +6,8 @@ import {
   TouchableOpacity,
   Image,
   StyleSheet,
-  FlatList,
   Dimensions,
-  Platform,
   TextInput,
-  Modal,
   SafeAreaView,
 } from 'react-native';
 import * as LucideIcons from 'lucide-react-native';

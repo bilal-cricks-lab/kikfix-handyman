@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text, Image, Pressable } from 'react-native';
-import CustomButtonProps from '../../types/customBtn.types';
+import CustomButtonProps from '../../types/customBtn';
 
 const CustomButton: React.FC<CustomButtonProps> = ({
   title,

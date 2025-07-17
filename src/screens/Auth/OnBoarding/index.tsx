@@ -13,7 +13,7 @@ import { typography } from '../../../design-system/typography';
 import { verticalScale } from '../../../utils/screenSize';
 import FeatureItem from '../../../components/FeatureItem';
 import { NavigationProp } from '@react-navigation/native';
-import StackParamList from '@/types/stack.types';
+import StackParamList from '@/types/stack';
 import LogoText from '../../../components/LogoText';
 
 export default function OnBoarding() {
