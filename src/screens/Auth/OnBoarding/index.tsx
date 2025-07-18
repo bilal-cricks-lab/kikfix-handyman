@@ -1,4 +1,11 @@
-import { View, Text, ScrollView, SafeAreaView, Platform } from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  SafeAreaView,
+  Platform,
+  Linking,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import {
   LucideShield,
@@ -15,6 +22,29 @@ import FeatureItem from '../../../components/FeatureItem';
 import { NavigationProp } from '@react-navigation/native';
 import StackParamList from '@/types/stack';
 import LogoText from '../../../components/LogoText';
+import { useEffect, useState } from 'react';
+
+// const useInitialURL = () => {
+//   const [url, setUrl] = useState<string | null>(null);
+//   const [processing, setProcessing] = useState(true);
+
+//   useEffect(() => {
+//     const getUrlAsync = async () => {
+//       const initialUrl = await Linking.getInitialURL();
+
+//       // The setTimeout is just for testing purpose
+//       setTimeout(() => {
+//         setUrl(initialUrl);
+//         setProcessing(false);
+//       }, 1000);
+//     };
+
+//     getUrlAsync();
+//   }, []);
+
+//   return { url, processing };
+// };
+
 
 export default function OnBoarding() {
   const navigation = useNavigation<NavigationProp<StackParamList>>();
@@ -38,6 +68,8 @@ export default function OnBoarding() {
     color: colors.blue[50],
     text,
   }));
+  // const { url: initialUrl, processing } = useInitialURL();
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#D1FAE5' }}>
       <ScrollView
@@ -59,9 +91,15 @@ export default function OnBoarding() {
             shadowRadius: 10,
           }}
           title={t('onboarding.welcome')}
-          subtitle={t('onboarding.choose')} 
-          logoSource={0}        
-          />
+          subtitle={t('onboarding.choose')}
+          logoSource={0}
+        />
+
+        {/* <Text>
+          {processing
+            ? 'Processing the initial url from a deep link'
+            : `The deep link is: ${initialUrl || 'None'}`}
+        </Text> */}
 
         {/* Card Section */}
         <ServiceCard

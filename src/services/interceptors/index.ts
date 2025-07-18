@@ -11,18 +11,44 @@ export const SignInInstance = axios.create({
 });
 
 SignInInstance.interceptors.request.use(
-    async config => {
-        return config;
-    },
-    error => {
-        console.log(error)
-    }
-)
+  async config => {
+    return config;
+  },
+  error => {
+    console.log(error);
+  },
+);
 
 SignInInstance.interceptors.response.use(
   response => response,
   error => {
     console.error('API Error:', error.response?.data || error.message);
     return Promise.reject(error);
-  }
+  },
+);
+
+export const SignUpInstance = axios.create({
+  headers: {
+    Accept: 'application/json',
+    'Content-Type': 'multipart/form-data',
+  },
+  timeout: 2000,
+  responseType: 'json',
+});
+
+SignUpInstance.interceptors.request.use(
+  async config => {
+    return config;
+  },
+  error => {
+    console.log(error);
+  },
+);
+
+SignUpInstance.interceptors.response.use(
+  response => response,
+  error => {
+    console.error('API Error:', error.response?.data || error.message);
+    return Promise.reject(error);
+  },
 );

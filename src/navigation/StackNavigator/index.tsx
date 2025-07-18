@@ -10,7 +10,7 @@ const Stack = createNativeStackNavigator<StackParamList>();
 
 const StackNav = () => {
   return (
-    <Stack.Navigator initialRouteName='Cust'>
+    <Stack.Navigator>
       <Stack.Screen
         name="Splash"
         component={Splash}

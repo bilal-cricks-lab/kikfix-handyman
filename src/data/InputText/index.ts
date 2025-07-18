@@ -1,73 +1,140 @@
 import InputText from '../../types/input';
 import { useFormRefs } from '../../hooks/useFormRefs';
-import { useState } from 'react';
-
-/* const useInputText = (inputTexts: InputText[]) => {
-    const inputRefs = React.useRef<{ [key: string]: React.RefObject<any> }>({});
-
-    // Initialize refs for each input text
-    React.useEffect(() => {
-        inputTexts.forEach(input => {
-            inputRefs.current[input.id] = input.ref;
-        });
-    }, [inputTexts]);
-
-    // Function to focus the next input
-    const focusNextInput = (currentId: string) => {
-        const currentIndex = inputTexts.findIndex(input => input.id === currentId);
-        if (currentIndex >= 0 && currentIndex < inputTexts.length - 1) {
-            const nextInput = inputTexts[currentIndex + 1];
-            nextInput.ref.current?.focus();
-        }
-    };
-
-    return { inputRefs, focusNextInput };
-} */
+import useAuth from '../../hooks/useAuth';
 
 const useInputText = () => {
   const form_Ref = useFormRefs().form;
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const { state, updateState } = useAuth();
 
-  const input: InputText[] = [
+  const fieldSignin: {
+    id: string;
+    ref: keyof typeof form_Ref
+    label: string;
+    stateKey: keyof typeof state;
+    placeholder: string;
+    keyboardType?: 'default' | 'email-address';
+    next?: keyof typeof form_Ref;
+  }[] = [
     {
-      id: 'Full Name',
-      ref: form_Ref.full_name,
-      keyboardType: 'default',
-      nextRef: form_Ref.email_Phone,
-      placeHolder: 'Enter your full name',
-    },
-    {
-      id: 'Email',
-      ref: form_Ref.email_Phone,
+      id: 'email_phone',
+      ref: 'email_Phone',
+      label: 'Email',
+      stateKey: 'email',
+      placeholder: 'Enter your email',
       keyboardType: 'email-address',
-      value: email,
-      onChangeText: (text: string) => setEmail(text),
-      nextRef: form_Ref.password,
-      placeHolder: 'Enter your email',
+      next: 'password',
     },
     {
-      id: 'Password',
-      ref: form_Ref.password,
+      id: 'password',
+      ref: 'password',
+      label: 'Password',
+      stateKey: 'password',
+      placeholder: 'Enter Your Password',
       keyboardType: 'default',
-      onChangeText: (text: string) => setPassword(text),
-      nextRef: form_Ref.confirm_password,
-      value: password,
-      placeHolder: 'Create a password',
-    },
-    {
-      id: 'Confirm Password',
-      ref: form_Ref.confirm_password,
-      keyboardType: 'default',
-      placeHolder: 'Confirm your password',
+      next: 'confirm_password',
     },
   ];
-  return {
-    input,
-    formValue: {
-        email, 
-        password
+
+  const fieldSignUp : {
+    id: string;
+    ref: keyof typeof form_Ref,
+    label: string;
+    stateKey: keyof typeof state;
+    placeholder: string;
+    keyboardType?: 'default' | 'email-address';
+    next?: keyof typeof form_Ref;
+  }[] = [
+    {
+      id: 'full_name',
+      ref: 'full_name',
+      label: 'Full Name',
+      stateKey: 'fullName',
+      placeholder: 'Enter your full name',
+      keyboardType: 'default',
+      next: 'last_name',
+    },
+    {
+      id: 'last_name',
+      ref: 'last_name',
+      label: 'Last Name',
+      stateKey: 'lastName',
+      placeholder: 'Enter Your Last Name',
+      keyboardType: 'default',
+      next: 'username',
+    },
+    {
+      id: 'username',
+      ref: 'username',
+      label: 'Username',
+      stateKey: 'username',
+      placeholder: 'Enter Your Username',
+      keyboardType: 'default',
+      next: 'email_Phone',
+    },
+    {
+      id: 'email_Phone',
+      ref: 'email_Phone',
+      label: 'Email',
+      stateKey: 'regEmail',
+      placeholder: 'Enter your email',
+      keyboardType: 'email-address',
+      next: 'password',
+    },
+    {
+      id: 'password',
+      ref: 'password',
+      label: 'Password',
+      stateKey: 'regPassword',
+      placeholder: 'Create a password',
+      keyboardType: 'default',
+      next: 'confirm_password',
+    },
+    {
+      id: 'confirm_password',
+      ref: 'confirm_password',
+      label: 'Confirm Password',
+      stateKey: 'confirmPassword',
+      placeholder: 'Confirm your password',
+      keyboardType: 'default',
+    },
+    {
+      id: 'phone_number',
+      label: 'Phone Number',
+      ref: 'confirm_password',
+      stateKey: 'phoneNumber',
+      placeholder: 'Enter Your Number',
+      keyboardType: 'default',
     }
+  ]
+
+  const inputSignin: InputText[] = fieldSignin.map(
+    ({ label, stateKey, placeholder, keyboardType = 'default', next, ref }) => ({
+      id: label,
+      ref: form_Ref[ref],
+      value: state[stateKey],
+      onChangeText: text => updateState(stateKey, text),
+      keyboardType,
+      nextRef: next ? form_Ref[next] : undefined,
+      placeHolder: placeholder,
+    }),
+  );
+
+  const inputSignUp: InputText[] = fieldSignUp.map(
+    ({ label, stateKey, placeholder, keyboardType = 'default', next, ref }) => ({
+      id: label,
+      ref: form_Ref[ref],
+      value: state[stateKey],
+      onChangeText: text => updateState(stateKey, text),
+      keyboardType,
+      nextRef: next ? form_Ref[next] : undefined,
+      placeHolder: placeholder,
+    }),
+  );
+
+  return {
+    inputSignUp,
+    inputSignin,
+    formValue: { state },
   };
 };
 

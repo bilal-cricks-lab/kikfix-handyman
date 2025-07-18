@@ -2,7 +2,7 @@
 export const colors = {
   // Primary Green (Secondary Green in the design)
   primary: {
-    40: '#22c55e',
+    40: '#22c55e',   // primary green-40
     50: '#e8f0eb',   // primary green-50
     100: '#b9d0c2',  // primary green-100
     200: '#97b9a5',  // primary green-200

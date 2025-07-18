@@ -10,7 +10,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   textStyle,
   iconStyle,
   disabled,
-  key,
+  id,
   className,
   classNameText,
 }) => {
@@ -19,7 +19,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
       onPress={onPress}
       style={style}
       disabled={disabled}
-      key={key}
+      key={id}
       className={className}
     >
       {icon && <Image source={icon} style={iconStyle} />}

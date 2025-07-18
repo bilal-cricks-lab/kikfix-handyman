@@ -21,9 +21,9 @@ const App: React.FC = () => {
     <LanguageProvider>
       <NavigationContainer>
         {/* <SafeAreaView className="flex-1 bg-gray-100"> */}
-          {/* <StatusBar barStyle="dark-content" backgroundColor="#f3f4f6" /> */}
-          {/* <DesignSystemShowcase /> */}
-          <StackNav />
+        {/* <StatusBar barStyle="dark-content" backgroundColor="#f3f4f6" /> */}
+        {/* <DesignSystemShowcase /> */}
+        <StackNav />
         {/* </SafeAreaView> */}
       </NavigationContainer>
     </LanguageProvider>

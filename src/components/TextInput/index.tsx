@@ -27,6 +27,8 @@ const InputFields = ({ inputData }: InputFieldsProps): JSX.Element[] => {
                 ? 'next'
                 : id === 'Password'
                 ? 'next'
+                : id === 'Confirm Password' 
+                ? 'done'
                 : 'done'
             }
             value={value}
@@ -36,11 +38,11 @@ const InputFields = ({ inputData }: InputFieldsProps): JSX.Element[] => {
             style={[styles.inputText]}
             placeholder={placeHolder}
             onSubmitEditing={() => {
-              if (nextRef?.current && nextRef?.current.focus) {
+              if (nextRef?.current) {
                 nextRef.current.focus();
               }
             }}
-            secureTextEntry={id === 'Password'}
+            secureTextEntry={id === 'password'}
           />
         </View>
       </View>
