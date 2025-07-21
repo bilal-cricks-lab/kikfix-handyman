@@ -20,19 +20,34 @@ import { NavigationProp } from '@react-navigation/native';
 import StackParamList from '@/types/stack';
 import { useNavigation } from '@react-navigation/native';
 import { Login, Register } from '../../../services/authServices';
+import ErrorToast from '../../../components/Error';
 
 export default function AuthScreen() {
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
+  const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState<string>('');
   const { inputSignin, inputSignUp, formValue } = useInputText();
   const navigation = useNavigation<NavigationProp<StackParamList>>();
+  const { email, password } = formValue.state;
 
   const onLogin = async () => {
+    if (!email || !password) {
+      setMessage('Email and password are required.');
+      setError(true);
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setMessage('Please enter a valid email address.');
+      setError(true);
+      return;
+    }
     setLoading(true);
     try {
       const data = {
-        email: formValue.state.email,
-        password: formValue.state.password,
+        email: email,
+        password: password,
       };
       const response = await Login(data);
       console.log(response);
@@ -41,9 +56,9 @@ export default function AuthScreen() {
         : navigation.navigate('Serv');
       setLoading(false);
     } catch (error: any) {
-      console.error('Login Error:');
       setLoading(false);
-      Alert.alert('Login Error:', error.message);
+      setMessage(error.message);
+      setError(true);
     }
   };
 
@@ -68,10 +83,10 @@ export default function AuthScreen() {
             ToastAndroid.CENTER,
           )
         : null;
-        setLoading(false)
+      setLoading(false);
       console.log(response);
     } catch (error: any) {
-      setLoading(false)
+      setLoading(false);
       Alert.alert(error.messsage);
     }
   };
@@ -155,6 +170,13 @@ export default function AuthScreen() {
           />
         </View>
       </ScrollView>
+      {error && (
+        <ErrorToast
+          onClose={() => setError(false)}
+          message={message}
+          visible={error}
+        />
+      )}
     </SafeAreaView>
   );
 }
