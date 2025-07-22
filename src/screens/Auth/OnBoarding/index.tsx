@@ -5,6 +5,7 @@ import {
   SafeAreaView,
   Platform,
   Linking,
+  StyleSheet,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import {
@@ -22,29 +23,6 @@ import FeatureItem from '../../../components/FeatureItem';
 import { NavigationProp } from '@react-navigation/native';
 import StackParamList from '@/types/stack';
 import LogoText from '../../../components/LogoText';
-import { useEffect, useState } from 'react';
-
-// const useInitialURL = () => {
-//   const [url, setUrl] = useState<string | null>(null);
-//   const [processing, setProcessing] = useState(true);
-
-//   useEffect(() => {
-//     const getUrlAsync = async () => {
-//       const initialUrl = await Linking.getInitialURL();
-
-//       // The setTimeout is just for testing purpose
-//       setTimeout(() => {
-//         setUrl(initialUrl);
-//         setProcessing(false);
-//       }, 1000);
-//     };
-
-//     getUrlAsync();
-//   }, []);
-
-//   return { url, processing };
-// };
-
 
 export default function OnBoarding() {
   const navigation = useNavigation<NavigationProp<StackParamList>>();
@@ -68,10 +46,9 @@ export default function OnBoarding() {
     color: colors.blue[50],
     text,
   }));
-  // const { url: initialUrl, processing } = useInitialURL();
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#D1FAE5' }}>
+    <SafeAreaView style={styles.container}>
       <ScrollView
         className="p-6"
         contentContainerStyle={{
@@ -80,26 +57,11 @@ export default function OnBoarding() {
       >
         {/* Logo Section */}
         <LogoText
-          customLogo={{
-            shadowColor: 'grey',
-            shadowOpacity: 0.8,
-            shadowOffset: {
-              width: 2,
-              height: 2,
-            },
-            elevation: 10,
-            shadowRadius: 10,
-          }}
+          customLogo={styles.logo}
           title={t('onboarding.welcome')}
           subtitle={t('onboarding.choose')}
           logoSource={0}
         />
-
-        {/* <Text>
-          {processing
-            ? 'Processing the initial url from a deep link'
-            : `The deep link is: ${initialUrl || 'None'}`}
-        </Text> */}
 
         {/* Card Section */}
         <ServiceCard
@@ -125,7 +87,7 @@ export default function OnBoarding() {
         <View className="flex-row flex-wrap justify-between mt-12 gap-y-4">
           <FeatureItem
             Icon={LucideUsers}
-            color="#4B5563"
+            color='#4B5563'
             title="50K+"
             subtitle="Active Users"
           />
@@ -162,3 +124,20 @@ export default function OnBoarding() {
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.secondary[40],
+  },
+  logo: {
+    shadowColor: 'grey',
+    shadowOpacity: 0.8,
+    shadowOffset: {
+      width: 2,
+      height: 2,
+    },
+    elevation: 10,
+    shadowRadius: 10,
+  },
+});

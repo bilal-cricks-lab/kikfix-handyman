@@ -3,9 +3,8 @@ import { View, Image, Text, StyleSheet } from 'react-native';
 import {
   verticalScale,
   horizontalScale,
-  fontScale,
 } from '../../utils/screenSize';
-import { typography } from '../../design-system';
+import { colors, typography } from '../../design-system';
 import LogoWithTextProps from '../../types/logoText';
 
 const LogoText: React.FC<LogoWithTextProps> = ({
@@ -28,15 +27,12 @@ const LogoText: React.FC<LogoWithTextProps> = ({
             className="w-20 h-20 bg-[#22c55e] rounded-3xl shadow-black-500 items-center justify-center"
             style={customLogo}
           >
-            <Text className="text-3xl font-bold text-white-50">K</Text>
+            <Text style={[typography.h1, { color: colors.white[50] }]}>K</Text>
           </View>
         )}
-
         <View className="items-center justify-center gap-3">
-          <Text className="text-xl" style={typography.h2}>
-            {title}
-          </Text>
-          <Text className="text-gray-500" style={typography.bodySmall}>
+          <Text style={typography.h2}>{title}</Text>
+          <Text style={[typography.bodySmall, { color: colors.gray[600] }]}>
             {subtitle}
           </Text>
         </View>

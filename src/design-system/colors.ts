@@ -17,6 +17,7 @@ export const colors = {
   
   // Secondary Green (Primary Green in the design)
   secondary: {
+    40: '#D1FAE5',
     50: '#eaf7ee',   // secondary green-50
     100: '#bde6c9',  // secondary green-100
     200: '#9ddaaf',  // secondary green-200
@@ -41,6 +42,11 @@ export const colors = {
     700: '#000000',  // black-700
     800: '#000000',  // black-800
     900: '#000000',  // black-900
+  },
+
+  gray: {
+    100: '#f3f4f6',
+    600: '#4B5563'
   },
 
   // Blue color

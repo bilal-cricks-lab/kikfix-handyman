@@ -20,27 +20,36 @@ import { NavigationProp } from '@react-navigation/native';
 import StackParamList from '@/types/stack';
 import { useNavigation } from '@react-navigation/native';
 import { Login, Register } from '../../../services/authServices';
-import ErrorToast from '../../../components/Error';
+import Toast from '../../../components/Error';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function AuthScreen() {
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
-  const [error, setError] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<string>('');
+  const [toast, setToast] = useState({
+    visible: false,
+    message: '',
+    type: 'success' as 'success' | 'error' | 'warning',
+  });
   const { inputSignin, inputSignUp, formValue } = useInputText();
+  const [loading, setLoading] = useState<boolean>(false);
   const navigation = useNavigation<NavigationProp<StackParamList>>();
   const { email, password } = formValue.state;
 
+  const showToast = (
+    message: string,
+    type: 'success' | 'error' | 'warning',
+  ) => {
+    setToast({ visible: true, message, type });
+  };
+
   const onLogin = async () => {
     if (!email || !password) {
-      setMessage('Email and password are required.');
-      setError(true);
+      showToast('Email and password are required.', 'error');
       return;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      setMessage('Please enter a valid email address.');
-      setError(true);
+      showToast('Please enter a valid email address.', 'error');
       return;
     }
     setLoading(true);
@@ -51,14 +60,16 @@ export default function AuthScreen() {
       };
       const response = await Login(data);
       console.log(response);
-      response.data.user_type === 'user'
-        ? navigation.navigate('Cust')
-        : navigation.navigate('Serv');
+      showToast('Logged In SuccessFully', 'success');
+      console.log(response.data.api_token)
+      if(response.data.user_type === 'user'){
+        AsyncStorage.setItem('user_token', response.data.api_token)
+        navigation.navigate('Cust')
+      }
       setLoading(false);
     } catch (error: any) {
       setLoading(false);
-      setMessage(error.message);
-      setError(true);
+      showToast(error.message, 'error');
     }
   };
 
@@ -104,7 +115,9 @@ export default function AuthScreen() {
           />
 
           {/* Tabs */}
-          <View className="flex-row bg-gray-100 rounded-3xl p-1 mt-6">
+          <View className="flex-row rounded-3xl p-1 mt-6" style={{
+            backgroundColor: colors.gray[100]
+          }}>
             {['login', 'register'].map((tab, index) => (
               <CustomButton
                 key={tab}
@@ -113,10 +126,9 @@ export default function AuthScreen() {
                 className={`flex-1 py-2 rounded-2xl ${
                   activeTab === tab ? 'bg-white-50' : ''
                 }`}
+                textStyle={{ ...typography.bodySmall }}
                 title={tab === 'login' ? t('auth.signIn') : t('auth.signUp')}
-                classNameText={`text-center text-sm font-medium ${
-                  activeTab === tab ? 'text-black' : 'text-black'
-                }`}
+                classNameText={`text-center`}
               />
             ))}
           </View>
@@ -165,16 +177,18 @@ export default function AuthScreen() {
           <CustomButton
             className="border rounded-md py-2 h-12 items-center justify-center"
             title="Continue as Guest"
-            classNameText="text-center text-gray-700 font-medium"
+            classNameText="text-center"
+            textStyle={typography.bodySmall}
             onPress={() => navigation.navigate('Cust')}
           />
         </View>
       </ScrollView>
-      {error && (
-        <ErrorToast
-          onClose={() => setError(false)}
-          message={message}
-          visible={error}
+      {toast && (
+        <Toast
+          onClose={() => setToast(prev => ({ ...prev, visible: false }))}
+          message={toast.message}
+          visible={toast.visible}
+          type={toast.type}
         />
       )}
     </SafeAreaView>

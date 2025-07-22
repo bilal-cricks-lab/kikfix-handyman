@@ -1,4 +1,4 @@
-import { SignInInstance, SignUpInstance } from './interceptors';
+import { getServiceCategory, SignInInstance, SignUpInstance } from './interceptors';
 import { AxiosResponse } from 'axios';
 
 export const callPostApi = async <T extends Record<string, any>>(url: string, data: T): Promise<any> => {
@@ -30,3 +30,13 @@ export const callPostRegApi = async <T extends Record<string, any>>(url: string,
     throw error;
   }
 };
+
+export const callGetApi = async (url: string): Promise<any> => {
+  try {
+    const response: AxiosResponse = await getServiceCategory.get(url);
+    console.log(response.data)
+    return response.data
+  } catch (error) {
+    console.log(error);
+  }
+}
