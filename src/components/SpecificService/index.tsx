@@ -1,80 +1,97 @@
-import { View, TouchableOpacity, Text, ScrollView } from "react-native";
-import { Droplets, Zap, Wind, Wrench } from "lucide-react-native";
+// import { View, TouchableOpacity, Text, ScrollView } from 'react-native';
+
+// type SpecificService = {
+//   id: number | string;
+//   name: string;
+//   description: string;
+//   price: number;
+//   duration: string;
+// };
+
+// const SpecificServiceStep = ({
+//   onBack,
+//   onNext,
+//   categories = [],
+// }: {
+//   categories: SpecificService[];
+//   onBack: () => void;
+//   onNext: (service: SpecificService) => void;
+// }) => {
+//   return (
+//     <ScrollView className="flex-1 bg-white-50">
+//       <View className="p-6">
+//         <Text className="text-xl font-bold mb-6">Select Specific Service</Text>
+//         <View className="flex-row flex-wrap justify-between gap-4">
+//           {categories.map((service: SpecificService) => (
+//             <TouchableOpacity
+//               key={service.id}
+//               className="w-full md:w-[48%] flex-col items-start gap-3 p-4 rounded-xl border border-gray-300 active:border-green-700 active:bg-green-50"
+//               onPress={() => onNext(service)}
+//             >
+//               <Text className="font-medium">{service.name}</Text>
+//               <Text className="text-sm text-gray-500">
+//                 {service.description}
+//               </Text>
+//               <View className="flex-row items-center justify-between w-full mt-2">
+//                 <View className="flex-col">
+//                   <Text className="font-medium">Rs. {service.price}</Text>
+//                   <Text className="text-xs text-gray-500">
+//                     {service.duration}
+//                   </Text>
+//                 </View>
+//               </View>
+//             </TouchableOpacity>
+//           ))}
+//         </View>
+//       </View>
+//     </ScrollView>
+//   );
+// };
+
+// export default SpecificServiceStep;
+
+import { colors, typography } from '../../design-system';
+import { View, TouchableOpacity, Text, ScrollView, Image } from 'react-native';
+
+type SpecificService = {
+  id: number | string;
+  name: string;
+  category_image: string;
+  services: number;
+};
 
 const SpecificServiceStep = ({
-  category,
   onBack,
   onNext,
+  category = [],
 }: {
-  category: any;
+  category: SpecificService[];
   onBack: () => void;
   onNext: (service: any) => void;
 }) => {
-  const services = [
-    {
-      id: 1,
-      name: 'Plumbing Repair',
-      icon: Droplets,
-      description:
-        'Professional plumbing services for leaks, clogs, and installations',
-      price: '$50-80/hr',
-      duration: '1-4 hours typical',
-    },
-    {
-      id: 2,
-      name: 'Electrical Work',
-      icon: Zap,
-      description:
-        'Licensed electrical services for safe and reliable installations',
-      price: '$60-90/hr',
-      duration: '1-6 hours typical',
-    },
-    {
-      id: 3,
-      name: 'HVAC Service',
-      icon: Wind,
-      description:
-        'Heating, ventilation, and air conditioning maintenance and repair',
-      price: 'Quote based',
-      duration: 'Project dependent',
-    },
-    {
-      id: 4,
-      name: 'General Repairs',
-      icon: Wrench,
-      description: 'Handyman services for various home maintenance needs',
-      price: '$40-70/hr',
-      duration: '1-8 hours typical',
-    },
-  ];
-
   return (
     <ScrollView className="flex-1 bg-white-50">
       <View className="p-6">
-        <Text className="text-xl font-bold mb-6">Select Specific Service</Text>
+        <Text className="text-xl font-bold mb-6">Choose Sub Category</Text>
         <View className="flex-row flex-wrap justify-between gap-4">
-          {services.map(service => (
+          {category.map((category: SpecificService) => (
             <TouchableOpacity
-              key={service.id}
-              className="w-full md:w-[48%] flex-col items-start gap-3 p-4 rounded-xl border border-gray-300 active:border-green-700 active:bg-green-50"
-              onPress={() => onNext(service)}
+              key={category.id}
+              className="w-full md:w-[48%] flex-row items-center gap-4 p-4 rounded-xl border border-gray-300 active:border-green-700 active:bg-green-
+                 "
+              onPress={() => onNext(category.id)}
             >
-              <View className="flex-row items-center gap-3">
-                <View className="p-2 bg-gray-200 rounded-lg">
-                  <service.icon className="w-5 h-5" />
-                </View>
-                <Text className="font-medium">{service.name}</Text>
+              <View className="p-3 bg-gray-200 rounded-lg">
+                <Image
+                  className="w-10 h-10"
+                  source={{ uri: category.category_image }}
+                />
               </View>
-              <Text className="text-sm text-gray-500">
-                {service.description}
-              </Text>
-              <View className="flex-row items-center justify-between w-full mt-2">
-                <View className="flex-col">
-                  <Text className="font-medium">{service.price}</Text>
-                  <Text className="text-xs text-gray-500">
-                    {service.duration}
-                  </Text>
-                </View>
+              <View>
+                <Text style={{...typography.h5}}>{category.name}</Text>
+                <Text style={{...typography.bodyXs, color: colors.gray[500]}}>
+                  {category.services} Services
+                </Text>
               </View>
             </TouchableOpacity>
           ))}
@@ -84,4 +101,4 @@ const SpecificServiceStep = ({
   );
 };
 
-export default SpecificServiceStep
+export default SpecificServiceStep;

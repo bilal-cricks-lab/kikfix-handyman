@@ -1,7 +1,15 @@
-import { getServiceCategory, SignInInstance, SignUpInstance } from './interceptors';
+import {
+  getServiceCategory,
+  getServiceListInstance,
+  SignInInstance,
+  SignUpInstance,
+} from './interceptors';
 import { AxiosResponse } from 'axios';
 
-export const callPostApi = async <T extends Record<string, any>>(url: string, data: T): Promise<any> => {
+export const callPostApi = async <T extends Record<string, any>>(
+  url: string,
+  data: T,
+): Promise<any> => {
   try {
     const formData = new FormData();
     Object.entries(data).forEach(([key, value]) => {
@@ -16,7 +24,10 @@ export const callPostApi = async <T extends Record<string, any>>(url: string, da
   }
 };
 
-export const callPostRegApi = async <T extends Record<string, any>>(url: string, data: T): Promise<any> => {
+export const callPostRegApi = async <T extends Record<string, any>>(
+  url: string,
+  data: T,
+): Promise<any> => {
   try {
     const formData = new FormData();
     Object.entries(data).forEach(([key, value]) => {
@@ -34,9 +45,18 @@ export const callPostRegApi = async <T extends Record<string, any>>(url: string,
 export const callGetApi = async (url: string): Promise<any> => {
   try {
     const response: AxiosResponse = await getServiceCategory.get(url);
-    console.log(response.data)
-    return response.data
+    console.log(response.data);
+    return response.data;
   } catch (error) {
     console.log(error);
   }
-}
+};
+
+export const callGetApiWithToken = async (url: string): Promise<any> => {
+  try {
+    const response: AxiosResponse = await getServiceListInstance.get(url);
+    return response.data;
+  } catch (error) {
+    console.log(error);
+  }
+};

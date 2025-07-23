@@ -1,87 +1,44 @@
-import { View, TouchableOpacity, Text, ScrollView } from "react-native";
-import { Clock } from "lucide-react-native";
+import { View, TouchableOpacity, Text, ScrollView } from 'react-native';
+
+type SpecificService = {
+  id: string | number;
+  name: string;
+  price: number;
+  duration: string;
+  description: string;
+};
 
 const JobDetailsStep = ({
-  service,
+  service = [],
   onBack,
   onNext,
 }: {
-  service: any;
+  service: SpecificService[];
   onBack: () => void;
-  onNext: (jobSize: any) => void;
+  onNext: (service: any) => void;
 }) => {
-  const jobSizes = [
-    {
-      id: 1,
-      name: 'Quick Fix',
-      duration: '1-2 hours',
-      description: 'Leaky faucet, clogged drain',
-      tags: ['Minor repairs', 'Simple installations'],
-    },
-    {
-      id: 2,
-      name: 'Standard Repair',
-      duration: '2-4 hours',
-      description: 'Toilet repair, pipe replacement',
-      tags: ['Standard repairs', 'Basic installations'],
-    },
-    {
-      id: 3,
-      name: 'Major Work',
-      duration: '4-8 hours',
-      description: 'Multiple fixtures, complex repairs',
-      tags: ['Multiple repairs', 'Complex installations'],
-    },
-    {
-      id: 4,
-      name: 'Custom Hours',
-      duration: 'custom hours',
-      description: 'Set your own timeframe',
-      tags: ['Project-specific', 'Custom requirements'],
-    },
-  ];
-
   return (
-    <ScrollView className="flex-1 bg-gray-50">
+    <ScrollView className="flex-1 bg-white-50">
       <View className="p-6">
-        <View className="mb-6">
-          <Text className="text-xl font-bold mb-2">Job Size</Text>
-          <View className="text-sm text-gray-500">
-            <Text>
-              <Text className="font-bold">Service:</Text> {service.name}
-            </Text>
-            <Text>
-              <Text className="font-bold">Rate:</Text> {service.price}
-            </Text>
-          </View>
-        </View>
-
+        <Text className="text-xl font-bold mb-6">Select Specific Service</Text>
         <View className="flex-row flex-wrap justify-between gap-4">
-          {jobSizes.map(jobSize => (
+          {service.map((service: SpecificService) => (
             <TouchableOpacity
-              key={jobSize.id}
+              key={service.id}
               className="w-full md:w-[48%] flex-col items-start gap-3 p-4 rounded-xl border border-gray-300 active:border-green-700 active:bg-green-50"
-              onPress={() => onNext(jobSize)}
+              onPress={() => onNext(service.id)}
             >
-              <View className="flex-row items-center justify-between w-full">
-                <Text className="font-medium">{jobSize.name}</Text>
-                <View className="flex-row items-center gap-1 text-sm text-gray-500">
-                  <Clock className="w-4 h-4" />
-                  <Text>{jobSize.duration}</Text>
-                </View>
-              </View>
+              <Text className="font-medium text-black-50">{service.name}</Text>
               <Text className="text-sm text-gray-500">
-                {jobSize.description}
+                {service.description}
               </Text>
-              <View className="flex-row flex-wrap gap-1 mt-2">
-                {jobSize.tags.map((tag, index) => (
-                  <View
-                    key={index}
-                    className="text-xs bg-gray-200 px-2 py-1 rounded"
-                  >
-                    <Text className="text-xs">{tag}</Text>
-                  </View>
-                ))}
+              <View className="flex-row items-center justify-between w-full mt-2">
+                <View className="flex-col">
+                  <Text className="font-medium">Rs. {service.price}</Text>
+                  <Text className="text-xs text-gray-500">
+                    {service.duration}
+                  </Text>
+                </View>
               </View>
             </TouchableOpacity>
           ))}

@@ -1,45 +1,80 @@
-import { View, Text, ScrollView, TouchableOpacity, Image, ImageSourcePropType } from 'react-native';
+import { verticalScale } from '../../utils/screenSize';
+import { colors, typography } from '../../design-system';
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  Image,
+  ActivityIndicator,
+} from 'react-native';
 
 type Category = {
   id: string | number;
   name: string;
   services: string;
-  category_image: string; // or JSX.Element if you're passing component instances
+  category_image: string;
+};
+
+type Props = {
+  categories: Category[];
+  onNext: (category: any) => void;
+  onLoadMore: () => void;
+  isLoadingMore: boolean;
 };
 
 const ServiceCategoryStep = ({
-  onNext,
   categories = [],
-}: {
-  categories: Category[];
-  onNext: (category: any) => void;
-}) => {
+  onNext,
+  onLoadMore,
+  isLoadingMore,
+}: Props) => {
   return (
-    <ScrollView className="flex-1 bg-white-50">
-      <View className="p-6">
-        <Text className="text-xl font-bold mb-6">Choose Service Category</Text>
-        <View className="flex-row flex-wrap justify-between gap-4">
-          {categories.map((category: Category) => (
-            <TouchableOpacity
-              key={category.id}
-              className="w-full md:w-[48%] flex-row items-center gap-4 p-4 rounded-xl border border-gray-300 active:border-green-700 active:bg-green-
-              "
-            //   onPress={() => onNext(category)}
-            >
-              <View className="p-3 bg-gray-200 rounded-lg">
-                <Image className="w-10 h-10" source={{uri: category.category_image}}/>
-              </View>
-              <View>
-                <Text className="font-medium">{category.name}</Text>
-                <Text className="text-sm text-gray-500">
-                  {category.services} Services
-                </Text>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
-    </ScrollView>
+    <View className="flex-1 bg-white-50">
+      <FlatList
+        data={categories}
+        keyExtractor={item => item.id.toString()}
+        contentContainerStyle={{ padding: verticalScale(24) }}
+        ListHeaderComponent={
+          <Text className="text-xl font-bold mb-6">
+            Choose Service Category
+          </Text>
+        }
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            className="w-full flex-row items-center gap-4 p-4 mb-4 rounded-xl border border-gray-300 active:border-green-700 active:bg-green-50"
+            onPress={() => onNext(item.id)}
+          >
+            <View className="p-3 bg-gray-200 rounded-lg">
+              <Image
+                className="w-10 h-10"
+                source={{ uri: item.category_image }}
+              />
+            </View>
+            <View>
+              <Text style={{ ...typography.h5 }}>{item.name}</Text>
+              <Text
+                style={{
+                  ...typography.bodyXs,
+                  color: colors.gray[600],
+                }}
+              >
+                {item.services} SubCategories
+              </Text>
+            </View>
+          </TouchableOpacity>
+        )}
+        onEndReached={onLoadMore}
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={
+          isLoadingMore ? (
+            <View className="items-center py-4">
+              <ActivityIndicator size="small" color="#999" />
+            </View>
+          ) : null
+        }
+      />
+    </View>
   );
 };
 

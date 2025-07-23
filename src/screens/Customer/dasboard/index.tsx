@@ -15,7 +15,10 @@ import LocationTimingStep from '../../../components/LocationTiming';
 import ServiceProviders from '../../../components/ServiceProvider';
 import BookingForm from '../../../components/BookingForm';
 import { LocationData, TimingData } from '../../../types/LocationTimingProps';
-import { getServiceCategory } from '../../../services/appServices/serviceCategory';
+import {
+  getServiceCategory,
+  getServiceList,
+} from '../../../services/appServices/serviceCategory';
 
 const FixedHeader = ({
   onBack,
@@ -24,7 +27,7 @@ const FixedHeader = ({
   onBack?: () => void;
   currentStep: number;
 }) => {
-  const steps = ['Service Category', 'Specific Service', 'Job Details'];
+  const steps = ['Service Category', 'Specific SubCat', 'Specific Service'];
   return (
     <View
       className=""
@@ -139,13 +142,29 @@ const FixedHeader = ({
     </View>
   );
 };
+type Category = {
+  id: string | number;
+  name: string;
+  services: string;
+  category_image: string;
+};
+type SpecificService = {
+  id: string | number;
+  name: string;
+  price: number;
+  duration: string;
+  description: string;
+};
 
 // Main Component
 const ServiceRequestScreen = () => {
   const [step, setStep] = useState(1);
-  const [selectedCategory, setSelectedCategory] = useState<any>(null);
+  const [selectedCategory, setSelectedCategory] = useState([]);
   const [selectedService, setSelectedService] = useState<any>(null);
-  const [selectedJobSize, setSelectedJobSize] = useState<any>(null);
+  const [selectedJobSize, setSelectedJobSize] = useState([]);
+  const [categoryPageUrl, setCategoryPageUrl] = useState<string | null>(null);
+  const [isLoadingMoreCategories, setIsLoadingMoreCategories] = useState(false);
+  const [data, setData] = useState<Category[]>([]);
   const [timing, setTiming] = useState<TimingData>({
     date: new Date().toISOString(),
     timeSlot: '8-10',
@@ -158,21 +177,46 @@ const ServiceRequestScreen = () => {
     longitude: -89.6501,
     type: 'home',
   });
-  const [data, setData] = useState([]);
-
   React.useEffect(() => {
-    onGet();
+    onGetCategory();
   }, []);
 
-  const url = 'https://kikfix-com.stackstaging.com/api/get-category-list';
+  const CatList = 'https://kikfix-com.stackstaging.com/api/get-category-list';
 
-  const onGet = async () => {
+  const onGetCategory = async (url = CatList) => {
+    if (isLoadingMoreCategories) return;
+
+    setIsLoadingMoreCategories(true);
     try {
       const response = await getServiceCategory(url);
-      console.log(response.data);
-      setData(response.data);
+      setData(prev => {
+        const existingIds = new Set(prev.map(item => item.id));
+        const newItems = response.data.filter(
+          (item: any) => !existingIds.has(item.id),
+        );
+        return [...prev, ...newItems];
+      });
+      setCategoryPageUrl(response.pagination?.next_page ?? null);
     } catch (error) {
-      console.log(error)
+      console.log(error);
+    } finally {
+      setIsLoadingMoreCategories(false);
+    }
+  };
+
+  const handleLoadMoreCategories = () => {
+    if (categoryPageUrl) {
+      onGetCategory(categoryPageUrl);
+    }
+  };
+
+  const onGetServiceList = async (id: string) => {
+    const ServiceList = `https://kikfix-com.stackstaging.com/api/get-subcategory?id=${id}`;
+    try {
+      const result = await getServiceList(ServiceList);
+      setSelectedCategory(result.data);
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -181,10 +225,10 @@ const ServiceRequestScreen = () => {
       case 1:
         return (
           <ServiceCategoryStep
-            onNext={() => {
-              
-            }}
+            onNext={handleCategorySelect}
             categories={data}
+            onLoadMore={handleLoadMoreCategories}
+            isLoadingMore={isLoadingMoreCategories}
           />
         );
       case 2:
@@ -198,19 +242,19 @@ const ServiceRequestScreen = () => {
       case 3:
         return (
           <JobDetailsStep
-            service={selectedService}
+            service={selectedJobSize}
             onBack={() => setStep(2)}
             onNext={handleJobSizeSelect}
           />
         );
-      case 4:
-        return (
-          <LocationTimingStep
-            jobSize={selectedJobSize}
-            onBack={() => setStep(3)}
-            onNext={handleLocationTimingSubmit}
-          />
-        );
+      // case 4:
+      //   return (
+      //     <LocationTimingStep
+      //       jobSize={selectedJobSize}
+      //       onBack={() => setStep(3)}
+      //       onNext={handleLocationTimingSubmit}
+      //     />
+      //   );
       case 5:
         return (
           <ServiceProviders
@@ -235,40 +279,54 @@ const ServiceRequestScreen = () => {
         );
       default:
         return (
-          <ServiceCategoryStep onNext={handleCategorySelect} categories={data} />
+          <ServiceCategoryStep
+            onNext={handleCategorySelect}
+            categories={data}
+            onLoadMore={handleLoadMoreCategories}
+            isLoadingMore={isLoadingMoreCategories}
+          />
         );
     }
   };
 
-  const handleCategorySelect = (category: any) => {
-    setSelectedCategory(category);
-    setStep(2);
+  const handleCategorySelect = async (selected: any) => {
+    try {
+      console.log(selected);
+      onGetServiceList(selected);
+      setStep(2);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
-  const handleServiceSelect = (service: any) => {
-    setSelectedService(service);
-    setStep(3);
+  const handleServiceSelect = async (service: any) => {
+    try {
+      console.log(service);
+      onGetServiceList(service);
+      setStep(3);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handleJobSizeSelect = (jobSize: any) => {
-    setSelectedJobSize(jobSize);
     setStep(4);
   };
 
   const handleLocationTimingSubmit = (data: any) => {
-    console.log('Form submitted:', {
-      category: selectedCategory,
-      service: selectedService,
-      jobSize: selectedJobSize,
-      ...data,
-    });
-    setTiming({
-      date: data.date,
-      timeSlot: data.timeSlot,
-      urgency: data.urgency,
-    });
-    setLocation(data.location);
-    setStep(5);
+    // console.log('Form submitted:', {
+    //   category: selectedCategory,
+    //   service: selectedService,
+    //   jobSize: selectedJobSize,
+    //   ...data,
+    // });
+    // setTiming({
+    //   date: data.date,
+    //   timeSlot: data.timeSlot,
+    //   urgency: data.urgency,
+    // });
+    // setLocation(data.location);
+    // setStep(5);
   };
 
   return (

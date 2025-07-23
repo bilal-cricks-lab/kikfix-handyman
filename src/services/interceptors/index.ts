@@ -74,3 +74,24 @@ getServiceCategory.interceptors.request.use(
     return Promise.reject(error);
   }
 );
+
+export const getServiceListInstance = axios.create({
+  headers: {
+    Accept: 'application/json',
+    'Content-Type': 'application/json'
+  },
+  responseType: 'json'
+})
+
+getServiceListInstance.interceptors.request.use(
+  async config => {
+    const token = await AsyncStorage.getItem('user_token');
+    if(token){
+      config.headers.Authorization = `Bearer ${token}`
+    }
+    return config;
+  },
+  error => {
+    return Promise.reject(error)
+  }
+)
