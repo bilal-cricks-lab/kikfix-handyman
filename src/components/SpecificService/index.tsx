@@ -52,13 +52,7 @@
 
 import { colors, typography } from '../../design-system';
 import { View, TouchableOpacity, Text, ScrollView, Image } from 'react-native';
-
-type SpecificService = {
-  id: number | string;
-  name: string;
-  category_image: string;
-  services: number;
-};
+import { SpecificService } from '../../types/service';
 
 const SpecificServiceStep = ({
   onBack,
@@ -69,6 +63,7 @@ const SpecificServiceStep = ({
   onBack: () => void;
   onNext: (service: any) => void;
 }) => {
+  
   return (
     <ScrollView className="flex-1 bg-white-50">
       <View className="p-6">

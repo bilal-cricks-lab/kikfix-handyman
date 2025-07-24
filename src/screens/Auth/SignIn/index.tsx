@@ -22,6 +22,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Login, Register } from '../../../services/authServices';
 import Toast from '../../../components/Error';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { setUserData } from '../../../redux/Reducers/userSlice';
 
 export default function AuthScreen() {
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
@@ -68,8 +69,9 @@ export default function AuthScreen() {
       }
       setLoading(false);
     } catch (error: any) {
+      const errMsg = error?.response?.data?.message || 'Invalid login credentials';
       setLoading(false);
-      showToast(error.message, 'error');
+      showToast(errMsg, 'error');
     }
   };
 

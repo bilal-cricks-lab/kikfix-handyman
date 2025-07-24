@@ -15,18 +15,23 @@ import './src/i18n';
 import { LanguageProvider } from './src/i18n/LanguageContext';
 import { NavigationContainer } from '@react-navigation/native';
 import StackNav from './src/navigation/StackNavigator';
+import { validateEnvironment } from './src/config/env';
+import {Store} from './src/redux/Store/store'
+import { Provider } from 'react-redux';
 
 const App: React.FC = () => {
   return (
-    <LanguageProvider>
-      <NavigationContainer>
-        {/* <SafeAreaView className="flex-1 bg-gray-100"> */}
-        {/* <StatusBar barStyle="dark-content" backgroundColor="#f3f4f6" /> */}
-        {/* <DesignSystemShowcase /> */}
-        <StackNav />
-        {/* </SafeAreaView> */}
-      </NavigationContainer>
-    </LanguageProvider>
+    <Provider store={Store}>
+      <LanguageProvider>
+        <NavigationContainer>
+          {/* <SafeAreaView className="flex-1 bg-gray-100"> */}
+          {/* <StatusBar barStyle="dark-content" backgroundColor="#f3f4f6" /> */}
+          {/* <DesignSystemShowcase /> */}
+          <StackNav />
+          {/* </SafeAreaView> */}
+        </NavigationContainer>
+      </LanguageProvider>
+    </Provider>
   );
 };
 

@@ -1,28 +1,31 @@
 import { View, TouchableOpacity, Text, ScrollView } from 'react-native';
-
-type SpecificService = {
-  id: string | number;
-  name: string;
-  price: number;
-  duration: string;
-  description: string;
-};
+import { Subcategory, SpecificService } from '../../types/service';
 
 const JobDetailsStep = ({
-  service = [],
+  services = [],
+  selectedSubcategoryId,
   onBack,
   onNext,
 }: {
-  service: SpecificService[];
+  services: Subcategory[];
+  selectedSubcategoryId: number;
   onBack: () => void;
   onNext: (service: any) => void;
 }) => {
+  const selectedSubcategory = services.find(
+    (sub) => sub.id === selectedSubcategoryId,
+  );
+
+  const filteredServices: SpecificService[] =
+    selectedSubcategory?.services_list ?? [];
+
   return (
+    <>
     <ScrollView className="flex-1 bg-white-50">
       <View className="p-6">
         <Text className="text-xl font-bold mb-6">Select Specific Service</Text>
         <View className="flex-row flex-wrap justify-between gap-4">
-          {service.map((service: SpecificService) => (
+          {filteredServices.map((service: SpecificService) => (
             <TouchableOpacity
               key={service.id}
               className="w-full md:w-[48%] flex-col items-start gap-3 p-4 rounded-xl border border-gray-300 active:border-green-700 active:bg-green-50"
@@ -45,6 +48,7 @@ const JobDetailsStep = ({
         </View>
       </View>
     </ScrollView>
+    </>
   );
 };
 

@@ -1,13 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Image, Platform } from 'react-native';
-import { Bell, ArrowLeft } from 'lucide-react-native';
-import {
-  fontScale,
-  horizontalScale,
-  verticalScale,
-} from '../../../utils/screenSize';
-import IMAGES from '../../../constants/Images';
-import { colors, typography } from '../../../design-system';
+import { View} from 'react-native';
 import ServiceCategoryStep from '../../../components/ServiceCategory';
 import SpecificServiceStep from '../../../components/SpecificService';
 import JobDetailsStep from '../../../components/JobDetails';
@@ -19,149 +11,17 @@ import {
   getServiceCategory,
   getServiceList,
 } from '../../../services/appServices/serviceCategory';
-
-const FixedHeader = ({
-  onBack,
-  currentStep,
-}: {
-  onBack?: () => void;
-  currentStep: number;
-}) => {
-  const steps = ['Service Category', 'Specific SubCat', 'Specific Service'];
-  return (
-    <View
-      className=""
-      style={{
-        marginTop:
-          Platform.OS === 'ios' ? verticalScale(60) : verticalScale(10),
-      }}
-    >
-      {/* Top Navigation */}
-      <View>
-        <View className="flex-row items-center justify-between px-4 py-4">
-          <View className="flex-row items-center">
-            <View
-              className="items-center justify-center"
-              style={{
-                width: horizontalScale(70),
-                height: verticalScale(30),
-                backgroundColor: colors.secondary[50],
-              }}
-            >
-              <Image
-                source={IMAGES.logo}
-                style={{
-                  width: horizontalScale(70),
-                  height: verticalScale(30),
-                }}
-              />
-            </View>
-          </View>
-          <View className="flex-row items-center space-x-3 gap-4">
-            <TouchableOpacity className="relative p-2">
-              <Bell className="w-5 h-5" />
-              <View className="absolute -top-1 -right-1 bg-red-500 rounded-full w-5 h-5 flex items-center justify-center">
-                <Text className="text-white-50">3</Text>
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity className="relative h-8 w-8 rounded-full">
-              <Image
-                source={{ uri: 'https://avatar.vercel.sh/demo@kikfix.com' }}
-                className="h-8 w-8 rounded-full"
-                alt="User"
-              />
-            </TouchableOpacity>
-          </View>
-        </View>
-        <View className="flex-row items-center py-6 px-6">
-          {onBack && (
-            <TouchableOpacity
-              className="mr-3 w-8 h-8 items-center justify-center bg-gray-200 rounded-full"
-              onPress={onBack}
-            >
-              <ArrowLeft size={15} />
-            </TouchableOpacity>
-          )}
-          <Text style={typography.h3}>
-            {currentStep === 4
-              ? 'Location and Timing'
-              : currentStep === 5
-              ? 'Available Handyman'
-              : currentStep === 6
-              ? 'Booking Details'
-              : 'Request a Service'}
-          </Text>
-        </View>
-      </View>
-
-      {/* Step Indicator */}
-      {currentStep === 5 || currentStep === 6 ? null : (
-        <View className="px-8 py-4">
-          <View className="flex-row items-center justify-between">
-            {steps.map((step, index) => {
-              const isCompleted = index < currentStep - 1;
-              const isActive = index === currentStep - 1;
-
-              return (
-                <View
-                  key={index}
-                  className="flex-row items-center justify-center"
-                >
-                  <View
-                    className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                      isCompleted || isActive ? 'bg-green-500' : 'bg-gray-200'
-                    }`}
-                  >
-                    {isCompleted ? (
-                      <Text className="text-white-50 font-medium">✓</Text>
-                    ) : (
-                      <Text
-                        className={`text-sm font-medium ${
-                          isActive ? 'text-white-50' : 'text-gray-500'
-                        }`}
-                      >
-                        {index + 1}
-                      </Text>
-                    )}
-                  </View>
-                  <Text
-                    className={`left-2 w-[58px] ${
-                      isActive ? 'font-medium text-gray-900' : 'text-gray-500'
-                    }`}
-                    style={{ fontSize: fontScale(14) }}
-                    numberOfLines={2}
-                  >
-                    {step}
-                  </Text>
-                </View>
-              );
-            })}
-          </View>
-        </View>
-      )}
-    </View>
-  );
-};
-type Category = {
-  id: string | number;
-  name: string;
-  services: string;
-  category_image: string;
-};
-type SpecificService = {
-  id: string | number;
-  name: string;
-  price: number;
-  duration: string;
-  description: string;
-};
+import FixedHeader from '../../../components/Header';
+import { Category, Subcategory } from '../../../types/service';
+import { useSelector } from 'react-redux';
+import { RootSate } from '@/redux/Store/store';
 
 // Main Component
 const ServiceRequestScreen = () => {
   const [step, setStep] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState([]);
-  const [selectedService, setSelectedService] = useState<any>(null);
-  const [selectedJobSize, setSelectedJobSize] = useState([]);
+  const [selectedService, setSelectedService] = useState<number>(0);
+  const [selectedJobSize, setSelectedJobSize] = useState<Subcategory[]>([]);
   const [categoryPageUrl, setCategoryPageUrl] = useState<string | null>(null);
   const [isLoadingMoreCategories, setIsLoadingMoreCategories] = useState(false);
   const [data, setData] = useState<Category[]>([]);
@@ -177,8 +37,10 @@ const ServiceRequestScreen = () => {
     longitude: -89.6501,
     type: 'home',
   });
+  const userState = useSelector((state: RootSate) => state.user.user)
   React.useEffect(() => {
     onGetCategory();
+    console.log(userState);
   }, []);
 
   const CatList = 'https://kikfix-com.stackstaging.com/api/get-category-list';
@@ -210,11 +72,14 @@ const ServiceRequestScreen = () => {
     }
   };
 
-  const onGetServiceList = async (id: string) => {
+  const onGetServiceList = async (id: string | number) => {
     const ServiceList = `https://kikfix-com.stackstaging.com/api/get-subcategory?id=${id}`;
     try {
       const result = await getServiceList(ServiceList);
-      setSelectedCategory(result.data);
+      const subcategories = result.data;
+      setSelectedCategory(subcategories);
+      setSelectedJobSize(subcategories)
+      return result.data;
     } catch (error) {
       console.log(error);
     }
@@ -242,24 +107,25 @@ const ServiceRequestScreen = () => {
       case 3:
         return (
           <JobDetailsStep
-            service={selectedJobSize}
+            services={selectedJobSize}
+            selectedSubcategoryId={selectedService}
             onBack={() => setStep(2)}
             onNext={handleJobSizeSelect}
           />
         );
-      // case 4:
-      //   return (
-      //     <LocationTimingStep
-      //       jobSize={selectedJobSize}
-      //       onBack={() => setStep(3)}
-      //       onNext={handleLocationTimingSubmit}
-      //     />
-      //   );
+      case 4:
+        return (
+          <LocationTimingStep
+            jobSize={selectedJobSize}
+            onBack={() => setStep(3)}
+            onNext={handleLocationTimingSubmit}
+          />
+        );
       case 5:
         return (
           <ServiceProviders
             onBack={() => setStep(4)}
-            serviceName={selectedService?.name || 'Plumbing'}
+            serviceName={'Plumbing'}
             timing={timing}
             location={location}
             onProviderSelect={() => {}}
@@ -291,8 +157,8 @@ const ServiceRequestScreen = () => {
 
   const handleCategorySelect = async (selected: any) => {
     try {
-      console.log(selected);
       onGetServiceList(selected);
+      console.log(selected)
       setStep(2);
     } catch (err) {
       console.log(err);
@@ -301,8 +167,8 @@ const ServiceRequestScreen = () => {
 
   const handleServiceSelect = async (service: any) => {
     try {
-      console.log(service);
-      onGetServiceList(service);
+      setSelectedService(service)
+      console.log(service)
       setStep(3);
     } catch (error) {
       console.log(error);
@@ -310,7 +176,8 @@ const ServiceRequestScreen = () => {
   };
 
   const handleJobSizeSelect = (jobSize: any) => {
-    setStep(4);
+    console.log(jobSize);
+    setStep(4)
   };
 
   const handleLocationTimingSubmit = (data: any) => {
@@ -326,7 +193,7 @@ const ServiceRequestScreen = () => {
     //   urgency: data.urgency,
     // });
     // setLocation(data.location);
-    // setStep(5);
+    setStep(5);
   };
 
   return (

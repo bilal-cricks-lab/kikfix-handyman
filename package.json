@@ -15,6 +15,7 @@
     "@react-navigation/elements": "^2.5.2",
     "@react-navigation/native": "^7.1.14",
     "@react-navigation/native-stack": "^7.3.21",
+    "@reduxjs/toolkit": "^2.8.2",
     "axios": "^1.10.0",
     "date-fns": "^4.1.0",
     "i18next": "^25.3.2",
@@ -29,6 +30,7 @@
     "react-native-screens": "^4.11.1",
     "react-native-svg": "^15.12.0",
     "react-native-svg-transformer": "^1.5.1",
+    "react-redux": "^9.2.0",
     "rn-phone-input-field": "^1.1.9"
   },
   "devDependencies": {

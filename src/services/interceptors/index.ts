@@ -1,5 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import { ENV, isDevelopment } from '../../config/env';
+import { Store } from '../../redux/Store/store';
+import { setError } from '../../redux/Reducers/errorslice';
+import { Alert } from 'react-native';
 
 export const SignInInstance = axios.create({
   headers: {
@@ -23,7 +27,9 @@ SignInInstance.interceptors.request.use(
 SignInInstance.interceptors.response.use(
   response => response,
   error => {
-    console.error('API Error:', error.response?.data || error.message);
+    Store.dispatch(setError({
+      error: error.response?.data
+    }))
     return Promise.reject(error);
   },
 );
