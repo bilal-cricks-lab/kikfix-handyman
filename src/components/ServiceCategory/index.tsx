@@ -13,6 +13,7 @@ type Category = {
   id: string | number;
   name: string;
   services: string;
+  
   category_image: string;
 };
 

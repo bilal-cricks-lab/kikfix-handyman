@@ -4,7 +4,6 @@ import {
   ScrollView,
   SafeAreaView,
   Platform,
-  Linking,
   StyleSheet,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';

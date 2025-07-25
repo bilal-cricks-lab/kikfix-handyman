@@ -1,12 +1,19 @@
-import React from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  ImageSourcePropType,
+  ImageURISource,
+} from 'react-native';
 import { User, Clock, DollarSign } from 'lucide-react-native';
 
 interface Props {
-  name: string;
-  email: string;
-  role: string;
-  avatar: string;
+  name: string | any;
+  email: string | any;
+  role: string | any;
+  avatar: string | any;
   onProfilePress?: () => void;
   onHistoryPress?: () => void;
   onEarningsPress?: () => void;
@@ -55,7 +62,7 @@ const UserCard = ({
 
 const styles = StyleSheet.create({
   container: {
-    width: 320,
+    width: 250,
     borderRadius: 16,
     backgroundColor: '#fff',
     padding: 16,

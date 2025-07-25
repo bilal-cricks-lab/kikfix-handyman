@@ -1,4 +1,4 @@
-import { callGetApi, callGetApiWithToken } from '../network';
+import { callGetApi, callGetApiWithToken, callgetSpecificService } from '../network';
 
 export const getServiceCategory = async (url: string) => {
   try {
@@ -17,3 +17,12 @@ export const getServiceList = async (url: string) => {
     console.log(error);
   }
 };
+
+export const getSpecificService = async (url: string) => {
+  try {
+    const response = await callgetSpecificService(url);
+    return response;
+  } catch (error) {
+    console.log(error);
+  }
+}

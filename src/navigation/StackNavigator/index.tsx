@@ -5,6 +5,7 @@ import StackParamList from '../../types/stack';
 import SignIn from '../../screens/Auth/SignIn';
 import CustomerDashboard from '../../screens/Customer/dasboard';
 import HandymanDashboard from '../../screens/Handyman/dashboard';
+import OTP from '../../screens/Auth/OTP';
 
 const Stack = createNativeStackNavigator<StackParamList>();
 
@@ -30,6 +31,13 @@ const StackNav = () => {
         component={SignIn}
         options={{
           headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="Otp"
+        component={OTP}
+        options={{
+          headerShown: false
         }}
       />
       <Stack.Screen

@@ -18,6 +18,6 @@ export const Register = async (data: any) => {
     const response = await callPostRegApi(regUrl, data);
     return response;
   } catch (error) {
-    console.log(error)
+    throw error;
   }
 }

@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { View} from 'react-native';
+import { View } from 'react-native';
 import ServiceCategoryStep from '../../../components/ServiceCategory';
-import SpecificServiceStep from '../../../components/SpecificService';
-import JobDetailsStep from '../../../components/JobDetails';
+import SpecificServiceStep from '../../../components/SubCategory';
 import LocationTimingStep from '../../../components/LocationTiming';
 import ServiceProviders from '../../../components/ServiceProvider';
 import BookingForm from '../../../components/BookingForm';
@@ -10,18 +9,20 @@ import { LocationData, TimingData } from '../../../types/LocationTimingProps';
 import {
   getServiceCategory,
   getServiceList,
+  getSpecificService,
 } from '../../../services/appServices/serviceCategory';
 import FixedHeader from '../../../components/Header';
-import { Category, Subcategory } from '../../../types/service';
+import { Category, SpecificService, Subcategory } from '../../../types/service';
 import { useSelector } from 'react-redux';
 import { RootSate } from '@/redux/Store/store';
+import SpecificServices from '../../../components/SpecificService';
 
 // Main Component
 const ServiceRequestScreen = () => {
   const [step, setStep] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState([]);
   const [selectedService, setSelectedService] = useState<number>(0);
-  const [selectedJobSize, setSelectedJobSize] = useState<Subcategory[]>([]);
+  const [selectedJobSize, setSelectedJobSize] = useState<SpecificService[]>([]);
   const [categoryPageUrl, setCategoryPageUrl] = useState<string | null>(null);
   const [isLoadingMoreCategories, setIsLoadingMoreCategories] = useState(false);
   const [data, setData] = useState<Category[]>([]);
@@ -37,10 +38,9 @@ const ServiceRequestScreen = () => {
     longitude: -89.6501,
     type: 'home',
   });
-  const userState = useSelector((state: RootSate) => state.user.user)
+  const userState = useSelector((state: RootSate) => state.user.user);
   React.useEffect(() => {
     onGetCategory();
-    console.log(userState);
   }, []);
 
   const CatList = 'https://kikfix-com.stackstaging.com/api/get-category-list';
@@ -78,8 +78,23 @@ const ServiceRequestScreen = () => {
       const result = await getServiceList(ServiceList);
       const subcategories = result.data;
       setSelectedCategory(subcategories);
-      setSelectedJobSize(subcategories)
       return result.data;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getSpecificServices = async (
+    id: string | number,
+    per_page?: string | number,
+    page?: number | string,
+  ) => {
+    const service = `https://kikfix-com.stackstaging.com/api/get-service?id=${id}&per_page=${per_page}&page=${page}`;
+    try {
+      const result = await getSpecificService(service);
+      const services = result.data
+      setSelectedJobSize(services);
+      return result.data
     } catch (error) {
       console.log(error);
     }
@@ -106,9 +121,8 @@ const ServiceRequestScreen = () => {
         );
       case 3:
         return (
-          <JobDetailsStep
+          <SpecificServices
             services={selectedJobSize}
-            selectedSubcategoryId={selectedService}
             onBack={() => setStep(2)}
             onNext={handleJobSizeSelect}
           />
@@ -158,7 +172,7 @@ const ServiceRequestScreen = () => {
   const handleCategorySelect = async (selected: any) => {
     try {
       onGetServiceList(selected);
-      console.log(selected)
+      console.log(selected);
       setStep(2);
     } catch (err) {
       console.log(err);
@@ -167,8 +181,8 @@ const ServiceRequestScreen = () => {
 
   const handleServiceSelect = async (service: any) => {
     try {
-      setSelectedService(service)
-      console.log(service)
+      getSpecificServices(service)
+      console.log(service);
       setStep(3);
     } catch (error) {
       console.log(error);
@@ -177,7 +191,7 @@ const ServiceRequestScreen = () => {
 
   const handleJobSizeSelect = (jobSize: any) => {
     console.log(jobSize);
-    setStep(4)
+    setStep(4);
   };
 
   const handleLocationTimingSubmit = (data: any) => {

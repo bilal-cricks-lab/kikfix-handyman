@@ -13,41 +13,41 @@ interface InputFieldsProps {
 }
 
 const InputFields = ({ inputData }: InputFieldsProps): JSX.Element[] => {
-  return inputData.map(({ id, ref, keyboardType, nextRef, placeHolder, value, onChangeText }) => {
-    return (
-      <View key={id} style={{}}>
-        <View style={{ gap: verticalScale(10) }}>
-          <Text style={{...typography.h6, top: verticalScale(10)}}>{id}</Text>
-          <TextInput
-            ref={ref as React.RefObject<TextInput>}
-            returnKeyType={
-              id === 'Full Name'
-                ? 'next'
-                : id === 'Email'
-                ? 'next'
-                : id === 'Password'
-                ? 'next'
-                : id === 'Confirm Password' 
-                ? 'done'
-                : 'done'
-            }
-            value={value}
-            onChangeText={onChangeText}
-            placeholderTextColor={'grey'}
-            keyboardType={keyboardType}
-            style={[styles.inputText]}
-            placeholder={placeHolder}
-            onSubmitEditing={() => {
-              if (nextRef?.current) {
-                nextRef.current.focus();
-              }
-            }}
-            secureTextEntry={id === 'password'}
-          />
+  const returnKeyTypes: Record<string, 'next' | 'done'> = {
+    'Full Name': 'next',
+    'Email': 'next',
+    'Password': 'next',
+    'Confirm Password': 'done',
+  };
+  return inputData.map(
+    ({ id, ref, keyboardType, nextRef, placeHolder, value, onChangeText }) => {
+      return (
+        <View key={id}>
+          <View style={{ gap: verticalScale(10) }}>
+            <Text style={{ ...typography.h6, top: verticalScale(10) }}>
+              {id}
+            </Text>
+            <TextInput
+              ref={ref as React.RefObject<TextInput>}
+              returnKeyType={returnKeyTypes[id] || 'done'}
+              value={value}
+              onChangeText={onChangeText}
+              placeholderTextColor={'grey'}
+              keyboardType={keyboardType}
+              style={[styles.inputText]}
+              placeholder={placeHolder}
+              onSubmitEditing={() => {
+                if (nextRef?.current) {
+                  nextRef.current.focus();
+                }
+              }}
+              secureTextEntry={id === 'password'}
+            />
+          </View>
         </View>
-      </View>
-    );
-  });
+      );
+    },
+  );
 };
 
 const styles = StyleSheet.create({

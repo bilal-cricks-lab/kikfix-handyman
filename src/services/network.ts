@@ -1,6 +1,7 @@
 import {
   getServiceCategory,
   getServiceListInstance,
+  getSpecificService,
   SignInInstance,
   SignUpInstance,
 } from './interceptors';
@@ -19,7 +20,7 @@ export const callPostApi = async <T extends Record<string, any>>(
     const response: AxiosResponse = await SignInInstance.post(url, formData);
     return response.data;
   } catch (error: any) {
-    console.error('callPostApi error:', error.response?.data || error.message);
+    console.error('callPostApi error:', error.response?.data);
     throw error;
   }
 };
@@ -37,7 +38,7 @@ export const callPostRegApi = async <T extends Record<string, any>>(
     const response: AxiosResponse = await SignUpInstance.post(url, formData);
     return response.data;
   } catch (error: any) {
-    console.error('callPostApi error:', error.response?.data || error.message);
+    // console.error('callPostApi error:', error.response?.data);
     throw error;
   }
 };
@@ -60,3 +61,12 @@ export const callGetApiWithToken = async (url: string): Promise<any> => {
     console.log(error);
   }
 };
+
+export const callgetSpecificService = async (url: string): Promise<any> => {
+  try {
+    const response: AxiosResponse = await getSpecificService.get(url);
+    return response.data;
+  } catch (error) {
+    console.log(error);
+  }
+}

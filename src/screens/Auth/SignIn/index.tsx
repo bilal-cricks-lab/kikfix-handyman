@@ -7,8 +7,6 @@ import {
   ScrollView,
   SafeAreaView,
   StyleSheet,
-  Alert,
-  ToastAndroid,
 } from 'react-native';
 import { colors, typography } from '../../../design-system';
 import InputFields from '../../../components/TextInput';
@@ -23,6 +21,7 @@ import { Login, Register } from '../../../services/authServices';
 import Toast from '../../../components/Error';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { setUserData } from '../../../redux/Reducers/userSlice';
+import { Store } from '../../../redux/Store/store';
 
 export default function AuthScreen() {
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
@@ -59,48 +58,58 @@ export default function AuthScreen() {
         email: email,
         password: password,
       };
+
       const response = await Login(data);
       console.log(response);
       showToast('Logged In SuccessFully', 'success');
-      console.log(response.data.api_token)
-      if(response.data.user_type === 'user'){
-        AsyncStorage.setItem('user_token', response.data.api_token)
-        navigation.navigate('Cust')
+      console.log(response.data.api_token);
+      if (response.data.user_type === 'user') {
+        AsyncStorage.setItem('user_token', response.data.api_token);
+        navigation.navigate('Cust');
       }
+      Store.dispatch(
+        setUserData({
+          username: response.data.username,
+          id: response.data.id,
+          email: response.data.email,
+          status: response.data.status,
+          last_notification_seen: null,
+          uid: null,
+          social_image: response.data.profile_image,
+          user_type: response.data.user_type,
+        }),
+      );
       setLoading(false);
     } catch (error: any) {
-      const errMsg = error?.response?.data?.message || 'Invalid login credentials';
+      const errMsg =
+        error?.response?.data?.message || 'Invalid login credentials';
       setLoading(false);
       showToast(errMsg, 'error');
     }
   };
 
   const onSignUp = async () => {
+    const data = {
+      email: formValue.state.regEmail,
+      password: formValue.state.regPassword,
+      username: formValue.state.username,
+      contact_number: formValue.state.contactNumber,
+      confirmPassword: formValue.state.confirmPassword,
+    };
     setLoading(true);
     try {
-      const data = {
-        email: formValue.state.regEmail,
-        password: formValue.state.regPassword,
-        username: formValue.state.username,
-        contact_number: formValue.state.contactNumber,
-        confirmPassword: formValue.state.confirmPassword,
-        first_name: formValue.state.fullName,
-        last_name: formValue.state.lastName,
-      };
       console.log(data);
       const response = await Register(data);
-      response
-        ? ToastAndroid.showWithGravity(
-            'SuccessFully Created Account',
-            ToastAndroid.BOTTOM,
-            ToastAndroid.CENTER,
-          )
-        : null;
+      if (response) {
+        showToast('Account Created', 'success');
+        navigation.navigate('Otp');
+      }
       setLoading(false);
       console.log(response);
     } catch (error: any) {
       setLoading(false);
-      Alert.alert(error.messsage);
+      const errMsg = error?.response?.data?.message || 'Something went wrong';
+      showToast(errMsg, 'error')
     }
   };
 
@@ -117,9 +126,12 @@ export default function AuthScreen() {
           />
 
           {/* Tabs */}
-          <View className="flex-row rounded-3xl p-1 mt-6" style={{
-            backgroundColor: colors.gray[100]
-          }}>
+          <View
+            className="flex-row rounded-3xl p-1 mt-6"
+            style={{
+              backgroundColor: colors.gray[100],
+            }}
+          >
             {['login', 'register'].map((tab, index) => (
               <CustomButton
                 key={tab}
@@ -161,7 +173,7 @@ export default function AuthScreen() {
               <CustomButton
                 className="rounded-md py-2 mt-10 h-12 items-center justify-center"
                 style={{ backgroundColor: colors.primary[40] }}
-                title={t('auth.signUp')}
+                title={loading ? 'Creating....' : t('auth.signUp')}
                 textStyle={{ ...typography.h5, color: colors.white[50] }}
                 onPress={onSignUp}
               />
@@ -181,7 +193,7 @@ export default function AuthScreen() {
             title="Continue as Guest"
             classNameText="text-center"
             textStyle={typography.bodySmall}
-            onPress={() => navigation.navigate('Cust')}
+            onPress={() => {}}
           />
         </View>
       </ScrollView>
