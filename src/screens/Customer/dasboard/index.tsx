@@ -19,7 +19,7 @@ import SpecificServices from '../../../components/SpecificService';
 
 // Main Component
 const ServiceRequestScreen = () => {
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(4);
   const [selectedCategory, setSelectedCategory] = useState([]);
   const [selectedService, setSelectedService] = useState<number>(0);
   const [selectedJobSize, setSelectedJobSize] = useState<SpecificService[]>([]);
@@ -43,20 +43,25 @@ const ServiceRequestScreen = () => {
     onGetCategory();
   }, []);
 
-  const CatList = 'https://kikfix-com.stackstaging.com/api/get-category-list';
-
-  const onGetCategory = async (url = CatList) => {
+  const onGetCategory = async () => {
     if (isLoadingMoreCategories) return;
 
     setIsLoadingMoreCategories(true);
     try {
-      const response = await getServiceCategory(url);
+      const response = await getServiceCategory();
       setData(prev => {
-        const existingIds = new Set(prev.map(item => item.id));
-        const newItems = response.data.filter(
-          (item: any) => !existingIds.has(item.id),
+        // Ensure prev is an array (default to empty array if undefined)
+        const safePrev = Array.isArray(prev) ? prev : [];
+        const existingIds = new Set(safePrev.map(item => item?.id)); // Optional chaining for item.id
+
+        // Ensure response.data is an array before filtering
+        const newData = Array.isArray(response?.data) ? response.data : [];
+
+        const newItems = newData.filter(
+          (item: any) => item?.id && !existingIds.has(item.id), // Optional chaining for item.id
         );
-        return [...prev, ...newItems];
+
+        return [...safePrev, ...newItems];
       });
       setCategoryPageUrl(response.pagination?.next_page ?? null);
     } catch (error) {
@@ -68,14 +73,13 @@ const ServiceRequestScreen = () => {
 
   const handleLoadMoreCategories = () => {
     if (categoryPageUrl) {
-      onGetCategory(categoryPageUrl);
+      onGetCategory();
     }
   };
 
-  const onGetServiceList = async (id: string | number) => {
-    const ServiceList = `https://kikfix-com.stackstaging.com/api/get-subcategory?id=${id}`;
+  const onGetServiceList = async (id: number) => {
     try {
-      const result = await getServiceList(ServiceList);
+      const result = await getServiceList(id);
       const subcategories = result.data;
       setSelectedCategory(subcategories);
       return result.data;
@@ -85,16 +89,15 @@ const ServiceRequestScreen = () => {
   };
 
   const getSpecificServices = async (
-    id: string | number,
+    id: number,
     per_page?: string | number,
     page?: number | string,
   ) => {
-    const service = `https://kikfix-com.stackstaging.com/api/get-service?id=${id}&per_page=${per_page}&page=${page}`;
     try {
-      const result = await getSpecificService(service);
-      const services = result.data
+      const result = await getSpecificService(id);
+      const services = result.data;
       setSelectedJobSize(services);
-      return result.data
+      return result.data;
     } catch (error) {
       console.log(error);
     }
@@ -122,6 +125,7 @@ const ServiceRequestScreen = () => {
       case 3:
         return (
           <SpecificServices
+            selectedSubcategoryId={selectedService}
             services={selectedJobSize}
             onBack={() => setStep(2)}
             onNext={handleJobSizeSelect}
@@ -181,7 +185,8 @@ const ServiceRequestScreen = () => {
 
   const handleServiceSelect = async (service: any) => {
     try {
-      getSpecificServices(service)
+      getSpecificServices(service);
+      setSelectedService(service);
       console.log(service);
       setStep(3);
     } catch (error) {

@@ -1,4 +1,5 @@
 import {
+  getOTPInstance,
   getServiceCategory,
   getServiceListInstance,
   getSpecificService,
@@ -70,3 +71,20 @@ export const callgetSpecificService = async (url: string): Promise<any> => {
     console.log(error);
   }
 }
+
+export const otpCallPost = async <T extends Record<string, any>>(
+  url: string,
+  data: T,
+): Promise<any> => {
+  try {
+    const formData = new FormData();
+    Object.entries(data).forEach(([key, value]) => {
+      formData.append(key, String(value));
+    });
+
+    const response: AxiosResponse = await getOTPInstance.post(url, formData);
+    return response.data;
+  } catch (error: any) {
+    throw error;
+  }
+};

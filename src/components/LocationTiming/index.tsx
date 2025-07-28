@@ -1,8 +1,17 @@
-import { View, Text, TouchableOpacity, ScrollView, TextInput } from 'react-native';
-import React, {useState} from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  TextInput,
+} from 'react-native';
+import React, { useState } from 'react';
 import { addDays, isToday, isTomorrow, format } from 'date-fns';
 import { Navigation, House, Building, Search } from 'lucide-react-native';
 import Select from '../Dropdown';
+import { colors, typography } from '../../design-system';
+import { Dropdown } from 'react-native-element-dropdown';
+import { ChevronDown, ChevronUp } from 'lucide-react-native';
 
 const LocationTimingStep = ({
   jobSize,
@@ -81,6 +90,26 @@ const LocationTimingStep = ({
     },
   ];
 
+  const urgencyDropdownData = urgencyOptions.map(option => ({
+    label: `${option.name} (${option.timeframe})`,
+    value: option.id,
+    name: option.name,
+    timeframe: option.timeframe,
+    color: option.color,
+    border: option.border,
+  }));
+
+   const renderUrgencyItem = (item: any) => {
+    return (
+      <View className={`p-3 ${item.color} ${item.border} rounded-lg my-1`}>
+        <Text style={{...typography.bodySmall}}>{item.name}</Text>
+        <Text style={{...typography.bodyXs, color: colors.gray[500]}}>
+          {item.timeframe}
+        </Text>
+      </View>
+    );
+  };
+  
   return (
     <ScrollView className="flex-1 bg-gray-50">
       <View className="p-6">
@@ -109,7 +138,7 @@ const LocationTimingStep = ({
             {urgencyOptions.map(option => (
               <TouchableOpacity
                 key={option.id}
-                className={`w-full md:w-[30%] flex-col gap-2 rounded-xl border p-3 ${
+                className={`w-32 flex-row justify-center gap-2 rounded-xl border p-3 ${
                   option.color
                 } ${option.border} ${
                   selectedUrgency === option.id
@@ -119,8 +148,18 @@ const LocationTimingStep = ({
                 // onPress={() => setSelectedUrgency(option.id)}
               >
                 <View className="text-center">
-                  <Text className="font-medium text-sm">{option.name}</Text>
-                  <Text className="text-xs text-gray-500 mt-1">
+                  <Text
+                    style={{ ...typography.bodySmall, textAlign: 'center' }}
+                  >
+                    {option.name}
+                  </Text>
+                  <Text
+                    style={{
+                      ...typography.bodyXs,
+                      color: colors.gray[500],
+                      textAlign: 'center',
+                    }}
+                  >
                     {option.timeframe}
                   </Text>
                 </View>
@@ -136,7 +175,7 @@ const LocationTimingStep = ({
             <Text>Use Current Location</Text>
           </TouchableOpacity>
 
-          <View className="space-y-2 mb-4">
+          <View className="space-y-2 mb-6 gap-4">
             {locations.map(loc => (
               <TouchableOpacity
                 key={loc.id}

@@ -1,27 +1,21 @@
 import { horizontalScale, verticalScale } from '../../../utils/screenSize';
 import IMAGES from '../../../constants/Images';
 import { useState } from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  SafeAreaView,
-  StyleSheet,
-} from 'react-native';
+import { View, Text, ScrollView, SafeAreaView, StyleSheet } from 'react-native';
 import { colors, typography } from '../../../design-system';
 import InputFields from '../../../components/TextInput';
 import useInputText from '../../../data/InputText';
 import CustomButton from '../../../components/Button';
 import { t } from 'i18next';
 import LogoText from '../../../components/LogoText';
-import { NavigationProp } from '@react-navigation/native';
-import StackParamList from '@/types/stack';
-import { useNavigation } from '@react-navigation/native';
-import { Login, Register } from '../../../services/authServices';
+import { Login, Register, OTP } from '../../../services/authServices';
 import Toast from '../../../components/Error';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { setUserData } from '../../../redux/Reducers/userSlice';
 import { Store } from '../../../redux/Store/store';
+import { navigateToScreen } from '../../../utils/navigation';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import StackParamList from '../../../types/stack';
 
 export default function AuthScreen() {
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
@@ -32,8 +26,8 @@ export default function AuthScreen() {
   });
   const { inputSignin, inputSignUp, formValue } = useInputText();
   const [loading, setLoading] = useState<boolean>(false);
-  const navigation = useNavigation<NavigationProp<StackParamList>>();
   const { email, password } = formValue.state;
+  const navigation = useNavigation<NavigationProp<StackParamList>>();
 
   const showToast = (
     message: string,
@@ -65,7 +59,7 @@ export default function AuthScreen() {
       console.log(response.data.api_token);
       if (response.data.user_type === 'user') {
         AsyncStorage.setItem('user_token', response.data.api_token);
-        navigation.navigate('Cust');
+        navigateToScreen(navigation, 'Cust');
       }
       Store.dispatch(
         setUserData({
@@ -88,28 +82,64 @@ export default function AuthScreen() {
     }
   };
 
+  const isRegisterFormValid = () => {
+    return (
+      formValue.state.username &&
+      formValue.state.regEmail &&
+      formValue.state.regPassword &&
+      formValue.state.confirmPassword &&
+      formValue.state.phoneNumber &&
+      formValue.state.regPassword === formValue.state.confirmPassword
+    );
+  };
+
   const onSignUp = async () => {
+    if (!formValue.state.username) {
+      showToast('The Username is Required', 'error');
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formValue.state.regEmail)) {
+      showToast('Please enter a valid email address.', 'error');
+      return;
+    }
+    if (!formValue.state.regPassword) {
+      showToast('The Password field is Required', 'error');
+      return;
+    }
+    if (!formValue.state.confirmPassword) {
+      showToast('Please ReEnter Your Password', 'error');
+      return;
+    }
+    if (!formValue.state.phoneNumber) {
+      showToast('The Phone Number field is Required', 'error');
+      return;
+    }
     const data = {
+      first_name: formValue.state.fullName,
+      last_name: formValue.state.lastName,
       email: formValue.state.regEmail,
       password: formValue.state.regPassword,
       username: formValue.state.username,
-      contact_number: formValue.state.contactNumber,
+      contact_number: formValue.state.phoneNumber,
       confirmPassword: formValue.state.confirmPassword,
     };
     setLoading(true);
     try {
       console.log(data);
       const response = await Register(data);
-      if (response) {
+      const otpSend = await OTP(data.email);
+      console.log(otpSend);
+      if (response && otpSend) {
         showToast('Account Created', 'success');
-        navigation.navigate('Otp');
+        navigateToScreen(navigation, 'Otp');
       }
       setLoading(false);
       console.log(response);
     } catch (error: any) {
       setLoading(false);
       const errMsg = error?.response?.data?.message || 'Something went wrong';
-      showToast(errMsg, 'error')
+      showToast(errMsg, 'error');
     }
   };
 
@@ -172,29 +202,19 @@ export default function AuthScreen() {
               </View>
               <CustomButton
                 className="rounded-md py-2 mt-10 h-12 items-center justify-center"
-                style={{ backgroundColor: colors.primary[40] }}
+                style={{
+                  backgroundColor: isRegisterFormValid()
+                    ? colors.primary[40]
+                    : colors.secondary[300],
+                  opacity: isRegisterFormValid() ? 1 : 0.7,
+                }}
                 title={loading ? 'Creating....' : t('auth.signUp')}
                 textStyle={{ ...typography.h5, color: colors.white[50] }}
                 onPress={onSignUp}
+                disabled={!isRegisterFormValid() || loading}
               />
             </View>
           )}
-
-          {/* OR Divider */}
-          <View className="my-6 flex-row items-center">
-            <View className="flex-1 h-px bg-gray-200" />
-            <Text className="px-2 text-xs text-gray-500 uppercase">Or</Text>
-            <View className="flex-1 h-px bg-gray-200" />
-          </View>
-
-          {/* Continue as Guest */}
-          <CustomButton
-            className="border rounded-md py-2 h-12 items-center justify-center"
-            title="Continue as Guest"
-            classNameText="text-center"
-            textStyle={typography.bodySmall}
-            onPress={() => {}}
-          />
         </View>
       </ScrollView>
       {toast && (

@@ -1,36 +1,44 @@
-import React, { Component } from 'react';
+import React, { useEffect } from 'react';
 import { StyleSheet, Image, SafeAreaView, View } from 'react-native';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native';
+
 import IMAGES from '../../constants/Images';
 import { horizontalScale, verticalScale } from '../../utils/screenSize';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import StackParamList from '../../types/stack';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-type NavigationProps = NativeStackScreenProps<StackParamList, 'Splash'>;
+type SplashScreenProps = NativeStackScreenProps<StackParamList, 'Splash'>;
 
-class Splash extends Component<NavigationProps> {
-  constructor(props: NavigationProps) {
-    super(props);
-  }
-  componentDidMount() {
-    setTimeout(() => {
-      this.props.navigation.navigate('Boarding');
+const Splash: React.FC = () => {
+  const navigation = useNavigation<SplashScreenProps['navigation']>();
+
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      const token = await AsyncStorage.getItem('user_token');
+      if(token){
+        navigation.navigate('Cust');
+      }
+      else{
+        navigation.navigate('Boarding');
+      }
     }, 2000);
-  }
 
-  render() {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.imagePos}>
-          <Image source={IMAGES.photoroom2} />
-        </View>
-        <Image source={IMAGES.logo} />
-        <View style={styles.imagePos2}>
-          <Image source={IMAGES.photoroom} />
-        </View>
-      </SafeAreaView>
-    );
-  }
-}
+    return () => clearTimeout(timer); // cleanup on unmount
+  }, [navigation]);
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.imagePos}>
+        <Image source={IMAGES.photoroom2} />
+      </View>
+      <Image source={IMAGES.logo} />
+      <View style={styles.imagePos2}>
+        <Image source={IMAGES.photoroom} />
+      </View>
+    </SafeAreaView>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {

@@ -13,7 +13,9 @@ export const ENV = {
       USER_PROFILE: '/api/user/profile',
       CATEGORYLIST: '/api/get-category-list',
       SUBCATEGORYLIST: '/api/get-subcategory',
+      SERVICE: '/api/get-service',
       BOOKINGS: '/api/save-booking',
+      OTPSEND: '/api/send-otp',
     },
   },
 

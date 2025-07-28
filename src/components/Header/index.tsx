@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   View,
   Platform,
@@ -22,7 +22,11 @@ import { colors, typography } from '../../design-system';
 import { Bell, ArrowLeft } from 'lucide-react-native';
 import UserCard from '../Card';
 import { useSelector } from 'react-redux';
-import { RootSate } from '@/redux/Store/store';
+import { persistor, RootSate } from '../../redux/Store/store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
+import { NavigationProp } from '@react-navigation/native';
+import StackParamList from '@/types/stack';
 
 const FixedHeader = ({
   onBack,
@@ -37,10 +41,7 @@ const FixedHeader = ({
 
   const userData = useSelector((state: RootSate) => state.user.user);
   const steps = ['Service Category', 'Specific SubCat', 'Specific Service'];
-  
-  React.useEffect(() => {
-    console.log(userData)
-  }, [])
+  const navigation = useNavigation<NavigationProp<StackParamList>>();
 
   const openMenu = () => {
     const handle = findNodeHandle(buttonRef.current);
@@ -86,7 +87,9 @@ const FixedHeader = ({
             <TouchableOpacity className="relative p-2 items-center justify-center">
               <Bell className="w-5 h-5" />
               <View className="absolute -top-2 -right-1 bg-green-500 w-5 h-5 rounded-full items-center justify-center">
-                <Text className="text-white text-[10px] font-semibold">3</Text>
+                <Text className="text-white-50 text-[10px] font-semibold">
+                  3
+                </Text>
               </View>
             </TouchableOpacity>
 
@@ -97,7 +100,7 @@ const FixedHeader = ({
               onPress={openMenu}
             >
               <Image
-                source={{ uri: userData?.social_image} as ImageSourcePropType}
+                source={{ uri: userData?.social_image } as ImageSourcePropType}
                 style={{ height: 32, width: 32, borderRadius: 999 }}
               />
             </TouchableOpacity>
@@ -206,9 +209,15 @@ const FixedHeader = ({
                 console.log('Go to history');
                 setIsProfileVisible(false);
               }}
-              onEarningsPress={() => {
+              onEarningsPress={async () => {
                 console.log('Go to earnings');
                 setIsProfileVisible(false);
+                AsyncStorage.removeItem('user_token');
+                navigation.reset({
+                  index: 0,
+                  routes: [{ name: 'SignIn' }],
+                });
+                await persistor.purge();
               }}
             />
           </View>
@@ -246,7 +255,7 @@ const styles = StyleSheet.create({
   menu: {
     borderRadius: 8,
     paddingVertical: 8,
-    marginLeft: horizontalScale(-250),
+    marginLeft: horizontalScale(-235),
   },
   menuItem: {
     paddingVertical: 12,

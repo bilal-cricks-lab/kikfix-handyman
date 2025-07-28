@@ -6,7 +6,6 @@ import {
   Platform,
   StyleSheet,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 import {
   LucideShield,
   LucideStar,
@@ -17,14 +16,15 @@ import ServiceCard from '../../../components/ServiceCard';
 import { t } from 'i18next';
 import { colors } from '../../../design-system/colors';
 import { typography } from '../../../design-system/typography';
-import { verticalScale } from '../../../utils/screenSize';
+import { horizontalScale, verticalScale } from '../../../utils/screenSize';
 import FeatureItem from '../../../components/FeatureItem';
-import { NavigationProp } from '@react-navigation/native';
-import StackParamList from '@/types/stack';
 import LogoText from '../../../components/LogoText';
+import { navigateToScreen } from '../../../utils/navigation';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import StackParamList from '../../../types/stack';
+import IMAGES from '../../../constants/Images';
 
 export default function OnBoarding() {
-  const navigation = useNavigation<NavigationProp<StackParamList>>();
   const service_Provider = [
     `${t('serviceProv.receive')}`,
     `${t('serviceProv.set')}`,
@@ -46,6 +46,8 @@ export default function OnBoarding() {
     text,
   }));
 
+  const navigation = useNavigation<NavigationProp<StackParamList>>()
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView
@@ -56,10 +58,10 @@ export default function OnBoarding() {
       >
         {/* Logo Section */}
         <LogoText
-          customLogo={styles.logo}
+          imageBack={styles.imageView}
           title={t('onboarding.welcome')}
           subtitle={t('onboarding.choose')}
-          logoSource={0}
+          logoSource={IMAGES.logo}
         />
 
         {/* Card Section */}
@@ -70,16 +72,16 @@ export default function OnBoarding() {
           bullets={service_Text_Cus}
           buttonText="Continue as Customer"
           themeColor="#2563eb"
-          onPress={() => navigation.navigate('SignIn')}
+          onPress={() => navigateToScreen(navigation, 'SignIn')}
         />
         <ServiceCard
           icon={<LucideWrench size={32} color={colors.primary[400]} />}
           title={t('serviceProv.provide')}
           description={t('serviceProv.join')}
           bullets={service_Text_Prov}
-          buttonText="Continue as Handyman"
+          buttonText="Continue as Fixer"
           themeColor={colors.secondary[500]}
-          onPress={() => navigation.navigate('SignIn')}
+          onPress={() => navigateToScreen(navigation, 'SignIn')}
         />
 
         {/* Stats Section */}
@@ -128,6 +130,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.secondary[40],
+  },
+  imageView: {
+    width: horizontalScale(200),
+    height: verticalScale(70),
+    backgroundColor: colors.secondary[50],
   },
   logo: {
     shadowColor: 'grey',

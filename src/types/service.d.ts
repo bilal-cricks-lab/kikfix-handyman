@@ -6,6 +6,11 @@ export type SpecificService = {
   price?: number;
   duration?: string;
   description?: string;
+  min_price: string;
+  max_price: string
+  min_duration: number;
+  max_duration: number;
+  subcategory_id: number;
 };
 
 export type Category = {

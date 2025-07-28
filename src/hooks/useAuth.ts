@@ -10,7 +10,6 @@ interface Auth {
   phoneNumber: string;
   lastName: string;
   username: string;
-  contactNumber: string;
 }
 
 const useAuth = () => {
@@ -24,18 +23,29 @@ const useAuth = () => {
     phoneNumber: '',
     lastName: '',
     username: '',
-    contactNumber: '',
   });
-    const updateState = (field: keyof Auth, value: string) => {
-    setState((prevState) => ({
+  const [activeTab, setActiveTab] = React.useState<'login' | 'register'>(
+    'login',
+  );
+  const [toast, setToast] = React.useState({
+    visible: false,
+    message: '',
+    type: 'success' as 'success' | 'error' | 'warning',
+  });
+  const updateState = (field: keyof Auth, value: string) => {
+    setState(prevState => ({
       ...prevState,
       [field]: value,
     }));
   };
   return {
-    state, 
-    updateState
-  }
+    state,
+    activeTab,
+    setActiveTab,
+    toast,
+    setToast,
+    updateState,
+  };
 };
 
 export default useAuth;

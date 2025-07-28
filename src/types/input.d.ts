@@ -10,6 +10,8 @@ type InputText = {
   placeHolder: string;
   value?: string;
   onChangeText?: (text) => void 
+  value?: string | undefined;
+  onChangeText?: (text: any) => void;
 };
 
 export default InputText;

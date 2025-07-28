@@ -8,6 +8,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { X, CheckCircle, AlertTriangle, Info } from 'lucide-react-native';
+import { colors } from '../../design-system';
 
 interface ToastProps {
   visible: boolean;
@@ -54,7 +55,7 @@ const Toast: React.FC<ToastProps> = ({
   const getToastColor = () => {
     switch (type) {
       case 'success':
-        return '#10B981';
+        return colors.secondary[40];
       case 'warning':
         return '#F59E0B';
       case 'error':

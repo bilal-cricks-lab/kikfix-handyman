@@ -4,10 +4,8 @@ import {
   Image,
   TouchableOpacity,
   StyleSheet,
-  ImageSourcePropType,
-  ImageURISource,
 } from 'react-native';
-import { User, Clock, DollarSign } from 'lucide-react-native';
+import { User, Clock, LogOutIcon } from 'lucide-react-native';
 
 interface Props {
   name: string | any;
@@ -53,8 +51,8 @@ const UserCard = ({
         <Text style={styles.label}>History</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.row} onPress={onEarningsPress}>
-        <DollarSign size={20} color="#000" style={styles.icon} />
-        <Text style={styles.label}>Earnings</Text>
+        <LogOutIcon size={20} color="#000" style={styles.icon} />
+        <Text style={styles.label}>Logout</Text>
       </TouchableOpacity>
     </View>
   );

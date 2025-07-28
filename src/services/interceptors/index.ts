@@ -27,9 +27,11 @@ SignInInstance.interceptors.request.use(
 SignInInstance.interceptors.response.use(
   response => response,
   error => {
-    Store.dispatch(setError({
-      error: error.response?.data
-    }))
+    Store.dispatch(
+      setError({
+        error: error.response?.data,
+      }),
+    );
     return Promise.reject(error);
   },
 );
@@ -77,29 +79,29 @@ getServiceCategory.interceptors.request.use(
   },
   error => {
     return Promise.reject(error);
-  }
+  },
 );
 
 export const getServiceListInstance = axios.create({
   headers: {
     Accept: 'application/json',
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
   },
-  responseType: 'json'
-})
+  responseType: 'json',
+});
 
 getServiceListInstance.interceptors.request.use(
   async config => {
     const token = await AsyncStorage.getItem('user_token');
-    if(token){
-      config.headers.Authorization = `Bearer ${token}`
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
   error => {
-    return Promise.reject(error)
-  }
-)
+    return Promise.reject(error);
+  },
+);
 
 export const getSpecificService = axios.create({
   headers: {
@@ -112,12 +114,27 @@ export const getSpecificService = axios.create({
 getSpecificService.interceptors.request.use(
   async config => {
     const token = await AsyncStorage.getItem('user_token');
-    if(token){
-      config.headers.Authorization = `Bearer ${token}`
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
   error => {
     return Promise.reject(error);
-  }
-)
+  },
+);
+
+export const getOTPInstance = axios.create({
+  headers: {
+    Accept: 'application/json',
+    'Content-Type': 'application/json',
+  },
+  responseType: 'json',
+});
+
+getOTPInstance.interceptors.request.use(
+  response => response,
+  error => {
+    return Promise.reject(error);
+  },
+);

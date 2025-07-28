@@ -3,21 +3,23 @@ import { useFormRefs } from '../../hooks/useFormRefs';
 import useAuth from '../../hooks/useAuth';
 
 const useInputText = () => {
-  const form_Ref = useFormRefs().form;
+  const reg_form = useFormRefs().reg_form;
+  const login_form = useFormRefs().signIn_form
+
   const { state, updateState } = useAuth();
 
   const fieldSignin: {
     id: string;
-    ref: keyof typeof form_Ref
+    ref: keyof typeof login_form
     label: string;
     stateKey: keyof typeof state;
     placeholder: string;
     keyboardType?: 'default' | 'email-address';
-    next?: keyof typeof form_Ref;
+    next?: keyof typeof login_form;
   }[] = [
     {
-      id: 'email_phone',
-      ref: 'email_Phone',
+      id: 'email',
+      ref: 'email',
       label: 'Email',
       stateKey: 'email',
       placeholder: 'Enter your email',
@@ -31,30 +33,29 @@ const useInputText = () => {
       stateKey: 'password',
       placeholder: 'Enter Your Password',
       keyboardType: 'default',
-      next: 'confirm_password',
     },
   ];
 
   const fieldSignUp : {
     id: string;
-    ref: keyof typeof form_Ref,
+    ref: keyof typeof reg_form,
     label: string;
     stateKey: keyof typeof state;
     placeholder: string;
-    keyboardType?: 'default' | 'email-address';
-    next?: keyof typeof form_Ref;
+    keyboardType?: 'default' | 'email-address' | 'phone-pad' | 'numeric';
+    next?: keyof typeof reg_form;
   }[] = [
     {
-      id: 'full_name',
+      id: 'first name',
       ref: 'full_name',
-      label: 'Full Name',
+      label: 'First Name',
       stateKey: 'fullName',
       placeholder: 'Enter your full name',
       keyboardType: 'default',
       next: 'last_name',
     },
     {
-      id: 'last_name',
+      id: 'last name',
       ref: 'last_name',
       label: 'Last Name',
       stateKey: 'lastName',
@@ -72,7 +73,7 @@ const useInputText = () => {
       next: 'email_Phone',
     },
     {
-      id: 'email_Phone',
+      id: 'email',
       ref: 'email_Phone',
       label: 'Email',
       stateKey: 'regEmail',
@@ -90,44 +91,45 @@ const useInputText = () => {
       next: 'confirm_password',
     },
     {
-      id: 'confirm_password',
+      id: 'confirm password',
       ref: 'confirm_password',
       label: 'Confirm Password',
       stateKey: 'confirmPassword',
-      next: 'contact_number',
+      next: 'phone_number',
       placeholder: 'Confirm your password',
       keyboardType: 'default',
     },
     {
-      id: 'phone_number',
+      id: 'phone number',
+      ref: 'phone_number',
       label: 'Phone Number',
-      ref: 'contact_number',
       stateKey: 'phoneNumber',
       placeholder: 'Enter Your Number',
-      keyboardType: 'default',
+      keyboardType: 'phone-pad',
     }
   ]
 
   const inputSignin: InputText[] = fieldSignin.map(
     ({ label, stateKey, placeholder, keyboardType = 'default', next, ref }) => ({
       id: label,
-      ref: form_Ref[ref],
+      ref: login_form[ref],
       value: state[stateKey],
       onChangeText: text => updateState(stateKey, text),
       keyboardType,
-      nextRef: next ? form_Ref[next] : undefined,
+      nextRef: next ? login_form[next] : undefined,
       placeHolder: placeholder,
     }),
   );
 
   const inputSignUp: InputText[] = fieldSignUp.map(
-    ({ label, stateKey, placeholder, keyboardType = 'default', next, ref }) => ({
-      id: label,
-      ref: form_Ref[ref],
+    ({ id, stateKey, label, placeholder, keyboardType = 'default', next, ref }) => ({
+      id: id,
+      label: label,
+      ref: reg_form[ref],
       value: state[stateKey],
       onChangeText: text => updateState(stateKey, text),
       keyboardType,
-      nextRef: next ? form_Ref[next] : undefined,
+      nextRef: next ? reg_form[next] : undefined,
       placeHolder: placeholder,
     }),
   );
