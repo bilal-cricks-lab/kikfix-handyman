@@ -12,16 +12,47 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import { OtpInput } from 'react-native-otp-entry';
+import { useSelector } from 'react-redux';
+import { RootSate } from '../../../redux/Store/store';
+import { navigateToScreen } from '../../../utils/navigation';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import StackParamList from '../../../types/stack';
+import Toast from '../../../components/Error';
+import { OTPSend, OTPVerify } from '../../../services/authServices';
 
 const OTP = () => {
   const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
-  const [timer, setTimer] = useState(30); // 30-second countdown
+  const [loading, setLoading] = useState(false);
+  const [timer, setTimer] = useState(30);
   const [isResendDisabled, setIsResendDisabled] = useState(true);
+  const [toast, setToast] = useState({
+    visible: false,
+    message: '',
+    type: 'success' as 'success' | 'error' | 'warning',
+  });
+
+  const navigation = useNavigation<NavigationProp<StackParamList>>();
+
+  const user_data = useSelector(
+    (state: RootSate) => state.user_reg.regData?.email,
+  );
+
+  const showToast = (
+    message: string,
+    type: 'success' | 'error' | 'warning',
+  ) => {
+    setToast({ visible: true, message, type });
+  };
 
   useEffect(() => {
+    if (user_data) {
+      console.warn('No user data found — redirect or wait');
+      console.log('data is here', user_data);
+    }
     let interval: any;
     if (isResendDisabled) {
       interval = setInterval(() => {
@@ -41,20 +72,54 @@ const OTP = () => {
   const handleOtpChange = (value: string) => {
     setOtp(value);
     if (error) setError('');
+  };
 
-    if (value.length === 6) {
-      // Navigate to next screen or do something here
-    } else {
+  const handleVerifyPress = async () => {
+    if (otp.length !== 6) {
+      setError('Please enter a valid 6-digit code');
+      return;
+    }
+
+    if (!user_data) {
+      setError('Email is missing for OTP verification');
+      return;
+    }
+
+    const data = {
+      email: user_data, // ✅ Fixed
+      otp: Number(otp),
+    };
+
+    console.log('Payload:', data);
+
+    try {
+      setLoading(true);
+      const response = await OTPVerify(data);
+      showToast(response.data, 'success');
+      setTimeout(() => {
+        navigateToScreen(navigation, 'SignIn');
+      }, 2000);
+      console.log(response.data);
+      return response.data;
+    } catch (error: any) {
+      const errMsg = error?.response?.data?.errors;
+      console.error('OTP Error:', errMsg);
+      setError('OTP verification failed');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleResend = () => {
+
+  const handleResend = async () => {
     if (isResendDisabled) return;
+    const OTPReSend = await OTPSend(user_data);
     setOtp('');
     setError('');
     setIsResendDisabled(true);
     setTimer(30);
     console.log('OTP resent!');
+    return OTPReSend;
   };
 
   return (
@@ -69,29 +134,37 @@ const OTP = () => {
         <Text style={[typography.bodySmall, styles.subtitle]}>
           We've sent a 6-digit code to your phone number
         </Text>
-        <View>
-          <OtpInput
-            numberOfDigits={6}
-            focusColor={colors.primary[40]}
-            autoFocus
-            //   hideStick
-            placeholder=""
-            blurOnFilled
-            type="numeric"
-            secureTextEntry={false}
-            onTextChange={handleOtpChange}
-            theme={{
-              inputsContainerStyle: {
-                flexDirection: 'row',
-                gap: 0,
-              },
-              pinCodeContainerStyle: styles.otpBox,
-              pinCodeTextStyle: styles.otpText,
-              focusStickStyle: { height: 0 },
-            }}
-          />
-        </View>
+
+        <OtpInput
+          numberOfDigits={6}
+          focusColor={colors.primary[40]}
+          autoFocus
+          placeholder=""
+          blurOnFilled
+          type="numeric"
+          secureTextEntry={false}
+          onTextChange={(text: any) => handleOtpChange(text)}
+          theme={{
+            inputsContainerStyle: {
+              flexDirection: 'row',
+              gap: 0,
+            },
+            pinCodeContainerStyle: styles.otpBox,
+            pinCodeTextStyle: styles.otpText,
+            focusStickStyle: { height: 0 },
+          }}
+        />
+
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
+        {loading && (
+          <ActivityIndicator
+            style={{ marginTop: 16 }}
+            size="small"
+            color={colors.primary[40]}
+          />
+        )}
+
         <TouchableOpacity
           style={styles.resendButton}
           onPress={handleResend}
@@ -116,6 +189,26 @@ const OTP = () => {
           </Text>
         </TouchableOpacity>
       </View>
+      <TouchableOpacity
+        onPress={handleVerifyPress}
+        style={{
+          backgroundColor: colors.primary[40],
+          paddingVertical: 12,
+          paddingHorizontal: 24,
+          borderRadius: 8,
+          marginTop: 24,
+        }}
+      >
+        <Text style={{ color: '#fff', fontWeight: 'bold' }}>Verify OTP</Text>
+      </TouchableOpacity>
+      {toast && (
+        <Toast
+          onClose={() => setToast(prev => ({ ...prev, visible: false }))}
+          message={toast.message}
+          visible={toast.visible}
+          type={toast.type}
+        />
+      )}
     </KeyboardAvoidingView>
   );
 };

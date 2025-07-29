@@ -10,21 +10,22 @@ import {
   getServiceCategory,
   getServiceList,
   getSpecificService,
+  ServiceList,
 } from '../../../services/appServices/serviceCategory';
 import FixedHeader from '../../../components/Header';
 import { Category, SpecificService, Subcategory } from '../../../types/service';
-import { useSelector } from 'react-redux';
-import { RootSate } from '@/redux/Store/store';
 import SpecificServices from '../../../components/SpecificService';
+import JobDetailsStep from '../../../components/JobDetails';
 
 // Main Component
 const ServiceRequestScreen = () => {
-  const [step, setStep] = useState(4);
+  const [step, setStep] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState([]);
   const [selectedService, setSelectedService] = useState<number>(0);
   const [selectedJobSize, setSelectedJobSize] = useState<SpecificService[]>([]);
   const [categoryPageUrl, setCategoryPageUrl] = useState<string | null>(null);
   const [isLoadingMoreCategories, setIsLoadingMoreCategories] = useState(false);
+  const [services, setServices] = useState([]);
   const [data, setData] = useState<Category[]>([]);
   const [timing, setTiming] = useState<TimingData>({
     date: new Date().toISOString(),
@@ -38,7 +39,6 @@ const ServiceRequestScreen = () => {
     longitude: -89.6501,
     type: 'home',
   });
-  const userState = useSelector((state: RootSate) => state.user.user);
   React.useEffect(() => {
     onGetCategory();
   }, []);
@@ -50,13 +50,9 @@ const ServiceRequestScreen = () => {
     try {
       const response = await getServiceCategory();
       setData(prev => {
-        // Ensure prev is an array (default to empty array if undefined)
         const safePrev = Array.isArray(prev) ? prev : [];
-        const existingIds = new Set(safePrev.map(item => item?.id)); // Optional chaining for item.id
-
-        // Ensure response.data is an array before filtering
+        const existingIds = new Set(safePrev.map(item => item?.id));
         const newData = Array.isArray(response?.data) ? response.data : [];
-
         const newItems = newData.filter(
           (item: any) => item?.id && !existingIds.has(item.id), // Optional chaining for item.id
         );
@@ -103,6 +99,17 @@ const ServiceRequestScreen = () => {
     }
   };
 
+  const getServiceLists = async (id: number) => {
+    try {
+      const result = await ServiceList(id);
+      const services = result.data;
+      setServices(services);
+      return result.data;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const renderStep = () => {
     switch (step) {
       case 1:
@@ -133,13 +140,21 @@ const ServiceRequestScreen = () => {
         );
       case 4:
         return (
+          <JobDetailsStep
+            onBack={() => {}}
+            onNext={() => {}}
+            service={services}
+          />
+        );
+      case 5:
+        return (
           <LocationTimingStep
             jobSize={selectedJobSize}
             onBack={() => setStep(3)}
             onNext={handleLocationTimingSubmit}
           />
         );
-      case 5:
+      case 6:
         return (
           <ServiceProviders
             onBack={() => setStep(4)}
@@ -150,7 +165,7 @@ const ServiceRequestScreen = () => {
             onNext={() => setStep(6)}
           />
         );
-      case 6:
+      case 7:
         return (
           <BookingForm
             onBack={() => setStep(6)}
@@ -194,9 +209,16 @@ const ServiceRequestScreen = () => {
     }
   };
 
-  const handleJobSizeSelect = (jobSize: any) => {
-    console.log(jobSize);
-    setStep(4);
+  const handleJobSizeSelect = (jobSize: number) => {
+    getServiceLists(jobSize)
+    const selectedService = selectedJobSize.find(
+      (item: SpecificService) => item.id === jobSize,
+    );
+    if (selectedService?.job_size === true) {
+      setStep(4);
+    } else {
+      setStep(5);
+    }
   };
 
   const handleLocationTimingSubmit = (data: any) => {

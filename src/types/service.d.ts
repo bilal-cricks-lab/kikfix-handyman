@@ -10,6 +10,7 @@ export type SpecificService = {
   max_price: string
   min_duration: number;
   max_duration: number;
+  job_size: boolean;
   subcategory_id: number;
 };
 

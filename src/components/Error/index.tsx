@@ -55,7 +55,7 @@ const Toast: React.FC<ToastProps> = ({
   const getToastColor = () => {
     switch (type) {
       case 'success':
-        return colors.secondary[40];
+        return colors.secondary[300];
       case 'warning':
         return '#F59E0B';
       case 'error':

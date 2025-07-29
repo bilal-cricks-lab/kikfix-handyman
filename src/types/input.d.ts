@@ -12,6 +12,7 @@ type InputText = {
   onChangeText?: (text) => void 
   value?: string | undefined;
   onChangeText?: (text: any) => void;
+  phoneError: string
 };
 
 export default InputText;

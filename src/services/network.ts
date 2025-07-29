@@ -1,10 +1,12 @@
 import {
   getOTPInstance,
   getServiceCategory,
+  getServiceList,
   getServiceListInstance,
   getSpecificService,
   SignInInstance,
   SignUpInstance,
+  verifyOTPInstance,
 } from './interceptors';
 import { AxiosResponse } from 'axios';
 
@@ -88,3 +90,24 @@ export const otpCallPost = async <T extends Record<string, any>>(
     throw error;
   }
 };
+
+export const otpCallPostVerify = async <T extends Record<string, any>>(
+  url: string,
+  data: T
+): Promise<any> => {
+  try {
+    const response: AxiosResponse = await verifyOTPInstance.post(url, data); // ✅ send raw JSON
+    return response.data;
+  } catch (error: any) {
+    throw error;
+  }
+};
+
+export const callGetServiceList = async (url: string): Promise<any> => {
+  try {
+    const response: AxiosResponse = await getServiceList.get(url);
+    return response.data;
+  } catch (error) {
+    console.log(error);
+  }
+}

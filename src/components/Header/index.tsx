@@ -119,10 +119,12 @@ const FixedHeader = ({
           )}
           <Text style={typography.h3}>
             {currentStep === 4
-              ? 'Location and Timing'
+              ? 'Job Details'
               : currentStep === 5
-              ? 'Available Handyman'
+              ? 'Location and Timing'
               : currentStep === 6
+              ? 'Available Handyman'
+              : currentStep === 7 
               ? 'Booking Details'
               : 'Request a Service'}
           </Text>

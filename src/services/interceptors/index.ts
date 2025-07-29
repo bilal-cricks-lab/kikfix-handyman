@@ -138,3 +138,39 @@ getOTPInstance.interceptors.request.use(
     return Promise.reject(error);
   },
 );
+
+export const verifyOTPInstance = axios.create({
+  headers: {
+    Accept: 'application/json',
+    'Content-Type': 'application/json', // ✅ JSON not multipart
+  },
+  timeout: 2000,
+  withCredentials: true,
+  responseType: 'json',
+});
+
+verifyOTPInstance.interceptors.request.use(
+  async config => {
+    return config;
+  },
+  error => {
+    return Promise.reject(error);
+  },
+);
+
+export const getServiceList = axios.create({
+  headers: {
+    Accept: 'application/json',
+    'Content-Type': 'application/json',
+  },
+  responseType: 'json'
+})
+
+getServiceList.interceptors.request.use(
+  async config => {
+    return config
+  },
+  error => {
+    return Promise.reject(error)
+  }
+);

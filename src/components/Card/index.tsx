@@ -91,12 +91,13 @@ const styles = StyleSheet.create({
   email: {
     fontSize: 14,
     color: '#555',
-    marginTop: 2,
+    marginTop: 5,
+    width: 100,
   },
   role: {
     fontSize: 14,
     color: '#555',
-    marginTop: 2,
+    marginTop: 5,
   },
   divider: {
     height: 1,

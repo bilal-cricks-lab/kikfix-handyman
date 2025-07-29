@@ -8,6 +8,8 @@ import {
   Image,
   ActivityIndicator,
 } from 'react-native';
+import { Store } from '../../redux/Store/store';
+import { setBookingData } from '../../redux/Reducers/bookingSlice';
 
 type Category = {
   id: string | number;
@@ -44,7 +46,12 @@ const ServiceCategoryStep = ({
         renderItem={({ item }) => (
           <TouchableOpacity
             className="w-full flex-row items-center gap-4 p-4 mb-4 rounded-xl border border-gray-300 active:border-green-700 active:bg-green-50"
-            onPress={() => onNext(item.id)}
+            onPress={() => {
+              onNext(item.id)
+              Store.dispatch(setBookingData({
+                category_id: item.id,
+              }))
+            }}
           >
             <View className="p-3 bg-gray-200 rounded-lg">
               <Image

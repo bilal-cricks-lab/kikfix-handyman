@@ -1,7 +1,8 @@
 import { getApiUrl } from '../../config/env';
-import { callGetApi, callGetApiWithToken, callgetSpecificService } from '../network';
+import { callGetApi, callGetApiWithToken, callGetServiceList, callgetSpecificService } from '../network';
 
 const ServiceCategory = getApiUrl('/api/get-category-list')
+const ServiceLists = getApiUrl('/api/get-service-detail')
 
 export const getServiceCategory = async () => {
   try {
@@ -29,5 +30,15 @@ export const getSpecificService = async (id: number) => {
     return response;
   } catch (error) {
     console.log(error);
+  }
+}
+
+export const ServiceList = async (id: number) => {
+  try {
+    const ServiceList = getApiUrl(`/api/get-service-detail?id=${id}`)
+    const response = await callGetServiceList(ServiceList);
+    return response;
+  } catch (error) {
+    console.log(error)
   }
 }

@@ -8,7 +8,7 @@ import useInputText from '../../../data/InputText';
 import CustomButton from '../../../components/Button';
 import { t } from 'i18next';
 import LogoText from '../../../components/LogoText';
-import { Login, Register, OTP } from '../../../services/authServices';
+import { Login, Register } from '../../../services/authServices';
 import Toast from '../../../components/Error';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { setUserData } from '../../../redux/Reducers/userSlice';
@@ -16,6 +16,8 @@ import { Store } from '../../../redux/Store/store';
 import { navigateToScreen } from '../../../utils/navigation';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import StackParamList from '../../../types/stack';
+import { setRegData } from '../../../redux/Reducers/regSlice';
+import { useDispatch } from 'react-redux';
 
 export default function AuthScreen() {
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
@@ -28,6 +30,7 @@ export default function AuthScreen() {
   const [loading, setLoading] = useState<boolean>(false);
   const { email, password } = formValue.state;
   const navigation = useNavigation<NavigationProp<StackParamList>>();
+  const dispatch = useDispatch();
 
   const showToast = (
     message: string,
@@ -115,6 +118,7 @@ export default function AuthScreen() {
       showToast('The Phone Number field is Required', 'error');
       return;
     }
+
     const data = {
       first_name: formValue.state.fullName,
       last_name: formValue.state.lastName,
@@ -124,18 +128,27 @@ export default function AuthScreen() {
       contact_number: formValue.state.phoneNumber,
       confirmPassword: formValue.state.confirmPassword,
     };
+
+    console.log(data);
     setLoading(true);
     try {
       console.log(data);
       const response = await Register(data);
-      const otpSend = await OTP(data.email);
-      console.log(otpSend);
-      if (response && otpSend) {
-        showToast('Account Created', 'success');
-        navigateToScreen(navigation, 'Otp');
-      }
+      if (response) {
+        showToast('Account Created Successfully', 'success');
+        setTimeout(() => {
+          navigateToScreen(navigation, 'Otp');
+        }, 2000);
+        console.log(response.data)
+      };
+      Store.dispatch(
+        setRegData({
+          id: 0,
+          email: formValue.state.regEmail,
+        }),
+      );
       setLoading(false);
-      console.log(response);
+      return
     } catch (error: any) {
       setLoading(false);
       const errMsg = error?.response?.data?.message || 'Something went wrong';

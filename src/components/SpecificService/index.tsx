@@ -2,6 +2,9 @@ import React, { useMemo, useCallback } from 'react';
 import { View, TouchableOpacity, Text, FlatList } from 'react-native';
 import { SpecificService } from '../../types/service';
 import { WrenchIcon } from 'lucide-react-native';
+import { useSelector } from 'react-redux';
+import { RootSate, Store } from '../../redux/Store/store';
+import { setBookingData } from '../../redux/Reducers/bookingSlice';
 
 const SpecificServices = ({
   services = [],
@@ -31,14 +34,26 @@ const SpecificServices = ({
     );
   }, [services, selectedSubcategoryId]);
 
+  const user_booking = useSelector(
+    (state: RootSate) => state.booking.booking?.subcategory_id,
+  );
+
+  React.useEffect(() => {
+    console.log(user_booking);
+  }, []);
+
   // ✅ Memoized renderItem for performance
   const renderItem = useCallback(
     ({ item }: { item: SpecificService }) => {
-      // const fixer = item.fixer_services?.[0]; // if needed
       return (
         <TouchableOpacity
           className="w-full md:w-[48%] flex-col items-start gap-3 p-4 rounded-xl border border-gray-300 active:border-green-700 active:bg-green-50"
-          onPress={() => onNext(item)}
+          onPress={() => {
+            onNext(item.id)
+            Store.dispatch(setBookingData({
+              service_id: item.id
+            }))
+          }}
         >
           <View className="flex-row items-center gap-3">
             <View className="p-2 bg-gray-200 rounded-lg">

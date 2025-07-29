@@ -46,3 +46,12 @@ interface UserProps {
 export interface UserArray {
   user: UserProps | null;
 }
+
+interface UserReg {
+  id: number;
+  email: string;
+}
+
+export interface UserRegArray {
+  regData: UserReg | null
+}

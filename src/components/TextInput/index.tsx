@@ -15,7 +15,6 @@ interface InputFieldsProps {
 
 const InputFields = ({ inputData }: InputFieldsProps) => {
   const [focusedInput, setFocusedInput] = useState<string | null>(null);
-  const [phoneError, setPhoneError] = useState<string | null>(null);
   const phoneInputRef = useRef<PhoneInputRef>(null);
 
   const returnKeyTypes: Record<string, 'next' | 'done'> = {
@@ -55,11 +54,6 @@ const InputFields = ({ inputData }: InputFieldsProps) => {
               }}
               countryPickerButtonStyle={styles.countryPickerButton}
             />
-            {phoneError && (
-              <Text style={{ color: 'red', marginTop: 4, alignSelf: 'flex-end' }}>
-                {phoneError}
-              </Text>
-            )}
           </View>
         );
       }
