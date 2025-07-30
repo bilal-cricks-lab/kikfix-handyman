@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { BookingRequest, BookingArray } from "../../types/booking";
 
 const bookingInitialState: BookingArray = {
-    booking: null
+    booking: null,
 };
 
 export const booking_Slice = createSlice({

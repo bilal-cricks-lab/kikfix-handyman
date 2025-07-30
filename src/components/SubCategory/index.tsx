@@ -13,7 +13,7 @@ const SpecificServiceStep = ({
 }: {
   category: SpecificService[];
   onBack: () => void;
-  onNext: (service: any) => void;
+  onNext: (service: number | string) => void;
 }) => {
   // Memoize filtered data to avoid re-filtering on every render
   const filteredCategories = useMemo(() => {
@@ -39,6 +39,7 @@ const SpecificServiceStep = ({
           onNext(item.id);
           Store.dispatch(
             setBookingData({
+              category_id: user_booking,
               subcategory_id: item.id,
             }),
           );

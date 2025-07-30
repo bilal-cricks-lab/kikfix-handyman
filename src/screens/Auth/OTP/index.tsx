@@ -27,13 +27,14 @@ const OTP = () => {
   const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [timer, setTimer] = useState(30);
+  const [timer, setTimer] = useState(120);
   const [isResendDisabled, setIsResendDisabled] = useState(true);
   const [toast, setToast] = useState({
     visible: false,
     message: '',
     type: 'success' as 'success' | 'error' | 'warning',
   });
+  const [otpCount, setOtpCount] = useState<number | null>(null);
 
   const navigation = useNavigation<NavigationProp<StackParamList>>();
 
@@ -49,10 +50,6 @@ const OTP = () => {
   };
 
   useEffect(() => {
-    if (user_data) {
-      console.warn('No user data found — redirect or wait');
-      console.log('data is here', user_data);
-    }
     let interval: any;
     if (isResendDisabled) {
       interval = setInterval(() => {
@@ -66,6 +63,21 @@ const OTP = () => {
         });
       }, 1000);
     }
+
+    const fetchOtpCount = async () => {
+      try {
+        const response = await OTPSend({ email: user_data });
+        const count = response?.otp_count;
+
+        if (count !== undefined) {
+          setOtpCount(count);
+        }
+      } catch (err) {
+        console.log('Failed to fetch OTP count on mount', err);
+      }
+    };
+
+    fetchOtpCount();
     return () => clearInterval(interval);
   }, [isResendDisabled]);
 
@@ -86,7 +98,7 @@ const OTP = () => {
     }
 
     const data = {
-      email: user_data, // ✅ Fixed
+      email: user_data,
       otp: Number(otp),
     };
 
@@ -95,31 +107,44 @@ const OTP = () => {
     try {
       setLoading(true);
       const response = await OTPVerify(data);
-      showToast(response.data, 'success');
+      showToast('OTP Verified', 'success');
       setTimeout(() => {
         navigateToScreen(navigation, 'SignIn');
       }, 2000);
       console.log(response.data);
       return response.data;
     } catch (error: any) {
-      const errMsg = error?.response?.data?.errors;
+      const errMsg = error?.response?.data?.message;
       console.error('OTP Error:', errMsg);
-      setError('OTP verification failed');
+      showToast(errMsg, 'error');
     } finally {
       setLoading(false);
     }
   };
 
-
   const handleResend = async () => {
     if (isResendDisabled) return;
-    const OTPReSend = await OTPSend(user_data);
-    setOtp('');
-    setError('');
-    setIsResendDisabled(true);
-    setTimer(30);
-    console.log('OTP resent!');
-    return OTPReSend;
+    const data = { email: user_data };
+
+    try {
+      const OTPReSend = await OTPSend(data);
+      const count = OTPReSend?.otp_count;
+      if (count === 2) {
+        setOtpCount(count);
+      }
+
+      setOtp('');
+      setError('');
+      setIsResendDisabled(true);
+      setTimer(120);
+      showToast(OTPReSend.message, 'success');
+      console.log('OTP resent!');
+      return OTPReSend;
+    } catch (error: any) {
+      console.log(error);
+      const errMsg = error?.response?.data?.message;
+      showToast(errMsg, 'error');
+    }
   };
 
   return (
@@ -132,7 +157,7 @@ const OTP = () => {
           Enter Verification Code
         </Text>
         <Text style={[typography.bodySmall, styles.subtitle]}>
-          We've sent a 6-digit code to your phone number
+          We've sent a 6-digit code to your Email Address
         </Text>
 
         <OtpInput
@@ -189,6 +214,11 @@ const OTP = () => {
           </Text>
         </TouchableOpacity>
       </View>
+      {otpCount !== null && (
+        <Text style={{ marginTop: 16, color: '#6B7280', fontSize: 14 }}>
+          OTP attempts: {otpCount}
+        </Text>
+      )}
       <TouchableOpacity
         onPress={handleVerifyPress}
         style={{
@@ -200,6 +230,18 @@ const OTP = () => {
         }}
       >
         <Text style={{ color: '#fff', fontWeight: 'bold' }}>Verify OTP</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => navigateToScreen(navigation, 'SignIn')}
+        style={{
+          backgroundColor: colors.primary[40],
+          paddingVertical: 12,
+          paddingHorizontal: 24,
+          borderRadius: 8,
+          marginTop: 24,
+        }}
+      >
+        <Text style={{ color: '#fff', fontWeight: 'bold' }}>Go to Login</Text>
       </TouchableOpacity>
       {toast && (
         <Toast

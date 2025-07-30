@@ -1,8 +1,8 @@
 import { getApiUrl } from '../../config/env';
-import { callGetApi, callGetApiWithToken, callGetServiceList, callgetSpecificService } from '../network';
+import { callGetApi, callGetApiWithToken, callGetServiceList, callgetSpecificService, saveBookingsPost } from '../network';
 
 const ServiceCategory = getApiUrl('/api/get-category-list')
-const ServiceLists = getApiUrl('/api/get-service-detail')
+const saveUrl = getApiUrl('/api/save-booking')
 
 export const getServiceCategory = async () => {
   try {
@@ -42,3 +42,12 @@ export const ServiceList = async (id: number) => {
     console.log(error)
   }
 }
+
+export const saveBookingsData = async (data: any) => {
+  try {
+    const response = await saveBookingsPost(saveUrl, data);
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};

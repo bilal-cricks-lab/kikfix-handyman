@@ -1,6 +1,6 @@
 import React, { useMemo, useCallback } from 'react';
 import { View, TouchableOpacity, Text, FlatList } from 'react-native';
-import { SpecificService } from '../../types/service';
+import { FixerServices, SpecificService } from '../../types/service';
 import { WrenchIcon } from 'lucide-react-native';
 import { useSelector } from 'react-redux';
 import { RootSate, Store } from '../../redux/Store/store';
@@ -15,7 +15,7 @@ const SpecificServices = ({
   services: SpecificService[];
   selectedSubcategoryId: number;
   onBack: () => void;
-  onNext: (service: SpecificService) => void;
+  onNext: (service: number | string) => void;
 }) => {
   function formatDurationRange(min: number, max: number): string {
     const minHours = Math.floor(min / 60);
@@ -34,9 +34,15 @@ const SpecificServices = ({
     );
   }, [services, selectedSubcategoryId]);
 
-  const user_booking = useSelector(
-    (state: RootSate) => state.booking.booking?.subcategory_id,
-  );
+  const filtered_fixer_services = useMemo(() => {
+    return services.map((service: any) => {
+      return service.fixer_services.filter((item: any) => {
+        return item.fixer_id;
+      });
+    });
+  }, [services, selectedSubcategoryId]);
+
+  const user_booking = useSelector((state: RootSate) => state.booking.booking);
 
   React.useEffect(() => {
     console.log(user_booking);
@@ -49,10 +55,21 @@ const SpecificServices = ({
         <TouchableOpacity
           className="w-full md:w-[48%] flex-col items-start gap-3 p-4 rounded-xl border border-gray-300 active:border-green-700 active:bg-green-50"
           onPress={() => {
-            onNext(item.id)
-            Store.dispatch(setBookingData({
-              service_id: item.id
-            }))
+            const selectedFixerServices = item.fixer_services?.filter(
+              (fixer: FixerServices) => fixer?.fixer_id,
+            );
+            const fixerIds = selectedFixerServices?.map((f: any) => f.fixer_id);
+            onNext(item.id);
+            onNext(item.id);
+            Store.dispatch(
+              setBookingData({
+                category_id: user_booking?.category_id,
+                subcategory_id: user_booking?.subcategory_id,
+                service_id: item.id,
+                fixer_id: Number(fixerIds.toString()),
+                name: item.name,
+              }),
+            );
           }}
         >
           <View className="flex-row items-center gap-3">

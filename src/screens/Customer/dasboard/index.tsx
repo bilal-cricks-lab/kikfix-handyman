@@ -10,12 +10,16 @@ import {
   getServiceCategory,
   getServiceList,
   getSpecificService,
+  saveBookingsData,
   ServiceList,
 } from '../../../services/appServices/serviceCategory';
 import FixedHeader from '../../../components/Header';
 import { Category, SpecificService, Subcategory } from '../../../types/service';
 import SpecificServices from '../../../components/SpecificService';
 import JobDetailsStep from '../../../components/JobDetails';
+import { useSelector } from 'react-redux';
+import { RootSate } from '../../../redux/Store/store';
+import { t } from 'i18next';
 
 // Main Component
 const ServiceRequestScreen = () => {
@@ -39,8 +43,11 @@ const ServiceRequestScreen = () => {
     longitude: -89.6501,
     type: 'home',
   });
+
+  const user_data = useSelector((state: RootSate) => state.booking.booking);
   React.useEffect(() => {
     onGetCategory();
+    console.log(user_data);
   }, []);
 
   const onGetCategory = async () => {
@@ -104,8 +111,33 @@ const ServiceRequestScreen = () => {
       const result = await ServiceList(id);
       const services = result.data;
       setServices(services);
+      console.log(services);
       return result.data;
     } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const bookingComplete = async () => {
+    const data = {
+      fixer_id: user_data?.fixer_id,
+      category_id: 9,
+      subcategory_id: 1,
+      service_id: 11,
+      service_detail_id: 1,
+      date: '25-07-2025',
+      time: '18:00',
+      address: 'H4 himilton',
+    };
+    try {
+      const response = await saveBookingsData(data);
+      if(response){
+        console.log("Your Booking Data", response.data)
+      }
+      const result = response.data
+      return result;
+    } catch (error: any) {
+      console.error(error.response.data.message);
       console.log(error);
     }
   };
@@ -142,7 +174,7 @@ const ServiceRequestScreen = () => {
         return (
           <JobDetailsStep
             onBack={() => {}}
-            onNext={() => {}}
+            onNext={handleJobSize}
             service={services}
           />
         );
@@ -162,7 +194,7 @@ const ServiceRequestScreen = () => {
             timing={timing}
             location={location}
             onProviderSelect={() => {}}
-            onNext={() => setStep(6)}
+            onNext={() => setStep(7)}
           />
         );
       case 7:
@@ -173,7 +205,7 @@ const ServiceRequestScreen = () => {
             serviceName="Plumbing"
             timing={timing}
             location={location}
-            onBookingComplete={() => []}
+            onBookingComplete={bookingComplete}
           />
         );
       default:
@@ -209,8 +241,8 @@ const ServiceRequestScreen = () => {
     }
   };
 
-  const handleJobSizeSelect = (jobSize: number) => {
-    getServiceLists(jobSize)
+  const handleJobSizeSelect = (jobSize: any) => {
+    getServiceLists(jobSize);
     const selectedService = selectedJobSize.find(
       (item: SpecificService) => item.id === jobSize,
     );
@@ -219,6 +251,11 @@ const ServiceRequestScreen = () => {
     } else {
       setStep(5);
     }
+  };
+
+  const handleJobSize = (id: any) => {
+    console.log(id);
+    setStep(5);
   };
 
   const handleLocationTimingSubmit = (data: any) => {
@@ -234,7 +271,7 @@ const ServiceRequestScreen = () => {
     //   urgency: data.urgency,
     // });
     // setLocation(data.location);
-    setStep(5);
+    setStep(6);
   };
 
   return (

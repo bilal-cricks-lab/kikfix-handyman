@@ -5,6 +5,7 @@ import {
   SafeAreaView,
   Platform,
   StyleSheet,
+  PermissionsAndroid,
 } from 'react-native';
 import {
   LucideShield,
@@ -23,6 +24,13 @@ import { navigateToScreen } from '../../../utils/navigation';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import StackParamList from '../../../types/stack';
 import IMAGES from '../../../constants/Images';
+import Geolocation from '@react-native-community/geolocation';
+import Geocoder from 'react-native-geocoding';
+import React from 'react';
+import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
+import ENV from '../../../config/env';
+
+Geocoder.init(ENV.KEY.API_KEY as string);
 
 export default function OnBoarding() {
   const service_Provider = [
@@ -46,7 +54,69 @@ export default function OnBoarding() {
     text,
   }));
 
-  const navigation = useNavigation<NavigationProp<StackParamList>>()
+  React.useEffect(() => {
+    onLocationTurnOn();
+  }, []);
+
+  const navigation = useNavigation<NavigationProp<StackParamList>>();
+
+  const onLocationTurnOn = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        {
+          title: 'KikFix',
+          message: 'KikFix wants to know your location',
+          buttonNeutral: 'Ask Me Later',
+          buttonPositive: 'Ok',
+          buttonNegative: 'Cancel',
+        },
+      );
+
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        Geolocation.getCurrentPosition(
+          position => {
+            const { latitude, longitude } = position.coords;
+            Geocoder.from(latitude, longitude)
+              .then((json: any) => {
+                const formatted_Address =
+                  json.results[0]?.formatted_address || 'Unknown location';
+                console.log(formatted_Address);
+              })
+              .catch((err: string) => console.log('Geocoding error:', err));
+          },
+          error => {
+            console.log('Error getting location:', error.message);
+          },
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 5000 }, // Prioritize speed
+        );
+      } else if (Platform.OS === 'ios') {
+        const result = await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
+        if (result === RESULTS.GRANTED) {
+          Geolocation.getCurrentPosition(
+            position => {
+              const { latitude, longitude } = position.coords;
+              Geocoder.from(latitude, longitude)
+                .then((json: any) => {
+                  const formatted_Address =
+                    json.results[0]?.formatted_address || 'Unknown location';
+                  console.log(formatted_Address);
+                })
+                .catch((err: string) => console.log('Geocoding error:', err));
+                console.log(latitude, longitude);
+            },
+            error => {
+              console.log('Error getting location:', error.message);
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 5000 }, // Prioritize speed
+          );
+        }
+      }
+    } catch (error) {
+      console.log('Permission error:', error);
+    } finally {
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -88,7 +158,7 @@ export default function OnBoarding() {
         <View className="flex-row flex-wrap justify-between mt-12 gap-y-4">
           <FeatureItem
             Icon={LucideUsers}
-            color='#4B5563'
+            color="#4B5563"
             title="50K+"
             subtitle="Active Users"
           />

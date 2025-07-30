@@ -17,7 +17,6 @@ import { navigateToScreen } from '../../../utils/navigation';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import StackParamList from '../../../types/stack';
 import { setRegData } from '../../../redux/Reducers/regSlice';
-import { useDispatch } from 'react-redux';
 
 export default function AuthScreen() {
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
@@ -30,8 +29,6 @@ export default function AuthScreen() {
   const [loading, setLoading] = useState<boolean>(false);
   const { email, password } = formValue.state;
   const navigation = useNavigation<NavigationProp<StackParamList>>();
-  const dispatch = useDispatch();
-
   const showToast = (
     message: string,
     type: 'success' | 'error' | 'warning',
@@ -55,14 +52,13 @@ export default function AuthScreen() {
         email: email,
         password: password,
       };
-
       const response = await Login(data);
-      console.log(response);
-      showToast('Logged In SuccessFully', 'success');
-      console.log(response.data.api_token);
       if (response.data.user_type === 'user') {
         AsyncStorage.setItem('user_token', response.data.api_token);
-        navigateToScreen(navigation, 'Cust');
+        showToast('LoggedIn Successfully', 'success')
+        setTimeout(() => {
+          navigateToScreen(navigation, 'Cust');
+        }, 2000);
       }
       Store.dispatch(
         setUserData({
@@ -77,9 +73,16 @@ export default function AuthScreen() {
         }),
       );
       setLoading(false);
+      return response;
     } catch (error: any) {
       const errMsg =
-        error?.response?.data?.message || 'Invalid login credentials';
+        error?.response?.data?.message ||
+        'Something Went Wrong. Please try Again Later';
+      if (error?.response?.data?.is_verfied === 0) {
+        setTimeout(() => {
+          navigateToScreen(navigation, 'Otp')
+        }, 2000);
+      }
       setLoading(false);
       showToast(errMsg, 'error');
     }
@@ -139,8 +142,8 @@ export default function AuthScreen() {
         setTimeout(() => {
           navigateToScreen(navigation, 'Otp');
         }, 2000);
-        console.log(response.data)
-      };
+        console.log(response.data);
+      }
       Store.dispatch(
         setRegData({
           id: 0,
@@ -148,7 +151,7 @@ export default function AuthScreen() {
         }),
       );
       setLoading(false);
-      return
+      return;
     } catch (error: any) {
       setLoading(false);
       const errMsg = error?.response?.data?.message || 'Something went wrong';

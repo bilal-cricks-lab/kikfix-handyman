@@ -129,11 +129,15 @@ export const getOTPInstance = axios.create({
     Accept: 'application/json',
     'Content-Type': 'application/json',
   },
+  timeout: 2000,
+  withCredentials: true,
   responseType: 'json',
 });
 
 getOTPInstance.interceptors.request.use(
-  response => response,
+  async config => {
+    return config;
+  },
   error => {
     return Promise.reject(error);
   },
@@ -142,7 +146,7 @@ getOTPInstance.interceptors.request.use(
 export const verifyOTPInstance = axios.create({
   headers: {
     Accept: 'application/json',
-    'Content-Type': 'application/json', // ✅ JSON not multipart
+    'Content-Type': 'application/json',
   },
   timeout: 2000,
   withCredentials: true,
@@ -163,14 +167,35 @@ export const getServiceList = axios.create({
     Accept: 'application/json',
     'Content-Type': 'application/json',
   },
-  responseType: 'json'
-})
+  responseType: 'json',
+});
 
 getServiceList.interceptors.request.use(
   async config => {
-    return config
+    return config;
   },
   error => {
-    return Promise.reject(error)
-  }
+    return Promise.reject(error);
+  },
+);
+
+export const saveBookingsInstance = axios.create({
+  headers: {
+    Accept: 'application/json',
+    'Content-Type': 'application',
+  },
+  responseType: 'json',
+});
+
+saveBookingsInstance.interceptors.request.use(
+  async config => {
+    const token = await AsyncStorage.getItem('user_token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  error => {
+    return Promise.reject(error);
+  },
 );

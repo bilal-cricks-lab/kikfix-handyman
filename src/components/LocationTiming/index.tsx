@@ -4,6 +4,7 @@ import {
   TouchableOpacity,
   ScrollView,
   TextInput,
+  StyleSheet,
 } from 'react-native';
 import React, { useState } from 'react';
 import { addDays, isToday, isTomorrow, format } from 'date-fns';
@@ -12,6 +13,16 @@ import Select from '../Dropdown';
 import { colors, typography } from '../../design-system';
 import { Dropdown } from 'react-native-element-dropdown';
 import { ChevronDown, ChevronUp } from 'lucide-react-native';
+import { useSelector } from 'react-redux';
+import { RootSate } from '../../redux/Store/store';
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import 'react-native-get-random-values'
+import {
+  fontScale,
+  horizontalScale,
+  verticalScale,
+} from '../../utils/screenSize';
+import ENV from '../../config/env';
 
 const LocationTimingStep = ({
   jobSize,
@@ -26,6 +37,12 @@ const LocationTimingStep = ({
   const [selectedLocation, setSelectedLocation] = useState<number | null>(null);
   const [customAddress, setCustomAddress] = useState('');
   const [value, setValue] = useState<string>('');
+
+  const user_data = useSelector((state: RootSate) => state.booking.booking);
+
+  React.useEffect(() => {
+    console.log(user_data);
+  }, []);
 
   const generateDates = () => {
     const dates = [];
@@ -70,14 +87,14 @@ const LocationTimingStep = ({
     {
       id: 'standard',
       name: 'Standard',
-      timeframe: 'Within 1-2 days',
+      timeframe: '1-2 days',
       color: 'bg-green-100',
       border: 'border-green-300',
     },
     {
       id: 'urgent',
       name: 'Urgent',
-      timeframe: 'Today/Tomorrow',
+      timeframe: 'Today',
       color: 'bg-orange-100',
       border: 'border-orange-300',
     },
@@ -99,27 +116,27 @@ const LocationTimingStep = ({
     border: option.border,
   }));
 
-   const renderUrgencyItem = (item: any) => {
+  const renderUrgencyItem = (item: any) => {
     return (
       <View className={`p-3 ${item.color} ${item.border} rounded-lg my-1`}>
-        <Text style={{...typography.bodySmall}}>{item.name}</Text>
-        <Text style={{...typography.bodyXs, color: colors.gray[500]}}>
+        <Text style={{ ...typography.bodySmall }}>{item.name}</Text>
+        <Text style={{ ...typography.bodyXs, color: colors.gray[500] }}>
           {item.timeframe}
         </Text>
       </View>
     );
   };
-  
+
   return (
     <ScrollView className="flex-1 bg-gray-50">
       <View className="p-6">
         <View className="flex-col gap-6 rounded-xl border p-4 mb-6 bg-green-100 border-green-300">
           <View className="flex-row items-center justify-between">
             <View>
-              <Text className="font-medium text-green-900">{jobSize.name}</Text>
-              <Text className="text-sm text-green-700">
-                {jobSize.description}
+              <Text className="font-medium text-green-900">
+                {user_data?.name}
               </Text>
+              <Text className="text-sm text-green-700">{user_data?.serve}</Text>
             </View>
             <View className="text-right">
               <Text className="text-sm text-green-700">Step 4 of 4</Text>
@@ -206,12 +223,33 @@ const LocationTimingStep = ({
               Or enter a different address
             </Text>
             <View className="flex-row gap-2">
-              <TextInput
-                className="flex-1 h-12 border border-gray-300 rounded-md px-3 py-1 bg-white"
-                placeholder="Enter street address, city, state"
-                value={customAddress}
-                onChangeText={setCustomAddress}
-              />
+              <View
+                style={{
+                  alignItems: 'center',
+                  marginTop: verticalScale(40),
+                  zIndex: 1,
+                  flex: 1,
+                }}
+              >
+                <GooglePlacesAutocomplete
+                  placeholder="Enter Your Address"
+                  fetchDetails={true}
+                  styles={{
+                    container: styles.addressContainer,
+                    textInput: styles.inputText,
+                  }}
+                  query={{
+                    key: ENV.KEY.API_KEY,
+                    language: 'en',
+                  }}
+                  onFail={error => console.log(error)}
+                  onPress={(data, details) => {
+                    console.log(data.description);
+                    console.log(details?.location);
+                  }}
+                />
+              </View>
+
               <TouchableOpacity
                 className="h-12 w-12 rounded-md border border-gray-300 flex items-center justify-center"
                 disabled={!customAddress}
@@ -276,5 +314,22 @@ const LocationTimingStep = ({
     </ScrollView>
   );
 };
+
+const styles = StyleSheet.create({
+  addressContainer: {
+    width: horizontalScale(350),
+  },
+  inputText: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: verticalScale(50),
+    paddingLeft: horizontalScale(18),
+    fontSize: fontScale(14),
+    borderColor: '#D9D9D9',
+    backgroundColor: '#F3F3F5',
+    borderRadius: 10,
+    width: horizontalScale(355),
+  },
+});
 
 export default LocationTimingStep;

@@ -24,7 +24,7 @@ const InputFields = ({ inputData }: InputFieldsProps) => {
     'Confirm Password': 'done',
   };
 
-  const secureFields = ['Password', 'Confirm Password'];
+  const secureFields = ['password', 'confirm password'];
 
   return inputData.map(
     ({ id, ref, keyboardType, nextRef, placeHolder, value, onChangeText }) => {
@@ -69,7 +69,7 @@ const InputFields = ({ inputData }: InputFieldsProps) => {
             onChangeText={onChangeText}
             keyboardType={keyboardType}
             placeholder={placeHolder}
-            returnKeyType={returnKeyTypes[id] || 'done'}
+            returnKeyType={returnKeyTypes[id]}
             secureTextEntry={secureFields.includes(id)}
             placeholderTextColor={'grey'}
             style={[

@@ -4,6 +4,7 @@ import {
   getServiceList,
   getServiceListInstance,
   getSpecificService,
+  saveBookingsInstance,
   SignInInstance,
   SignUpInstance,
   verifyOTPInstance,
@@ -79,12 +80,7 @@ export const otpCallPost = async <T extends Record<string, any>>(
   data: T,
 ): Promise<any> => {
   try {
-    const formData = new FormData();
-    Object.entries(data).forEach(([key, value]) => {
-      formData.append(key, String(value));
-    });
-
-    const response: AxiosResponse = await getOTPInstance.post(url, formData);
+    const response: AxiosResponse = await getOTPInstance.post(url, data);
     return response.data;
   } catch (error: any) {
     throw error;
@@ -96,7 +92,7 @@ export const otpCallPostVerify = async <T extends Record<string, any>>(
   data: T
 ): Promise<any> => {
   try {
-    const response: AxiosResponse = await verifyOTPInstance.post(url, data); // ✅ send raw JSON
+    const response: AxiosResponse = await verifyOTPInstance.post(url, data);
     return response.data;
   } catch (error: any) {
     throw error;
@@ -111,3 +107,20 @@ export const callGetServiceList = async (url: string): Promise<any> => {
     console.log(error);
   }
 }
+
+export const saveBookingsPost = async <T extends Record<string, any>>(
+  url: string,
+  data: T,
+): Promise<any> => {
+  try {
+    const formData = new FormData();
+    Object.entries(data).forEach(([key, value]) => {
+      formData.append(key, String(value));
+    });
+
+    const response: AxiosResponse = await saveBookingsInstance.post(url, formData);
+    return response.data;
+  } catch (error: any) {
+    throw error;
+  }
+};

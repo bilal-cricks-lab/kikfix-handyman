@@ -53,6 +53,10 @@ export const ENV = {
     MODE: Config.DEBUG_MODE === 'true',
     LOG_LEVEL: Config.LOG_LEVEL,
   },
+
+  KEY: {
+    API_KEY: Config.API_KEY,
+  }
 };
 
 // Helper functions

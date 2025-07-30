@@ -6,12 +6,9 @@ import {
   ScrollView,
   TextInput,
   Image,
-  Platform,
 } from 'react-native';
 import {
-  Bell,
   Clock,
-  ArrowLeft,
   MapPin,
   MessageSquare,
   Phone,
@@ -19,6 +16,7 @@ import {
   Mail,
 } from 'lucide-react-native';
 import { verticalScale, horizontalScale, fontScale } from '../../utils/screenSize';
+import { colors, typography } from '../../design-system';
 
 
 interface LocationData {
@@ -306,11 +304,11 @@ function BookingForm({
         <View className="flex-row items-start">
           <TouchableOpacity
             onPress={() => setAcceptTerms(!acceptTerms)}
-            className={`w-5 h-5 rounded-md border mr-3 mt-1 items-center justify-center ${
+            className={`w-6 h-6 rounded-md border mr-3 mt-1 items-center justify-center ${
               acceptTerms ? 'bg-green-500 border-green-500' : 'border-gray-400'
             }`}
           >
-            {acceptTerms && <Text className="text-white text-xs">✓</Text>}
+            {acceptTerms && <Text className="text-white-50 text-xs">✓</Text>}
           </TouchableOpacity>
           <View className="flex-1">
             <Text className="text-sm">
@@ -361,7 +359,7 @@ function BookingForm({
         onPress={handleSubmit}
         disabled={!isValid}
       >
-        <Text className="text-white font-medium">Confirm Booking</Text>
+        <Text style={{...typography.h6, color: colors.white[100]}}>Confirm Booking</Text>
       </TouchableOpacity>
 
       <Text className="text-center text-xs text-gray-500 mt-3">

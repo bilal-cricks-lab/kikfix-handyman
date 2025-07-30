@@ -1,5 +1,9 @@
+export type FixerServices = {
+  fixer_id?: number | string;
+}
+
 export type SpecificService = {
-  id: number | string;
+  id: string | number;
   name: string;
   category_image: string;
   services: number;
@@ -12,6 +16,7 @@ export type SpecificService = {
   max_duration: number;
   job_size: boolean;
   subcategory_id: number;
+  fixer_services: FixerServices[];
 };
 
 export type Category = {
@@ -26,3 +31,20 @@ export type Subcategory = {
   name: string;
   services_list: SpecificService[];
 };
+
+export type JobDetails = {
+  id: number | string;
+  title: string;
+  description: string;
+  min_duration?: string;
+  max_duration?: string;
+  tags: string;
+  service_id?: string;
+  deleted_at?: string;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type JobDetailsArray = {
+  jobDetails: JobDetails[];
+}
