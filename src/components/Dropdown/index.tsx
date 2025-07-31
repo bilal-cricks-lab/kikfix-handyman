@@ -1,13 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { View, StyleSheet, Text } from 'react-native';
+import { Dropdown } from 'react-native-element-dropdown';
+import { Calendar, Check, ChevronDown } from 'lucide-react-native';
 import {
-  View,
-  Text,
-  TouchableOpacity,
-  Modal,
-  ScrollView,
-  StyleSheet,
-} from 'react-native';
-import { ChevronDown, Check, Calendar } from 'lucide-react-native';
+  fontScale,
+  horizontalScale,
+  verticalScale,
+} from '../../utils/screenSize';
 
 interface SelectItem {
   label: string;
@@ -19,6 +18,7 @@ interface Props {
   selectedValue?: string;
   onValueChange: (val: string) => void;
   placeholder?: string;
+  leftIcon?: React.ReactNode;
 }
 
 const Select: React.FC<Props> = ({
@@ -26,115 +26,106 @@ const Select: React.FC<Props> = ({
   selectedValue,
   onValueChange,
   placeholder = 'Select an option',
+  leftIcon,
 }) => {
-  const [visible, setVisible] = useState(false);
-
-  const selectedLabel =
-    items.find(item => item.value === selectedValue)?.label || placeholder;
   return (
-    <View>
-      {/* Trigger */}
-      <TouchableOpacity
-        style={styles.trigger}
-        onPress={() => setVisible(true)}
-        activeOpacity={0.8}
-      >
-        <Text style={styles.triggerText}>{selectedLabel}</Text>
-        <ChevronDown size={18} color="#6B7280" />
-      </TouchableOpacity>
-
-      {/* Dropdown */}
-      <Modal
-        visible={visible}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setVisible(false)}
-      >
-        <TouchableOpacity
-          style={styles.overlay}
-          onPress={() => setVisible(false)}
-          activeOpacity={1}
-        >
-          <View style={styles.dropdown}>
-            <ScrollView>
-              {items.map(item => {
-                const isSelected = item.value === selectedValue;
-                return (
-                  <TouchableOpacity
-                    key={item.value}
-                    style={styles.item}
-                    onPress={() => {
-                      onValueChange(item.value);
-                      setVisible(false);
-                    }}
-                  >
-                    <Calendar size={20} color={'black'}/>
-                    <Text
-                      style={[
-                        styles.itemText,
-                        isSelected && styles.selectedText,
-                      ]}
-                    >
-                      {item.label}
-                    </Text>
-                    {isSelected && <Check size={16} color="#10B981" />}
-                  </TouchableOpacity>
-                );
-              })}
-            </ScrollView>
+    <View style={styles.container}>
+      <Dropdown
+        style={styles.dropdown}
+        containerStyle={{
+          borderRadius: 10,
+        }}
+        placeholderStyle={styles.placeholderStyle}
+        selectedTextStyle={styles.selectedTextStyle}
+        itemTextStyle={styles.itemTextStyle}
+        data={items}
+        labelField="label"
+        valueField="value"
+        placeholder={placeholder}
+        value={selectedValue}
+        onChange={item => {
+          onValueChange(item.value);
+        }}
+        renderLeftIcon={() =>
+          React.isValidElement(leftIcon) ? React.cloneElement(leftIcon) : null
+        }
+        renderRightIcon={() => (
+          <View style={styles.rightIcon}>
+            <ChevronDown size={18} color="#6B7280" />
           </View>
-        </TouchableOpacity>
-      </Modal>
+        )}
+        renderItem={item => {
+          const isSelected = item.value === selectedValue;
+          return (
+            <View style={styles.item}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: horizontalScale(15),
+                }}
+              >
+                <Calendar color={'grey'} />
+                <Text
+                  style={[
+                    styles.itemTextStyle,
+                    isSelected && styles.selectedItemText,
+                  ]}
+                >
+                  {item.label}
+                </Text>
+              </View>
+
+              <View>{isSelected && <Check size={16} color="#10B981" />}</View>
+            </View>
+          );
+        }}
+      />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  trigger: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#D1D5DB',
-    backgroundColor: '#F9FAFB',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderRadius: 6,
-  },
-  triggerText: {
-    color: '#111827',
-    fontSize: 14,
-    flex: 1,
-  },
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.15)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+  container: {},
   dropdown: {
-    width: '80%',
-    maxHeight: 300,
-    backgroundColor: 'white',
-    borderRadius: 8,
-    paddingVertical: 8,
-    paddingHorizontal: 4,
-    elevation: 10,
-  },
-  item: {
-    paddingVertical: 12,
-    paddingHorizontal: 10,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    height: verticalScale(50),
+    paddingLeft: horizontalScale(18),
+    fontSize: fontScale(14),
+    borderColor: '#D9D9D9',
+    backgroundColor: '#F3F3F5',
+    borderRadius: 10,
+    width: horizontalScale(370),
   },
-  itemText: {
+  placeholderStyle: {
+    fontSize: fontScale(15),
+    color: '#9CA3AF',
+  },
+  selectedTextStyle: {
+    fontSize: 14,
+    color: '#111827',
+  },
+  itemTextStyle: {
     fontSize: 14,
     color: '#374151',
   },
-  selectedText: {
-    color: '#10B981', // green
+  icon: {
+    marginRight: 8,
+  },
+  item: {
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  selectedItemText: {
+    color: '#10B981',
     fontWeight: '600',
+  },
+  rightIcon: {
+    marginRight: horizontalScale(12),
   },
 });
 

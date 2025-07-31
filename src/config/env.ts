@@ -23,7 +23,7 @@ export const ENV = {
   // App Configuration
   APP: {
     NAME: Config.APP_NAME,
-    VERSION: Config.APP_VERSION,
+    VERSION: Config.API_VERSION,
     BUILD_NUMBER: Config.BUILD_NUMBER,
   },
 
@@ -65,9 +65,9 @@ export const isProduction = () => ENV.ENVIRONMENT.IS_PRODUCTION;
 export const isStaging = () => ENV.ENVIRONMENT.IS_STAGING;
 
 export const getApiUrl = (endpoint: string) => {
-  if (!ENV.API.BASE_URL) {
-    throw new Error('API_BASE_URL is not configured in environment variables');
-  }
+  // if (!ENV.API.BASE_URL) {
+  //   throw new Error('API_BASE_URL is not configured in environment variables');
+  // }
   return `${ENV.API.BASE_URL}${endpoint}`;
 };
 

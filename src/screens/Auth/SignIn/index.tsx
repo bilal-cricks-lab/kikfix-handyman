@@ -9,7 +9,7 @@ import CustomButton from '../../../components/Button';
 import { t } from 'i18next';
 import LogoText from '../../../components/LogoText';
 import { Login, Register } from '../../../services/authServices';
-import Toast from '../../../components/Error';
+import Toast from '../../../components/Toast';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { setUserData } from '../../../redux/Reducers/userSlice';
 import { Store } from '../../../redux/Store/store';
@@ -79,6 +79,10 @@ export default function AuthScreen() {
         error?.response?.data?.message ||
         'Something Went Wrong. Please try Again Later';
       if (error?.response?.data?.is_verfied === 0) {
+        Store.dispatch(setRegData({
+          email: email,
+          id: 0,
+        }))
         setTimeout(() => {
           navigateToScreen(navigation, 'Otp')
         }, 2000);

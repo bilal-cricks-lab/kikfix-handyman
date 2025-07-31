@@ -20,7 +20,7 @@ import { RootSate } from '../../../redux/Store/store';
 import { navigateToScreen } from '../../../utils/navigation';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import StackParamList from '../../../types/stack';
-import Toast from '../../../components/Error';
+import Toast from '../../../components/Toast';
 import { OTPSend, OTPVerify } from '../../../services/authServices';
 
 const OTP = () => {
@@ -50,6 +50,7 @@ const OTP = () => {
   };
 
   useEffect(() => {
+    console.log(user_data)
     let interval: any;
     if (isResendDisabled) {
       interval = setInterval(() => {
@@ -63,21 +64,6 @@ const OTP = () => {
         });
       }, 1000);
     }
-
-    const fetchOtpCount = async () => {
-      try {
-        const response = await OTPSend({ email: user_data });
-        const count = response?.otp_count;
-
-        if (count !== undefined) {
-          setOtpCount(count);
-        }
-      } catch (err) {
-        console.log('Failed to fetch OTP count on mount', err);
-      }
-    };
-
-    fetchOtpCount();
     return () => clearInterval(interval);
   }, [isResendDisabled]);
 
@@ -129,10 +115,9 @@ const OTP = () => {
     try {
       const OTPReSend = await OTPSend(data);
       const count = OTPReSend?.otp_count;
-      if (count === 2) {
+      if (count !== undefined) {
         setOtpCount(count);
       }
-
       setOtp('');
       setError('');
       setIsResendDisabled(true);
@@ -202,7 +187,9 @@ const OTP = () => {
             ]}
           >
             {isResendDisabled
-              ? `Resend code in 0:${timer.toString().padStart(2, '0')}`
+              ? `Resend code in ${Math.floor(timer / 60)}:${(timer % 60)
+                  .toString()
+                  .padStart(2, '0')}`
               : 'Didn’t receive the code? '}
             {!isResendDisabled && (
               <Text

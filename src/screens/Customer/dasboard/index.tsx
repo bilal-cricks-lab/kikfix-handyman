@@ -13,7 +13,7 @@ import {
   saveBookingsData,
   ServiceList,
 } from '../../../services/appServices/serviceCategory';
-import FixedHeader from '../../../components/Header';
+import FixedHeader from '../../../components/NavBar';
 import { Category, SpecificService, Subcategory } from '../../../types/service';
 import SpecificServices from '../../../components/SpecificService';
 import JobDetailsStep from '../../../components/JobDetails';

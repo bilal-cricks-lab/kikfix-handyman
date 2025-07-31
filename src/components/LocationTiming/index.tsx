@@ -3,26 +3,30 @@ import {
   Text,
   TouchableOpacity,
   ScrollView,
-  TextInput,
+  Platform,
   StyleSheet,
+  PermissionsAndroid,
 } from 'react-native';
 import React, { useState } from 'react';
 import { addDays, isToday, isTomorrow, format } from 'date-fns';
-import { Navigation, House, Building, Search } from 'lucide-react-native';
+import { Navigation } from 'lucide-react-native';
 import Select from '../Dropdown';
 import { colors, typography } from '../../design-system';
-import { Dropdown } from 'react-native-element-dropdown';
-import { ChevronDown, ChevronUp } from 'lucide-react-native';
 import { useSelector } from 'react-redux';
 import { RootSate } from '../../redux/Store/store';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
-import 'react-native-get-random-values'
+import 'react-native-get-random-values';
 import {
   fontScale,
   horizontalScale,
   verticalScale,
 } from '../../utils/screenSize';
 import ENV from '../../config/env';
+import Geolocation from '@react-native-community/geolocation';
+import Geocoder from 'react-native-geocoding';
+import { request, RESULTS, PERMISSIONS } from 'react-native-permissions';
+
+Geocoder.init(ENV.KEY.API_KEY as string);
 
 const LocationTimingStep = ({
   jobSize,
@@ -34,9 +38,11 @@ const LocationTimingStep = ({
   onNext: (data: any) => void;
 }) => {
   const [selectedUrgency, setSelectedUrgency] = useState<string | null>(null);
-  const [selectedLocation, setSelectedLocation] = useState<number | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<number | string>();
   const [customAddress, setCustomAddress] = useState('');
-  const [value, setValue] = useState<string>('');
+  const [date, setDate] = useState<string>('');
+  const [time, setTime] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
 
   const user_data = useSelector((state: RootSate) => state.booking.booking);
 
@@ -50,7 +56,7 @@ const LocationTimingStep = ({
     for (let i = 0; i < 7; i++) {
       const date = addDays(new Date(), i);
 
-      let label = format(date, 'EEE, MMM d'); // e.g., Wed, Jul 23
+      let label = format(date, 'EEE, MMM d');
       if (isToday(date)) {
         label = 'Today';
       } else if (isTomorrow(date)) {
@@ -68,28 +74,13 @@ const LocationTimingStep = ({
 
   const data = generateDates();
 
-  const locations = [
-    {
-      id: 1,
-      name: 'Home',
-      type: 'home',
-      address: '123 Main St, Springfield, IL 62701',
-    },
-    {
-      id: 2,
-      name: 'Office',
-      type: 'office',
-      address: '456 Business Ave, Springfield, IL 62702',
-    },
-  ];
-
   const urgencyOptions = [
     {
       id: 'standard',
       name: 'Standard',
       timeframe: '1-2 days',
-      color: 'bg-green-100',
-      border: 'border-green-300',
+      color: 'bg-white-100',
+      border: 'border-gray-300',
     },
     {
       id: 'urgent',
@@ -107,24 +98,104 @@ const LocationTimingStep = ({
     },
   ];
 
-  const urgencyDropdownData = urgencyOptions.map(option => ({
-    label: `${option.name} (${option.timeframe})`,
-    value: option.id,
-    name: option.name,
-    timeframe: option.timeframe,
-    color: option.color,
-    border: option.border,
-  }));
+  const timings = [
+    {
+      label: '8:00 - 10AM',
+      value: '1',
+    },
+    {
+      label: '12:00 - 2PM',
+      value: '2',
+    },
+    {
+      label: '4:00 - 6PM',
+      value: '3',
+    },
+    {
+      label: '8:00 - 10AM',
+      value: '4',
+    },
+  ];
 
-  const renderUrgencyItem = (item: any) => {
-    return (
-      <View className={`p-3 ${item.color} ${item.border} rounded-lg my-1`}>
-        <Text style={{ ...typography.bodySmall }}>{item.name}</Text>
-        <Text style={{ ...typography.bodyXs, color: colors.gray[500] }}>
-          {item.timeframe}
-        </Text>
-      </View>
-    );
+  const urgentTimings = [
+    {
+      label: 'Within 4 Hours',
+      value: '1',
+    },
+    {
+      label: 'This Evening (6 - 9PM)',
+      value: '2',
+    },
+    {
+      label: 'Tommorrow Morning (8 - 12PM)',
+      value: '3',
+    },
+  ];
+
+  const onLocationTurnOn = async () => {
+    setLoading(true);
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        {
+          title: 'KikFix',
+          message: 'KikFix wants to know your location',
+          buttonNeutral: 'Ask Me Later',
+          buttonPositive: 'Ok',
+          buttonNegative: 'Cancel',
+        },
+      );
+
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        Geolocation.getCurrentPosition(
+          position => {
+            const { latitude, longitude } = position.coords;
+            const convert_Addresses = `${latitude} ${longitude}`;
+            setCustomAddress(convert_Addresses);
+            Geocoder.from(latitude, longitude)
+              .then((json: any) => {
+                const formatted_Address =
+                  json.results[0]?.formatted_address || 'Unknown location';
+                console.log(formatted_Address);
+                setCustomAddress(`${latitude},${longitude}`); // optional
+              })
+              .catch((err: string) => console.log('Geocoding error:', err));
+          },
+          error => {
+            console.log('Error getting location:', error.message);
+          },
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 5000 }, // Prioritize speed
+        );
+      } else if (Platform.OS === 'ios') {
+        const result = await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
+        if (result === RESULTS.GRANTED) {
+          Geolocation.getCurrentPosition(
+            position => {
+              const { latitude, longitude } = position.coords;
+              Geocoder.from(latitude, longitude)
+                .then((json: any) => {
+                  const formatted_Address =
+                    json.results[0]?.formatted_address || 'Unknown location';
+                  console.log(formatted_Address);
+                  setCustomAddress(formatted_Address);
+                  setSelectedLocation('');
+                })
+                .catch((err: string) => console.log('Geocoding error:', err));
+              console.log(latitude, longitude);
+            },
+            error => {
+              console.log('Error getting location:', error.message);
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 5000 }, // Prioritize speed
+          );
+        }
+      }
+      setLoading(false);
+    } catch (error) {
+      console.log('Permission error:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -152,157 +223,200 @@ const LocationTimingStep = ({
             How urgent is this service?
           </Text>
           <View className="flex-row flex-wrap justify-between gap-3">
-            {urgencyOptions.map(option => (
-              <TouchableOpacity
-                key={option.id}
-                className={`w-32 flex-row justify-center gap-2 rounded-xl border p-3 ${
-                  option.color
-                } ${option.border} ${
-                  selectedUrgency === option.id
-                    ? 'ring-2 ring-offset-2 ring-green-500'
-                    : ''
-                }`}
-                // onPress={() => setSelectedUrgency(option.id)}
-              >
-                <View className="text-center">
-                  <Text
-                    style={{ ...typography.bodySmall, textAlign: 'center' }}
-                  >
-                    {option.name}
-                  </Text>
-                  <Text
-                    style={{
-                      ...typography.bodyXs,
-                      color: colors.gray[500],
-                      textAlign: 'center',
-                    }}
-                  >
-                    {option.timeframe}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            ))}
+            {urgencyOptions.map(option => {
+              const isSelected = selectedUrgency === option.id;
+              return (
+                <TouchableOpacity
+                  key={option.id}
+                  className={`w-32 flex-row justify-center gap-2 rounded-xl border p-3 ${
+                    isSelected
+                      ? 'bg-green-200 border-green-500'
+                      : `${option.color} ${option.border}`
+                  }`}
+                  onPress={() => setSelectedUrgency(option.id)}
+                >
+                  <View className="text-center">
+                    <Text
+                      style={{
+                        ...typography.bodySmall,
+                        textAlign: 'center',
+                        color: isSelected
+                          ? colors.primary[900]
+                          : colors.white[900],
+                      }}
+                    >
+                      {option.name}
+                    </Text>
+                    <Text
+                      style={{
+                        ...typography.bodyXs,
+                        textAlign: 'center',
+                        color: isSelected
+                          ? colors.primary[800]
+                          : colors.gray[500],
+                      }}
+                    >
+                      {option.timeframe}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
           </View>
         </View>
 
-        <View className="mb-6">
+        <View className="">
           <Text className="text-sm font-medium mb-3">Service Location</Text>
-          <TouchableOpacity className="w-full mb-3 flex-row items-center gap-2 h-12 px-4 py-2 border border-gray-300 rounded-md bg-white">
+          <TouchableOpacity
+            onPress={onLocationTurnOn}
+            className="w-full mb-3 flex-row items-center gap-2 h-12 px-4 py-2 border border-gray-300 rounded-md bg-white"
+          >
             <Navigation className="w-4 h-4" />
-            <Text>Use Current Location</Text>
+            <Text>{loading ? 'Getting Location...' : 'Current Location'}</Text>
           </TouchableOpacity>
 
-          <View className="space-y-2 mb-6 gap-4">
-            {locations.map(loc => (
-              <TouchableOpacity
-                key={loc.id}
-                className={`flex-row items-center gap-3 p-3 rounded-xl border ${
-                  selectedLocation === loc.id
-                    ? 'border-green-500 bg-green-50'
-                    : 'border-gray-300 bg-white'
-                }`}
-                onPress={() => setSelectedLocation(loc.id)}
-              >
-                <View className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                  {loc.type === 'home' ? (
-                    <House className="w-4 h-4" />
-                  ) : (
-                    <Building className="w-4 h-4" />
-                  )}
-                </View>
-                <View>
-                  <Text className="font-medium text-sm">{loc.name}</Text>
-                  <Text className="text-xs text-gray-500">{loc.address}</Text>
-                </View>
-              </TouchableOpacity>
-            ))}
-          </View>
-
-          <View className="space-y-2">
+          <View className="mt-2">
             <Text className="text-sm font-medium">
-              Or enter a different address
+              Enter a different address
             </Text>
-            <View className="flex-row gap-2">
+            <View className="flex-row">
               <View
                 style={{
-                  alignItems: 'center',
-                  marginTop: verticalScale(40),
+                  marginTop: verticalScale(5),
                   zIndex: 1,
                   flex: 1,
                 }}
               >
                 <GooglePlacesAutocomplete
-                  placeholder="Enter Your Address"
+                  placeholder="Enter Street Address, city, state"
+                  query={{
+                    key: ENV.KEY.API_KEY, // REPLACE WITH YOUR ACTUAL API KEY
+                    language: 'en',
+                    types: 'geocode',
+                  }}
+                  // All other default props explicitly defined
+                  autoFillOnNotFound={false}
+                  currentLocation={false}
+                  currentLocationLabel="Current location"
+                  debounce={0}
+                  disableScroll={false}
+                  enableHighAccuracyLocation={true}
+                  enablePoweredByContainer={true}
                   fetchDetails={true}
+                  filterReverseGeocodingByTypes={[]}
+                  GooglePlacesDetailsQuery={{}}
+                  GooglePlacesSearchQuery={{
+                    rankby: 'distance',
+                  }}
+                  GoogleReverseGeocodingQuery={{}}
+                  isRowScrollable={true}
+                  keyboardShouldPersistTaps="always"
+                  listUnderlayColor="#c8c7cc"
+                  listViewDisplayed="auto"
+                  keepResultsAfterBlur={false}
+                  minLength={1}
+                  nearbyPlacesAPI="GooglePlacesSearch"
+                  numberOfLines={1}
+                  onFail={() => {}}
+                  onNotFound={() => {}}
+                  onPress={(data, details) => {
+                    console.log(data, details);
+                    const location_Get = details;
+                    setSelectedLocation(location_Get?.formatted_address);
+                    setCustomAddress('');
+                  }}
+                  onTimeout={() =>
+                    console.warn('google places autocomplete: request timeout')
+                  }
+                  predefinedPlaces={[]}
+                  predefinedPlacesAlwaysVisible={false}
                   styles={{
                     container: styles.addressContainer,
                     textInput: styles.inputText,
                   }}
-                  query={{
-                    key: ENV.KEY.API_KEY,
-                    language: 'en',
-                  }}
-                  onFail={error => console.log(error)}
-                  onPress={(data, details) => {
-                    console.log(data.description);
-                    console.log(details?.location);
-                  }}
+                  suppressDefaultStyles={false}
+                  textInputHide={false}
+                  textInputProps={{}}
+                  timeout={20000}
                 />
               </View>
-
-              <TouchableOpacity
-                className="h-12 w-12 rounded-md border border-gray-300 flex items-center justify-center"
-                disabled={!customAddress}
-              >
-                <Search className="w-4 h-4" />
-              </TouchableOpacity>
             </View>
           </View>
         </View>
 
-        <View className="mb-6">
-          <Text className="text-sm font-medium mb-3">Preferred Date</Text>
-          {/* <TouchableOpacity className="w-full flex-row items-center justify-between gap-2 h-12 px-3 py-2 border border-gray-300 rounded-md bg-white">
-            <Text>Select a date</Text>
-            <ChevronDown className="size-4 opacity-50" />
-          </TouchableOpacity> */}
+        <View className="flex-col mb-4 mt-2">
+          <Text className="text-sm font-medium">Preferred Date</Text>
           <Select
             items={data}
-            selectedValue={value}
-            onValueChange={text => setValue(text)}
+            selectedValue={date}
+            onValueChange={text => setDate(text)}
             placeholder="Select a date"
           />
         </View>
-
         <View className="mb-8">
-          <Text className="text-sm font-medium mb-3">Preferred Time</Text>
-          {/* <TouchableOpacity className="w-full flex-row items-center justify-between gap-2 h-12 px-3 py-2 border border-gray-300 rounded-md bg-white">
-            <Text>Select a time slot</Text>
-            <ChevronDown className="size-4 opacity-50" />
-          </TouchableOpacity> */}
-
+          <Text className="text-sm font-medium">Preferred Time</Text>
           <Select
-            items={data}
-            selectedValue={value}
-            onValueChange={(text: string) => setValue(text)}
-            placeholder="Select a date"
+            items={
+              selectedUrgency === 'standard'
+                ? timings
+                : selectedUrgency === 'urgent'
+                ? urgentTimings
+                : timings
+            }
+            selectedValue={time}
+            onValueChange={(text: string) => setTime(text)}
+            placeholder="Select a time Slot"
           />
         </View>
+        {(customAddress || selectedLocation) &&
+          selectedUrgency &&
+          date &&
+          time && (
+            <View className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
+              <View className="flex-row items-center mb-3">
+                <Navigation size={16} color={colors.primary[600]} />
+                <Text className="ml-2 font-medium text-blue-900">
+                  Service Summary
+                </Text>
+              </View>
 
+              <Text style={{ ...typography.bodySmall }}>
+                <Text style={{ fontWeight: '600' }}>Location: </Text>
+                {customAddress || selectedLocation}
+              </Text>
+
+              <Text style={{ ...typography.bodySmall, marginTop: 4 }}>
+                <Text style={{ fontWeight: '600' }}>Date: </Text>
+                {data.find(d => d.value === date)?.label || '—'}
+              </Text>
+
+              <Text style={{ ...typography.bodySmall, marginTop: 4 }}>
+                <Text style={{ fontWeight: '600' }}>Time: </Text>
+                {time}
+              </Text>
+
+              <Text style={{ ...typography.bodySmall, marginTop: 4 }}>
+                <Text style={{ fontWeight: '600' }}>Urgency: </Text>
+                {urgencyOptions.find(opt => opt.id === selectedUrgency)?.name ??
+                  selectedUrgency}
+              </Text>
+            </View>
+          )}
         <TouchableOpacity
-          className="w-full h-12 px-4 py-2 bg-green-700 rounded-md flex-row items-center justify-center"
+          className="w-full h-12 px-4 py-2 rounded-md flex-row items-center justify-center"
+          style={{ backgroundColor: colors.primary[40] }}
           disabled={false}
           onPress={() =>
             onNext({
               urgency: selectedUrgency,
-              location: selectedLocation
-                ? locations.find(l => l.id === selectedLocation)
-                : customAddress,
+              // location: selectedLocation
+              //   ? locations.find(l => l.id === selectedLocation)
+              //   : customAddress,
               customAddress: customAddress,
             })
           }
         >
-          <Text className="text-white-50 font-medium">
+          <Text style={{ ...typography.h6, color: colors.white[400] }}>
             Find Available Handymen
           </Text>
         </TouchableOpacity>
@@ -317,14 +431,13 @@ const LocationTimingStep = ({
 
 const styles = StyleSheet.create({
   addressContainer: {
-    width: horizontalScale(350),
+    width: horizontalScale(370),
   },
   inputText: {
-    flexDirection: 'row',
-    alignItems: 'center',
     height: verticalScale(50),
     paddingLeft: horizontalScale(18),
-    fontSize: fontScale(14),
+    fontSize: fontScale(15),
+    color: 'black',
     borderColor: '#D9D9D9',
     backgroundColor: '#F3F3F5',
     borderRadius: 10,

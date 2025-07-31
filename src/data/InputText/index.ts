@@ -110,8 +110,9 @@ const useInputText = () => {
   ]
 
   const inputSignin: InputText[] = fieldSignin.map(
-    ({ label, stateKey, placeholder, keyboardType = 'default', next, ref }) => ({
-      id: label,
+    ({ id, label, stateKey, placeholder, keyboardType = 'default', next, ref }) => ({
+      id: id,
+      label: label,
       ref: login_form[ref],
       value: state[stateKey],
       onChangeText: text => updateState(stateKey, text),
