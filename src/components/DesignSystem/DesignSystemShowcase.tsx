@@ -21,7 +21,7 @@ const DesignSystemShowcase: React.FC = () => {
       {/* Header */}
       <View style={styles.header}>
         <Text style={[styles.title, { fontSize: 24, fontFamily: 'Poppins-Bold', lineHeight: 34 }]}>
-          KikFix Design System
+          KikFixHandyman Design System
         </Text>
         <Text style={[styles.subtitle, { fontSize: 16, fontFamily: 'Poppins-Regular', lineHeight: 26 }]}>
           {t('onboarding.welcome')}

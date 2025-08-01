@@ -1,10 +1,6 @@
 type StackParamList = {
     Splash: undefined;
-    Boarding: undefined;
-    SignUp: undefined;
     SignIn: undefined;
-    Otp: undefined;
-    Cust: undefined;
     Serv: undefined;
 };
 

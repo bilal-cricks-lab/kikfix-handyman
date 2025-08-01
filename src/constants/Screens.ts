@@ -1,6 +1,7 @@
 enum SCREENS {
     Splash = 'Splash',
-    OnBoarding = 'OnBoarding',
+    SignIn = 'SignIn',
+    Serv = 'Serv',
 }
 
 export default SCREENS;

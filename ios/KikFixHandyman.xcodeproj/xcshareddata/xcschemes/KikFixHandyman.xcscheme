@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "KikFix.app"
-               BlueprintName = "KikFix"
-               ReferencedContainer = "container:KikFix.xcodeproj">
+               BuildableName = "KikFixHandyman.app"
+               BlueprintName = "KikFixHandyman"
+               ReferencedContainer = "container:KikFixHandyman.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "KikFixTests.xctest"
-               BlueprintName = "KikFixTests"
-               ReferencedContainer = "container:KikFix.xcodeproj">
+               BuildableName = "KikFixHandymanTests.xctest"
+               BlueprintName = "KikFixHandymanTests"
+               ReferencedContainer = "container:KikFixHandyman.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "KikFix.app"
-            BlueprintName = "KikFix"
-            ReferencedContainer = "container:KikFix.xcodeproj">
+            BuildableName = "KikFixHandyman.app"
+            BlueprintName = "KikFixHandyman"
+            ReferencedContainer = "container:KikFixHandyman.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "KikFix.app"
-            BlueprintName = "KikFix"
-            ReferencedContainer = "container:KikFix.xcodeproj">
+            BuildableName = "KikFixHandyman.app"
+            BlueprintName = "KikFixHandyman"
+            ReferencedContainer = "container:KikFixHandyman.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

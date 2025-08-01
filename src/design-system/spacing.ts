@@ -1,4 +1,4 @@
-// Spacing system for KikFix design system - Only what you provided
+// Spacing system for KikFixHandyman design system - Only what you provided
 export const spacing = {
   // Base spacing units
   xs: 4,

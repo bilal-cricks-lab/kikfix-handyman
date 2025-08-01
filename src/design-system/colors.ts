@@ -1,4 +1,4 @@
-// Color palette for KikFix design system - Only the colors you provided
+// Color palette for KikFixHandyman design system - Only the colors you provided
 export const colors = {
   // Primary Green (Secondary Green in the design)
   primary: {

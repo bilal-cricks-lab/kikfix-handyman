@@ -28,15 +28,18 @@
     "dontHaveAccount": "Vous n'avez pas de compte ?",
     "createAccount": "Créer un compte",
     "welcomeBack": "Bon retour",
-    "signUpText": "Créez votre compte pour commencer avec KikFix",
+    "signUpText": "Créez votre compte pour commencer avec KikFix Handyman",
     "signInText": "Connectez-vous à votre compte",
     "signUpCon": "S'inscrire",
     "signInCon": "Se connecter",
     "resetPassword": "Réinitialiser le mot de passe",
+    "yourTrusted": "Votre plateforme de confiance pour les services de maintenance",
     "sendResetLink": "Envoyer le lien de réinitialisation"
   },
   "onboarding": {
-    "welcome": "Bienvenue sur KikFix",
+    "welcome": "Bienvenue sur KikFix Handyman",
+    "choose": "Votre marché de confiance pour les services domestiques",
+    "trusted": "Approuvé par des milliers de propriétaires et de professionnels de services à travers le pays",
     "step1": {
       "title": "Réparer vos Sneakers",
       "description": "Services professionnels de réparation et restauration de sneakers"
@@ -84,7 +87,7 @@
     "favorites": "Favoris",
     "settings": "Paramètres",
     "help": "Aide et Support",
-    "about": "À propos de KikFix",
+    "about": "À propos de KikFixHandyman",
     "logout": "Se déconnecter"
   },
   "settings": {
@@ -109,5 +112,19 @@
     "unknownError": "Une erreur inconnue s'est produite.",
     "invalidCredentials": "E-mail ou mot de passe invalide.",
     "emailExists": "Un compte avec cet e-mail existe déjà."
+  },
+  "serviceProv": {
+    "provide": "Je suis un Technicien",
+    "join": "Je fournis des services domestiques professionnels",
+    "receive": "Trouvez des emplois dans votre région",
+    "set": "Définissez vos propres tarifs et horaires",
+    "get": "Recevez des paiements rapides et sécurisés",
+    "build": "Construisez votre réputation et vos avis"
+  },
+  "feature": {
+    "active": "Utilisateurs Actifs",
+    "verified": "Professionnels Vérifiés",
+    "average": "Note Moyenne",
+    "secured": "Sécurisé"
   }
 } 

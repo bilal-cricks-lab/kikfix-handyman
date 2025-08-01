@@ -53,11 +53,11 @@ export default function AuthScreen() {
         password: password,
       };
       const response = await Login(data);
-      if (response.data.user_type === 'user') {
+      if (response.data.user_type === 'provider' || response.data.user_type === 'handyman') {
         AsyncStorage.setItem('user_token', response.data.api_token);
         showToast('LoggedIn Successfully', 'success')
         setTimeout(() => {
-          navigateToScreen(navigation, 'Cust');
+          navigateToScreen(navigation, 'Serv');
         }, 2000);
       }
       Store.dispatch(
@@ -78,15 +78,6 @@ export default function AuthScreen() {
       const errMsg =
         error?.response?.data?.message ||
         'Something Went Wrong. Please try Again Later';
-      if (error?.response?.data?.is_verfied === 0) {
-        Store.dispatch(setRegData({
-          email: email,
-          id: 0,
-        }))
-        setTimeout(() => {
-          navigateToScreen(navigation, 'Otp')
-        }, 2000);
-      }
       setLoading(false);
       showToast(errMsg, 'error');
     }
@@ -144,7 +135,7 @@ export default function AuthScreen() {
       if (response) {
         showToast('Account Created Successfully', 'success');
         setTimeout(() => {
-          navigateToScreen(navigation, 'Otp');
+          navigateToScreen(navigation, 'Serv');
         }, 2000);
         console.log(response.data);
       }

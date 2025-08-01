@@ -28,15 +28,18 @@
     "dontHaveAccount": "¿No tienes una cuenta?",
     "createAccount": "Crear Cuenta",
     "welcomeBack": "Bienvenido de Vuelta",
-    "signUpText": "Crea tu cuenta para comenzar con KikFix",
+    "signUpText": "Crea tu cuenta para comenzar con KikFix Handyman",
     "signInText": "Inicia sesión en tu cuenta",
     "signUpCon": "Registrarse",
     "signInCon": "Iniciar Sesión",
     "resetPassword": "Restablecer Contraseña",
+    "yourTrusted": "Tu plataforma confiable de servicios de mantenimiento",
     "sendResetLink": "Enviar Enlace de Restablecimiento"
   },
   "onboarding": {
-    "welcome": "Bienvenido a KikFix",
+    "welcome": "Bienvenido a KikFix Handyman",
+    "choose": "Tu mercado confiable para servicios domésticos",
+    "trusted": "Confiado por miles de propietarios y profesionales de servicios en todo el país",
     "step1": {
       "title": "Arregla tus Zapatillas",
       "description": "Servicios profesionales de reparación y restauración de zapatillas"
@@ -84,7 +87,7 @@
     "favorites": "Favoritos",
     "settings": "Configuración",
     "help": "Ayuda y Soporte",
-    "about": "Acerca de KikFix",
+    "about": "Acerca de KikFixHandyman",
     "logout": "Cerrar Sesión"
   },
   "settings": {
@@ -109,5 +112,19 @@
     "unknownError": "Ocurrió un error desconocido.",
     "invalidCredentials": "Correo o contraseña inválidos.",
     "emailExists": "Ya existe una cuenta con este correo."
+  },
+  "serviceProv": {
+    "provide": "Soy un Técnico",
+    "join": "Proporciono servicios domésticos profesionales",
+    "receive": "Encuentra trabajos en tu área",
+    "set": "Establece tus propios precios y horarios",
+    "get": "Recibe pagos rápidos y seguros",
+    "build": "Construye tu reputación y reseñas"
+  },
+  "feature": {
+    "active": "Usuarios Activos",
+    "verified": "Profesionales Verificados",
+    "average": "Calificación Promedio",
+    "secured": "Seguro"
   }
 } 

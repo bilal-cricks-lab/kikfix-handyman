@@ -28,7 +28,7 @@
     "dontHaveAccount": "Don't have an account?",
     "createAccount": "Create Account",
     "welcomeBack": "Welcome Back",
-    "signUpText": "Create your account to get started with KikFix",
+    "signUpText": "Create your account to get started with KikFix Handyman",
     "signInText": "Sign in to your account",
     "signUpCon": "Sign Up",
     "signInCon": "Sign In",
@@ -37,7 +37,7 @@
     "sendResetLink": "Send Reset Link"
   },
   "onboarding": {
-    "welcome": "Welcome to KikFix",
+    "welcome": "Welcome to KikFix Handyman",
     "choose": "Your trusted marketplace for home services",
     "trusted": "Trusted by thousands of homeowners and service professionals across the country",
     "step1": {
@@ -87,7 +87,7 @@
     "favorites": "Favorites",
     "settings": "Settings",
     "help": "Help & Support",
-    "about": "About KikFix",
+    "about": "About KikFixHandyman",
     "logout": "Logout"
   },
   "settings": {
@@ -114,20 +114,12 @@
     "emailExists": "An account with this email already exists."
   },
   "serviceProv": {
-    "provide": "I'm a Fixer",
+    "provide": "I'm a Handyman",
     "join": "I provide professional home services",
     "receive": "Find jobs in your area",
     "set": "Set your own rates and schedule",
     "get": "Get paid quickly and securely",
     "build": "Build your reputation and reviews"
-  },
-  "serviceCus": {
-    "service": "I`m a Customer",
-    "find": "I need help with home repairs and services",
-    "browse": "Book trusted fixers in your area",
-    "get": "Get instant quotes and estimates",
-    "track": "Track your service in real-time",
-    "rate": "Pay securely through the app"
   },
   "feature": {
     "active": "Active Users",

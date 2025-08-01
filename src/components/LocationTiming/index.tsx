@@ -138,8 +138,8 @@ const LocationTimingStep = ({
       const granted = await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
         {
-          title: 'KikFix',
-          message: 'KikFix wants to know your location',
+          title: 'KikFixHandyman',
+          message: 'KikFixHandyman wants to know your location',
           buttonNeutral: 'Ask Me Later',
           buttonPositive: 'Ok',
           buttonNegative: 'Cancel',
@@ -228,11 +228,10 @@ const LocationTimingStep = ({
               return (
                 <TouchableOpacity
                   key={option.id}
-                  className={`w-32 flex-row justify-center gap-2 rounded-xl border p-3 ${
-                    isSelected
+                  className={`w-32 flex-row justify-center gap-2 rounded-xl border p-3 ${isSelected
                       ? 'bg-green-200 border-green-500'
                       : `${option.color} ${option.border}`
-                  }`}
+                    }`}
                   onPress={() => setSelectedUrgency(option.id)}
                 >
                   <View className="text-center">
@@ -317,8 +316,8 @@ const LocationTimingStep = ({
                   minLength={1}
                   nearbyPlacesAPI="GooglePlacesSearch"
                   numberOfLines={1}
-                  onFail={() => {}}
-                  onNotFound={() => {}}
+                  onFail={() => { }}
+                  onNotFound={() => { }}
                   onPress={(data, details) => {
                     console.log(data, details);
                     const location_Get = details;
@@ -360,8 +359,8 @@ const LocationTimingStep = ({
               selectedUrgency === 'standard'
                 ? timings
                 : selectedUrgency === 'urgent'
-                ? urgentTimings
-                : timings
+                  ? urgentTimings
+                  : timings
             }
             selectedValue={time}
             onValueChange={(text: string) => setTime(text)}
