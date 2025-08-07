@@ -1,13 +1,10 @@
 import {
   getOTPInstance,
-  getServiceCategory,
-  getServiceList,
-  getServiceListInstance,
-  getSpecificService,
+  locationServices,
   saveBookingsInstance,
-  SignInInstance,
-  SignUpInstance,
-  verifyOTPInstance,
+  auth_Instance,
+  otp_Instance,
+  service_Instance,
 } from './interceptors';
 import { AxiosResponse } from 'axios';
 
@@ -21,7 +18,7 @@ export const callPostApi = async <T extends Record<string, any>>(
       formData.append(key, String(value));
     });
 
-    const response: AxiosResponse = await SignInInstance.post(url, formData);
+    const response: AxiosResponse = await auth_Instance.post(url, formData);
     return response.data;
   } catch (error: any) {
     console.error('callPostApi error:', error.response?.data);
@@ -29,84 +26,28 @@ export const callPostApi = async <T extends Record<string, any>>(
   }
 };
 
-export const callPostRegApi = async <T extends Record<string, any>>(
-  url: string,
-  data: T,
-): Promise<any> => {
-  try {
-    const formData = new FormData();
-    Object.entries(data).forEach(([key, value]) => {
-      formData.append(key, String(value));
-    });
-
-    const response: AxiosResponse = await SignUpInstance.post(url, formData);
-    return response.data;
-  } catch (error: any) {
-    // console.error('callPostApi error:', error.response?.data);
-    throw error;
-  }
-};
-
-export const callGetApi = async (url: string): Promise<any> => {
-  try {
-    const response: AxiosResponse = await getServiceCategory.get(url);
-    console.log(response.data);
-    return response.data;
-  } catch (error) {
-    console.log(error);
-  }
-};
 
 export const callGetApiWithToken = async (url: string): Promise<any> => {
   try {
-    const response: AxiosResponse = await getServiceListInstance.get(url);
+    const response: AxiosResponse = await service_Instance.get(url);
     return response.data;
   } catch (error) {
     console.log(error);
   }
 };
 
-export const callgetSpecificService = async (url: string): Promise<any> => {
-  try {
-    const response: AxiosResponse = await getSpecificService.get(url);
-    return response.data;
-  } catch (error) {
-    console.log(error);
-  }
-}
 
 export const otpCallPost = async <T extends Record<string, any>>(
   url: string,
   data: T,
 ): Promise<any> => {
   try {
-    const response: AxiosResponse = await getOTPInstance.post(url, data);
+    const response: AxiosResponse = await otp_Instance.post(url, data);
     return response.data;
   } catch (error: any) {
     throw error;
   }
 };
-
-export const otpCallPostVerify = async <T extends Record<string, any>>(
-  url: string,
-  data: T
-): Promise<any> => {
-  try {
-    const response: AxiosResponse = await verifyOTPInstance.post(url, data);
-    return response.data;
-  } catch (error: any) {
-    throw error;
-  }
-};
-
-export const callGetServiceList = async (url: string): Promise<any> => {
-  try {
-    const response: AxiosResponse = await getServiceList.get(url);
-    return response.data;
-  } catch (error) {
-    console.log(error);
-  }
-}
 
 export const saveBookingsPost = async <T extends Record<string, any>>(
   url: string,
@@ -124,3 +65,12 @@ export const saveBookingsPost = async <T extends Record<string, any>>(
     throw error;
   }
 };
+
+export const getLocationServices = async(url: string): Promise<any>=> {
+   try {
+    const response: AxiosResponse = await locationServices.get(url);
+    return response.data;
+  } catch (error) {
+    console.log(error);
+  }
+}

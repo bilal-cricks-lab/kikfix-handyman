@@ -53,9 +53,9 @@ export default function AuthScreen() {
         password: password,
       };
       const response = await Login(data);
-      if (response.data.user_type === 'provider' || response.data.user_type === 'handyman') {
+      if (response.data.user_type === 'fixer') {
         AsyncStorage.setItem('user_token', response.data.api_token);
-        showToast('LoggedIn Successfully', 'success')
+        showToast('LoggedIn Successfully', 'success');
         setTimeout(() => {
           navigateToScreen(navigation, 'Serv');
         }, 2000);

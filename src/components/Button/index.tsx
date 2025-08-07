@@ -11,6 +11,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   iconStyle,
   disabled,
   id,
+  element,
   className,
   classNameText,
 }) => {
@@ -22,8 +23,13 @@ const CustomButton: React.FC<CustomButtonProps> = ({
       key={id}
       className={className}
     >
+      {element && React.cloneElement(element)}
       {icon && <Image source={icon} style={iconStyle} />}
-      {title && <Text style={textStyle} className={classNameText}>{title}</Text>}
+      {title && (
+        <Text style={textStyle} className={classNameText}>
+          {title}
+        </Text>
+      )}
     </Pressable>
   );
 };

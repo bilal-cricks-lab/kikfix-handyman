@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet, Text, ViewStyle } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { Calendar, Check, ChevronDown } from 'lucide-react-native';
 import {
@@ -19,6 +19,7 @@ interface Props {
   onValueChange: (val: string) => void;
   placeholder?: string;
   leftIcon?: React.ReactNode;
+  custom_style?: ViewStyle,
 }
 
 const Select: React.FC<Props> = ({
@@ -27,11 +28,12 @@ const Select: React.FC<Props> = ({
   onValueChange,
   placeholder = 'Select an option',
   leftIcon,
+  custom_style
 }) => {
   return (
     <View style={styles.container}>
       <Dropdown
-        style={styles.dropdown}
+        style={custom_style}
         containerStyle={{
           borderRadius: 10,
         }}

@@ -13,7 +13,7 @@ import { typography } from '../../design-system/typography';
 
 type SplashScreenProps = NativeStackScreenProps<StackParamList, 'Splash'>;
 
-const Splash: React.FC = () => {
+const Splash = () => {
   const navigation = useNavigation<SplashScreenProps['navigation']>();
 
   useEffect(() => {

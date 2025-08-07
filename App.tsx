@@ -16,7 +16,6 @@ import { LanguageProvider } from './src/i18n/LanguageContext';
 import { NavigationContainer } from '@react-navigation/native';
 import StackNav from './src/navigation/StackNavigator';
 import { PersistGate } from 'redux-persist/integration/react';
-import { validateEnvironment } from './src/config/env';
 import { Store, persistor } from './src/redux/Store/store';
 import { Provider } from 'react-redux';
 

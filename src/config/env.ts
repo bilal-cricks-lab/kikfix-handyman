@@ -16,7 +16,8 @@ export const ENV = {
       SERVICE: '/api/get-service',
       BOOKINGS: '/api/save-booking',
       OTPSEND: '/api/send-otp',
-      CODEVERIFY: '/api/verify-otp'
+      CODEVERIFY: '/api/verify-otp',
+      FIXERDASHBOARD: '/api/fixer-dashboard'
     },
   },
 
