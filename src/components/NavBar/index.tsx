@@ -28,13 +28,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NavigationProp } from '@react-navigation/native';
 import StackParamList from '@/types/stack';
 
-const FixedHeader = ({
-  onBack,
-  currentStep,
-}: {
-  onBack?: () => void;
-  currentStep: number;
-}) => {
+const FixedHeader = ({}: {}) => {
   const [isProfileVisible, setIsProfileVisible] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
   const buttonRef = useRef(null);
@@ -56,14 +50,13 @@ const FixedHeader = ({
   return (
     <View
       style={{
-        marginTop:
-          Platform.OS === 'ios' ? verticalScale(60) : verticalScale(10),
+        marginTop: Platform.OS === 'ios' ? verticalScale(0) : verticalScale(10),
       }}
     >
       {/* Top Navigation */}
       <View>
-        <View className="flex-row items-center justify-between px-5 py-4">
-          <View className="flex-row items-center">
+        <View className="flex-row items-center justify-between px-5">
+          <View className="mr-10">
             <View
               className="items-center justify-center"
               style={{
@@ -106,77 +99,10 @@ const FixedHeader = ({
             </TouchableOpacity>
           </View>
         </View>
-
         {/* Title */}
-        <View className="flex-row items-center py-6 px-6">
-          {onBack && (
-            <TouchableOpacity
-              className="mr-3 w-8 h-8 items-center justify-center bg-gray-200 rounded-full"
-              onPress={onBack}
-            >
-              <ArrowLeft size={15} />
-            </TouchableOpacity>
-          )}
-          <Text style={typography.h3}>
-            {currentStep === 4
-              ? 'Job Details'
-              : currentStep === 5
-              ? 'Location and Timing'
-              : currentStep === 6
-              ? 'Available Handyman'
-              : currentStep === 7 
-              ? 'Booking Details'
-              : 'Request a Service'}
-          </Text>
-        </View>
       </View>
 
       {/* Step Indicator */}
-      {currentStep === 5 || currentStep === 6 ? null : (
-        <View className="px-8 py-4">
-          <View className="flex-row items-center justify-between">
-            {steps.map((step, index) => {
-              const isCompleted = index < currentStep - 1;
-              const isActive = index === currentStep - 1;
-
-              return (
-                <View
-                  key={index}
-                  className="flex-row items-center justify-center"
-                >
-                  <View
-                    className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                      isCompleted || isActive ? 'bg-green-500' : 'bg-gray-200'
-                    }`}
-                  >
-                    {isCompleted ? (
-                      <Text className="text-white-50 font-medium">✓</Text>
-                    ) : (
-                      <Text
-                        className={`text-sm font-medium ${
-                          isActive ? 'text-white-50' : 'text-gray-500'
-                        }`}
-                      >
-                        {index + 1}
-                      </Text>
-                    )}
-                  </View>
-                  <Text
-                    className={`left-2 w-[58px] ${
-                      isActive ? 'font-medium text-gray-900' : 'text-gray-500'
-                    }`}
-                    style={{ fontSize: fontScale(14) }}
-                    numberOfLines={2}
-                  >
-                    {step}
-                  </Text>
-                </View>
-              );
-            })}
-          </View>
-        </View>
-      )}
-
       {/* Modal for profile card */}
       <Modal
         visible={isProfileVisible}

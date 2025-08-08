@@ -18,6 +18,9 @@ const config = mergeConfig(defaultConfig, {
     assetExts: assetExts.filter(ext => ext !== 'svg'),
     sourceExts: [...sourceExts, 'svg'],
   },
+  server: {
+    port: 8084
+  }
 });
 
 module.exports = withNativeWind(config, { input: './global.css' });

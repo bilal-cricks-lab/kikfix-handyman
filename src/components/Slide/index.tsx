@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Image, Text, Animated } from 'react-native';
 import { horizontalScale } from '../../utils/screenSize';
-import Slides from '../../data/Slides';
+import Slides from '../../json/Slides';
 import { styles } from './styles';
 import SlideItem from '../../types/slide';
 

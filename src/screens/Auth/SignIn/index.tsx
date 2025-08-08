@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { View, Text, ScrollView, SafeAreaView, StyleSheet } from 'react-native';
 import { colors, typography } from '../../../design-system';
 import InputFields from '../../../components/TextInput';
-import useInputText from '../../../data/InputText';
+import useInputText from '../../../json/InputText';
 import CustomButton from '../../../components/Button';
 import { t } from 'i18next';
 import LogoText from '../../../components/LogoText';
