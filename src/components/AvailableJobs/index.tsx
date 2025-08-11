@@ -6,6 +6,11 @@ import CustomButton from '../../components/Button';
 import { horizontalScale, verticalScale } from '../../utils/screenSize';
 import { typography } from '../../design-system/typography';
 import JobCardProps from '../../types/job';
+import { Store } from '../../redux/Store/store';
+import { setBookingData } from '../../redux/Reducers/bookingSlice';
+import { navigateToScreen } from '../../utils/navigation';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import StackParamList from '../../types/stack';
 
 const AvailableJobs: React.FC<JobCardProps> = ({
   job,
@@ -15,10 +20,12 @@ const AvailableJobs: React.FC<JobCardProps> = ({
   onViewDetails,
   onMessage,
   isExpired = false,
+  loading = false,
 }) => {
   const category = job.category;
   const customer = job.customer;
   const fixer_service = job.fixer_service;
+  const navigation = useNavigation<NavigationProp<StackParamList>>();
 
   const getUrgencyColor = (level: string) => {
     switch (level.toLowerCase()) {
@@ -52,6 +59,14 @@ const AvailableJobs: React.FC<JobCardProps> = ({
               >
                 <LucideIcons.Clock size={12} color={colors.white[100]} />
                 <Text style={styles.urgencyText}>{job.urgency_level}</Text>
+              </View>
+              <View
+                style={[
+                  styles.urgencyBadge,
+                  { backgroundColor: getUrgencyColor(job.urgency_level) },
+                ]}
+              >
+                <Text style={styles.urgencyText}>{job.status}</Text>
               </View>
             </View>
             <Text style={styles.customerName}>by {`${customer.username}`}</Text>
@@ -121,13 +136,31 @@ const AvailableJobs: React.FC<JobCardProps> = ({
               style={[styles.secondaryButton, styles.counterButton]}
               element={<LucideIcons.Edit3 size={14} color="#3b82f6" />}
               textStyle={styles.counterButtonText}
-              onPress={() => {}}
+              onPress={() => {
+                onCounter?.(job.id);
+                Store.dispatch(setBookingData({
+                  id: job.id,
+                }))
+                navigateToScreen(navigation, 'Counter_Offer')
+              }}
             />
           </View>
           <CustomButton
             style={[styles.primaryButton, isExpired && styles.disabledButton]}
-            onPress={() => onAccept?.(job.id)}
-            title="Accept Job"
+            onPress={() => {
+              onAccept?.(job.id);
+              Store.dispatch(
+                setBookingData({
+                  fixer_id: fixer_service.fixer_id,
+                  name: category.name,
+                  instruction: job.instruction,
+                  price: fixer_service.price,
+                  time: `${job.min_time} - ${job.max_time}`,
+                  address: job.address,
+                }),
+              );
+            }}
+            title={loading ? 'Accepting...' : 'Accept Job'}
             textStyle={styles.primaryButtonText}
           />
         </View>
@@ -193,7 +226,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
-    width: horizontalScale(100),
+    width: horizontalScale(80),
     height: verticalScale(25),
     borderRadius: 4,
     marginLeft: horizontalScale(10),
@@ -334,6 +367,6 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     ...typography.link,
-    color: colors.white[100]
+    color: colors.white[100],
   },
 });

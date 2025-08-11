@@ -1,6 +1,7 @@
 import { getApiUrl } from '../../config/env';
 import {
   callGetApiWithToken,
+  callPostApi,
   getLocationServices,
   saveBookingsPost,
 } from '../network';
@@ -8,6 +9,8 @@ import {
 const fixer_dashboard = getApiUrl('/api/fixer-dashboard');
 const save_url = getApiUrl('/api/save-booking');
 const dashboard_url = getApiUrl('/api/customer-dashboard');
+const fixer_accept_job = getApiUrl('/api/fixer-accept-job');
+const fixer_counter_offer = getApiUrl('/api/counter-offer')
 
 export const fixer_dashboard_information = async () => {
   try {
@@ -95,3 +98,21 @@ export const service_booking = async (
     console.log(error);
   }
 };
+
+export const fixer_accept = async (data: any) => {
+  try {
+    const response = await callPostApi(fixer_accept_job, data);
+    return response;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export const fixer_counter = async (data: any)  => {
+  try {
+    const response = await callPostApi(fixer_counter_offer, data);
+    return response;
+  } catch (error) {
+    console.log(error);
+  }
+}

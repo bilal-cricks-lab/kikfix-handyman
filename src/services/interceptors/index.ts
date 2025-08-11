@@ -12,6 +12,8 @@ export const auth_Instance = axios.create({
 
 auth_Instance.interceptors.request.use(
   async config => {
+    const token = await AsyncStorage.getItem('user_token');
+    token ? (config.headers.Authorization = `Bearer ${token}`) : null;
     return config;
   },
   error => {
@@ -66,8 +68,6 @@ export const getOTPInstance = axios.create({
   withCredentials: true,
   responseType: 'json',
 });
-
-
 
 export const getServiceList = axios.create({
   headers: {

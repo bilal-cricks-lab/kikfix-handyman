@@ -28,7 +28,7 @@ const Select: React.FC<Props> = ({
   onValueChange,
   placeholder = 'Select an option',
   leftIcon,
-  custom_style
+  custom_style,
 }) => {
   return (
     <View style={styles.container}>

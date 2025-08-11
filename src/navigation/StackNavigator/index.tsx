@@ -3,6 +3,8 @@ import Splash from '../../screens/Splash';
 import StackParamList from '../../types/stack';
 import SignIn from '../../screens/Auth/SignIn';
 import HandymanDashboard from '../../screens/Handyman/dashboard';
+import JobAcceptanceSuccess from '../../screens/Handyman/JobAccept';
+import CounterOfferScreen from '../../screens/Handyman/CounterOffer';
 
 const Stack = createNativeStackNavigator<StackParamList>();
 
@@ -30,6 +32,16 @@ const StackNav = () => {
           headerShown: false,
         }}
       />
+      <Stack.Screen
+        name="Success"
+        component={JobAcceptanceSuccess}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen name='Counter_Offer' component={CounterOfferScreen} options={{
+        headerShown: false
+      }}/>
     </Stack.Navigator>
   );
 };

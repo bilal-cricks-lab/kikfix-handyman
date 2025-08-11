@@ -1,4 +1,5 @@
 interface BookingRequest {
+  id?: string;
   fixer_id?: number;
   per_page?: number;
   page?: number;
@@ -11,6 +12,14 @@ interface BookingRequest {
   address?: string;
   name?: string;
   serve?: string;
+  latitude?: string | number;
+  longitude?: string | number;
+  urgency_level?: string | null | undefined;
+  duration?: string | number;
+  price?: string | number;
+  fromTime?: string | number;
+  toTime?: string | number;
+  instruction?: string;
 };
 
 export interface BookingArray {

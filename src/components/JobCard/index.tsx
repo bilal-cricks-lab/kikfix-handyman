@@ -1,36 +1,15 @@
 // components/JobCard.tsx
 import React from 'react';
-import { View, Text, TouchableOpacity, Image } from 'react-native';
-import { Clock, MapPin, Navigation, MessageCircle, Edit3, CheckCircle, Phone } from 'lucide-react-native';
-
-interface Job {
-  id: number;
-  customerName: string;
-  customerImage: string;
-  serviceName: string;
-  description: string;
-  location: {
-    address: string;
-    latitude: number;
-    longitude: number;
-  };
-  timing: {
-    date: string;
-    timeSlot: string;
-    urgency: 'standard' | 'urgent' | 'emergency';
-  };
-  budget: number;
-  status: 'pending' | 'accepted' | 'in-progress' | 'completed' | 'cancelled';
-  urgency: 'standard' | 'urgent' | 'emergency';
-  distance: string;
-  estimatedDuration: string;
-  paymentConfirmed?: boolean;
-  expiresAt?: string;
-  postedTime?: string;
-}
+import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import * as LucideIcons from 'lucide-react-native';
+import JobCardProps from '../../types/job';
+import { colors } from '../../design-system';
+import CustomButton from '../Button';
+import { horizontalScale, verticalScale } from '../../utils/screenSize';
+import { typography } from '../../design-system/typography';
 
 interface Props {
-  job: Job;
+  job: any;
   variant?: 'available' | 'accepted';
   onAccept?: () => void;
   onDecline?: () => void;
@@ -39,88 +18,314 @@ interface Props {
   onViewDetails?: () => void;
 }
 
-export const JobCard: React.FC<Props> = ({
+export const JobCard: React.FC<JobCardProps> = ({
   job,
-  variant = 'available',
   onAccept,
   onDecline,
-  onCounterOffer,
-  onNavigate,
+  variant = 'accepted',
+  isExpired = false,
   onViewDetails,
 }) => {
-  const isExpired = new Date(job.expiresAt || '') < new Date();
+  const category = job.category;
+  const customer = job.customer;
+  const fixer_service = job.fixer_service;
+
+    const getUrgencyColor = (level: string) => {
+    switch (level.toLowerCase()) {
+      case 'urgent':
+        return '#ef4444';
+      case 'standard':
+        return '#3b82f6';
+      default:
+        return '#9ca3af';
+    }
+  };
 
   return (
-    <View className={`bg-white rounded-xl p-4 mb-4 border-l-4 ${variant === 'accepted' ? 'border-blue-500' : isExpired ? 'border-red-500 bg-red-50' : 'border-green-700'}`}>
-      <View className="flex-row justify-between items-start mb-3">
-        <View className="flex-row flex-1">
-          <Image source={{ uri: job.customerImage }} className="w-12 h-12 rounded-full mr-3" />
-          <View className="flex-1">
-            <View className="flex-row flex-wrap items-center mb-1">
-              <Text className="font-semibold text-base text-gray-900 mr-2">{job.serviceName}</Text>
-              {variant === 'available' && (
-                <View className="flex-row items-center bg-blue-500 px-2 py-0.5 rounded">
-                  <Clock size={12} color="#fff" />
-                  <Text className="text-xs text-white ml-1">{job.urgency}</Text>
-                </View>
-              )}
+     <View style={[styles.jobCard, isExpired && styles.expiredJobCard]}>
+      <View style={styles.jobHeader}>
+        <View style={styles.jobCustomerInfo}>
+          <Image
+            source={{ uri: customer.profile_image }}
+            style={styles.avatar}
+          />
+          <View style={styles.jobDetails}>
+            <View style={styles.jobTitleRow}>
+              <Text style={styles.jobTitle} numberOfLines={1}>
+                {category.name}
+              </Text>
+              <View
+                style={[
+                  styles.urgencyBadge,
+                  { backgroundColor: getUrgencyColor(job.urgency_level) },
+                ]}
+              >
+                <LucideIcons.Clock size={12} color={colors.white[100]} />
+                <Text style={styles.urgencyText}>{job.urgency_level}</Text>
+              </View>
+              <View
+                style={[
+                  styles.urgencyBadge,
+                  { backgroundColor: getUrgencyColor(job.urgency_level) },
+                ]}
+              >
+                <Text style={styles.urgencyText}>{job.status}</Text>
+              </View>
             </View>
-            <Text className="text-xs text-gray-500 mb-1">by {job.customerName}</Text>
-            <Text className="text-sm text-gray-700" numberOfLines={2}>{job.description}</Text>
+            <Text style={styles.customerName}>by {`${customer.username}`}</Text>
+            <Text style={styles.jobDescription} numberOfLines={2}>
+              {job.instruction}
+            </Text>
           </View>
         </View>
+      </View>
 
-        <View className="items-end">
-          <Text className="text-green-700 font-bold text-base">Rs {job.budget}</Text>
-          <Text className="text-xs text-gray-500">{job.estimatedDuration}</Text>
+      <View style={styles.jobPrice}>
+        <Text style={styles.priceText}>${fixer_service.price}</Text>
+        <Text style={styles.durationText}>
+          {fixer_service.estimated_time} Hours
+        </Text>
+        {/* {job.postedTime && (
+            <Text style={styles.postedTime}>{job.postedTime}</Text>
+          )} */}
+      </View>
+
+      <View style={styles.jobInfoRow}>
+        <View style={styles.infoItem}>
+          <LucideIcons.MapPin size={14} color="#6b7280" />
+          <Text style={styles.infoText} numberOfLines={1}>
+            {job.address}
+          </Text>
+        </View>
+        <View style={styles.infoItem}>
+          <LucideIcons.Clock size={14} color="#6b7280" />
+          <Text
+            style={styles.infoText}
+          >{`${job.min_time} ${job.max_time}`}</Text>
+        </View>
+        <View style={styles.infoItem}>
+          <LucideIcons.Navigation size={14} color="#6b7280" />
+          <Text style={styles.infoText}>5 away</Text>
         </View>
       </View>
 
-      <View className="flex-row justify-between mb-3">
-        <View className="flex-row items-center flex-1 mr-2">
-          <MapPin size={14} color="#6b7280" />
-          <Text className="text-xs text-gray-600 ml-1" numberOfLines={1}>{job.location.address}</Text>
+      <View style={styles.jobActions}>
+        <View style={styles.leftActions}>
+          <CustomButton
+            style={styles.actionButton}
+            onPress={() => {}}
+            title="View Details"
+            textStyle={styles.actionButtonText}
+          />
+          <CustomButton
+            title="Message"
+            style={styles.messageButton}
+            element={<LucideIcons.MessageCircle size={16} color="#3b82f6" />}
+            onPress={() => {}}
+            textStyle={styles.messageButtonText}
+          />
         </View>
-        <View className="flex-row items-center">
-          <Clock size={14} color="#6b7280" />
-          <Text className="text-xs text-gray-600 ml-1">{job.timing.timeSlot}</Text>
-        </View>
-      </View>
-
-      <View className="flex-row justify-between items-center">
-        {variant === 'accepted' ? (
-          <>
-            <View className="flex-row space-x-3">
-              <TouchableOpacity onPress={onNavigate} className="flex-row items-center bg-green-700 px-3 py-2 rounded">
-                <Navigation size={14} color="#fff" />
-                <Text className="text-white text-xs ml-2">Navigate</Text>
-              </TouchableOpacity>
-              <TouchableOpacity className="flex-row items-center border border-gray-300 px-3 py-2 rounded">
-                <Phone size={14} color="#3b82f6" />
-                <Text className="text-blue-500 text-xs ml-2">Call</Text>
-              </TouchableOpacity>
-            </View>
-          </>
-        ) : (
-          <>
-            <TouchableOpacity onPress={onViewDetails} className="border border-gray-300 px-3 py-1.5 rounded">
-              <Text className="text-xs text-gray-800">View Details</Text>
-            </TouchableOpacity>
-            <View className="flex-row space-x-2">
-              <TouchableOpacity onPress={onDecline} disabled={isExpired} className="border border-gray-300 px-3 py-1.5 rounded">
-                <Text className="text-xs text-gray-500">Pass</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={onCounterOffer} disabled={isExpired} className="border border-blue-300 flex-row items-center px-3 py-1.5 rounded">
-                <Edit3 size={12} color="#3b82f6" />
-                <Text className="text-xs text-blue-500 ml-1">Counter</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={onAccept} disabled={isExpired} className={`bg-green-700 px-3 py-1.5 rounded ${isExpired ? 'opacity-50' : ''}`}>
-                <Text className="text-white text-xs">Accept</Text>
-              </TouchableOpacity>
-            </View>
-          </>
-        )}
       </View>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  jobCard: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    width: horizontalScale(360),
+    marginBottom: 12,
+    padding: 10,
+    borderWidth: 0.2,
+    borderColor: colors.gray[500],
+    borderLeftWidth: 4,
+    borderLeftColor: colors.secondary[500],
+  },
+  expiredJobCard: {
+    borderLeftColor: '#ef4444',
+    backgroundColor: '#fef2f2',
+  },
+  acceptedJobCard: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 16,
+    marginBottom: 12,
+    borderLeftWidth: 4,
+    borderLeftColor: '#3b82f6',
+  },
+  jobHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  jobCustomerInfo: {
+    flexDirection: 'row',
+    flex: 1,
+  },
+  avatar: {
+    width: horizontalScale(35),
+    height: verticalScale(35),
+    borderRadius: 24,
+    marginRight: 12,
+  },
+  jobDetails: {
+    flex: 1,
+  },
+  jobTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    marginBottom: 4,
+  },
+  jobTitle: {
+    ...typography.h5,
+  },
+  urgencyBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    width: horizontalScale(80),
+    height: verticalScale(25),
+    borderRadius: 4,
+    marginLeft: horizontalScale(10),
+  },
+  urgencyText: {
+    ...typography.link,
+    color: colors.white[100],
+  },
+  timeBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f3f4f6',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  expiredTimeBadge: {
+    backgroundColor: '#ef4444',
+  },
+  timeBadgeText: {
+    fontSize: 10,
+    color: '#6b7280',
+    marginLeft: 4,
+  },
+  customerName: {
+    ...typography.bodyXs,
+    color: colors.black[400],
+  },
+  jobDescription: {
+    ...typography.bodyXs,
+    color: colors.black[400],
+    lineHeight: 0,
+  },
+  jobPrice: {
+    alignItems: 'center',
+  },
+  priceText: {
+    ...typography.h2,
+    color: colors.secondary[400],
+  },
+  durationText: {
+    ...typography.bodyXs,
+    color: colors.gray[500],
+  },
+  postedTime: {
+    fontSize: 10,
+    color: '#9ca3af',
+    marginTop: 4,
+  },
+  jobInfoRow: {
+    marginTop: verticalScale(15),
+    marginBottom: 12,
+    gap: verticalScale(6),
+  },
+  infoItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: horizontalScale(8),
+    flex: 1,
+  },
+  infoText: {
+    ...typography.bodyXs,
+    color: colors.black[400],
+  },
+  jobActions: {
+    alignItems: 'center',
+    gap: verticalScale(15),
+  },
+  leftActions: {
+    alignItems: 'center',
+    gap: verticalScale(10),
+  },
+  rightActions: {
+    alignItems: 'center',
+  },
+  secondaryActions: {
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    flexDirection: 'row',
+    gap: horizontalScale(16),
+  },
+  actionButton: {
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: horizontalScale(320),
+    height: verticalScale(40),
+  },
+  actionButtonText: {
+    ...typography.link,
+  },
+  messageButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: horizontalScale(5),
+  },
+  messageButtonText: {
+    ...typography.link,
+    color: '#3b82f6',
+  },
+  secondaryButton: {
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 6,
+    width: horizontalScale(150),
+    height: verticalScale(40),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  secondaryButtonText: {
+    fontSize: 12,
+    color: '#6b7280',
+  },
+  counterButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderColor: '#93c5fd',
+  },
+  counterButtonText: {
+    fontSize: 12,
+    color: '#3b82f6',
+    marginLeft: 4,
+  },
+  primaryButton: {
+    marginTop: verticalScale(15),
+    backgroundColor: colors.secondary[400],
+    borderColor: '#d1d5db',
+    borderRadius: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: horizontalScale(320),
+    height: verticalScale(40),
+  },
+  disabledButton: {
+    backgroundColor: '#9ca3af',
+  },
+  primaryButtonText: {
+    ...typography.link,
+    color: colors.white[100]
+  },
+});

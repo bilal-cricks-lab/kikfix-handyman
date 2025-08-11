@@ -14,63 +14,18 @@ import * as LucideIcons from 'lucide-react-native';
 import { colors, typography } from '../../../design-system';
 import { horizontalScale, verticalScale } from '../../../utils/screenSize';
 import Select from '../../../components/Dropdown';
-import { fixer_dashboard_information } from '../../../services/appServices/serviceCategory';
+import {
+  fixer_accept,
+  fixer_dashboard_information,
+} from '../../../services/appServices/serviceCategory';
 import FixedHeader from '../../../components/NavBar';
 import { JobCard } from '../../../components/JobCard';
 import AvailableJobs from '../../../components/AvailableJobs';
 import { styles } from './styles';
+import { navigateToScreen } from '../../../utils/navigation';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import StackParamList from '../../../types/stack';
 // Types
-
-export const acceptedJobs = [
-  {
-    id: 2,
-    customerName: 'Zain Ahmed',
-    customerImage: 'https://i.pravatar.cc/100?img=3',
-    serviceName: 'Plumbing Fix',
-    description: 'Kitchen sink leaking. Pipe may need replacement.',
-    location: {
-      address: 'DHA Phase 5, Karachi',
-      latitude: 24.8155,
-      longitude: 67.0021,
-    },
-    timing: {
-      date: '2025-08-08',
-      timeSlot: '6:00 PM - 8:00 PM',
-      urgency: 'standard',
-    },
-    budget: 2000,
-    status: 'accepted',
-    urgency: 'standard',
-    distance: '3km',
-    estimatedDuration: '1 hour',
-    paymentConfirmed: true,
-    postedTime: '3 hours ago',
-  },
-  {
-    id: 3,
-    customerName: 'Zain Ahmed',
-    customerImage: 'https://i.pravatar.cc/100?img=3',
-    serviceName: 'Plumbing Fix',
-    description: 'Kitchen sink leaking. Pipe may need replacement.',
-    location: {
-      address: 'DHA Phase 5, Karachi',
-      latitude: 24.8155,
-      longitude: 67.0021,
-    },
-    timing: {
-      date: '2025-08-08',
-      timeSlot: '6:00 PM - 8:00 PM',
-      urgency: 'standard',
-    },
-    budget: 2000,
-    status: 'accepted',
-    urgency: 'standard',
-    distance: '3km',
-    estimatedDuration: '1 hour',
-    paymentConfirmed: true,
-    postedTime: '3 hours ago',
-  },
-];
 
 const Sorting = [
   {
@@ -89,9 +44,9 @@ const Sorting = [
 
 const HandymanDashboard = () => {
   const [activeTab, setActiveTab] = useState('available');
-  const [filterUrgency, setFilterUrgency] = useState<string>('all');
   const [date, setDate] = useState<string>('');
-  const [available_jobs, setAvailableJobs] = useState([]);
+  const [acceptedJobs, setAcceptedJobs] = useState<any[]>([]);
+  const [available_jobs, setAvailableJobs] = useState<{ id: string | number }[]>([]);
   const [fixer_data, setFixerData] = useState({
     weekly_earning: 0,
     today_earning: 0,
@@ -101,6 +56,9 @@ const HandymanDashboard = () => {
     avg_response_time: 0,
     member_since: '',
   });
+  const [isLoading, setIsLoading] = useState(false);
+
+  const navigation = useNavigation<NavigationProp<StackParamList>>();
 
   React.useEffect(() => {
     fetch_fixer_info();
@@ -146,12 +104,31 @@ const HandymanDashboard = () => {
     try {
       const response = await fixer_dashboard_information();
       const result = response.data;
-      console.log(result);
+      console.log(result.available_requests);
       setAvailableJobs(result.available_requests);
+      setAcceptedJobs(result.fixer_accepted_requests);
       setFixerData(result);
       return result;
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  const fixerAcceptJob = async () => {
+    const data = {
+      booking_id: available_jobs[0].id
+    };
+    console.log('Accepting job with data:', data);
+    setIsLoading(true);
+    try {
+      const response = await fixer_accept(data);
+      console.log('Job accepted successfully:', response);
+      setIsLoading(false);
+      // Navigate to success screen or show success message
+      navigateToScreen(navigation, 'Success');
+    } catch (error) {
+      console.log('Error accepting job:', error);
+      // Handle error (e.g., show error message)
     }
   };
 
@@ -272,11 +249,15 @@ const HandymanDashboard = () => {
             className={`bg-gray-100 rounded-full flex-row justify-between px-2 py-2 mb-4`}
           >
             {[
-              { key: 'available', label: 'Available',  count: available_jobs.length},
+              {
+                key: 'available',
+                label: 'Available',
+                count: available_jobs.length,
+              },
               {
                 key: 'accepted',
                 label: 'Accepted',
-                count: 1,
+                count: acceptedJobs.length,
               },
               { key: 'progress', label: 'Progess', count: 1 },
               { key: 'done', label: 'Done', count: 1 },
@@ -314,7 +295,13 @@ const HandymanDashboard = () => {
                 <FlatList
                   data={available_jobs}
                   keyExtractor={(item: number | string | any) => item.id}
-                  renderItem={({ item }) => <AvailableJobs job={item} />}
+                  renderItem={({ item }) => (
+                    <AvailableJobs
+                      job={item}
+                      onAccept={() => fixerAcceptJob()}
+                      loading={isLoading}
+                    />
+                  )}
                   contentContainerStyle={{}}
                 />
               )}
@@ -324,7 +311,7 @@ const HandymanDashboard = () => {
           {activeTab === 'accepted' && (
             <View style={styles.tabContent}>
               {acceptedJobs.map((job: any) => (
-                <JobCard key={job.id} job={job} variant={activeTab} />
+                <JobCard job={job} variant={activeTab} onCounter={() => available_jobs[0].id}/>
               ))}
             </View>
           )}

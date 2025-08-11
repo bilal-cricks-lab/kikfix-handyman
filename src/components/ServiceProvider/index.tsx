@@ -2,7 +2,7 @@ import { View, Text, TouchableOpacity, ScrollView, Image, FlatList, StyleSheet} 
 import { Star, MapPin, Clock, MessageSquare, Heart, Phone, Filter } from "lucide-react-native";
 import { verticalScale } from "../../utils/screenSize";
 import { colors } from "../../design-system";
-import { LocationData, TimingData } from "@/types/LocationTimingProps";
+import { LocationData, TimingData } from "@/types/location";
 
 interface ServiceProvider {
   id: number;
