@@ -90,7 +90,7 @@ const AvailableJobs: React.FC<JobCardProps> = ({
       <View style={styles.jobInfoRow}>
         <View style={styles.infoItem}>
           <LucideIcons.MapPin size={14} color="#6b7280" />
-          <Text style={styles.infoText} numberOfLines={1}>
+          <Text style={styles.infoText}>
             {job.address}
           </Text>
         </View>
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 12,
     borderLeftWidth: 4,
-    borderLeftColor: '#3b82f6',
+    borderLeftColor: colors.secondary[500],
   },
   jobHeader: {
     flexDirection: 'row',
@@ -290,6 +290,7 @@ const styles = StyleSheet.create({
   infoText: {
     ...typography.bodyXs,
     color: colors.black[400],
+    width: horizontalScale(300)
   },
   jobActions: {
     alignItems: 'center',
@@ -354,7 +355,7 @@ const styles = StyleSheet.create({
   },
   primaryButton: {
     marginTop: verticalScale(15),
-    backgroundColor: colors.secondary[400],
+    backgroundColor: colors.secondary[500],
     borderColor: '#d1d5db',
     borderRadius: 6,
     alignItems: 'center',

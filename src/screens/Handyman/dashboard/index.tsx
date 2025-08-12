@@ -25,6 +25,7 @@ import { styles } from './styles';
 import { navigateToScreen } from '../../../utils/navigation';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import StackParamList from '../../../types/stack';
+import JobCardProps from '../../../types/job';
 // Types
 
 const Sorting = [
@@ -297,7 +298,7 @@ const HandymanDashboard = () => {
                   keyExtractor={(item: number | string | any) => item.id}
                   renderItem={({ item }) => (
                     <AvailableJobs
-                      job={item}
+                      job={item as JobCardProps['job']}
                       onAccept={() => fixerAcceptJob()}
                       loading={isLoading}
                     />
