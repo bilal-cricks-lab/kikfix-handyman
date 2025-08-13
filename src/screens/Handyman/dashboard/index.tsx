@@ -160,9 +160,10 @@ const HandymanDashboard = () => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{  }}>
       <FixedHeader />
-      <ScrollView style={styles.container}>
+      <ScrollView style={styles.container} contentContainerStyle={{
+      }}>
         {/* Welcome Section */}
         <View style={styles.welcomeSection}>
           <View style={styles.welcomeHeader}>
