@@ -26,6 +26,8 @@ import { navigateToScreen } from '../../../utils/navigation';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import StackParamList from '../../../types/stack';
 import JobCardProps from '../../../types/job';
+import { useSelector } from 'react-redux';
+import { RootSate } from '../../../redux/Store/store';
 // Types
 
 const Sorting = [
@@ -60,6 +62,7 @@ const HandymanDashboard = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const navigation = useNavigation<NavigationProp<StackParamList>>();
+  const user_info = useSelector((state: RootSate) => state.user.user);
 
   React.useEffect(() => {
     fetch_fixer_info();
@@ -160,7 +163,7 @@ const HandymanDashboard = () => {
   };
 
   return (
-    <SafeAreaView style={{  }}>
+    <SafeAreaView>
       <FixedHeader />
       <ScrollView style={styles.container} contentContainerStyle={{
       }}>
@@ -169,7 +172,7 @@ const HandymanDashboard = () => {
           <View style={styles.welcomeHeader}>
             <View style={{ gap: verticalScale(0) }}>
               <Text style={styles.welcomeTitle}>
-                Good morning, {'John'}! 👋
+                Good morning, {user_info?.username}! 👋
               </Text>
               <Text style={styles.welcomeSubtitle}>
                 Ready to help customers today?

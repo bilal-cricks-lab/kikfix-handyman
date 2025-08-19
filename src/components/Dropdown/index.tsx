@@ -19,7 +19,8 @@ interface Props {
   onValueChange: (val: string) => void;
   placeholder?: string;
   leftIcon?: React.ReactNode;
-  custom_style?: ViewStyle,
+  custom_style?: ViewStyle;
+  element?: React.ReactNode;
 }
 
 const Select: React.FC<Props> = ({
@@ -29,6 +30,7 @@ const Select: React.FC<Props> = ({
   placeholder = 'Select an option',
   leftIcon,
   custom_style,
+  element,
 }) => {
   return (
     <View style={styles.container}>
@@ -67,7 +69,9 @@ const Select: React.FC<Props> = ({
                   gap: horizontalScale(15),
                 }}
               >
-                <Calendar color={'grey'} />
+                {element && React.isValidElement(element)
+                  ? React.cloneElement(element)
+                  : null}
                 <Text
                   style={[
                     styles.itemTextStyle,

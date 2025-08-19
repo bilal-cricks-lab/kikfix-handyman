@@ -11,6 +11,7 @@ import { setBookingData } from '../../redux/Reducers/bookingSlice';
 import { navigateToScreen } from '../../utils/navigation';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import StackParamList from '../../types/stack';
+import { formatTime, generateTimeOptions } from '../../utils/time_format';
 
 const AvailableJobs: React.FC<JobCardProps> = ({
   job,
@@ -60,14 +61,6 @@ const AvailableJobs: React.FC<JobCardProps> = ({
                 <LucideIcons.Clock size={12} color={colors.white[100]} />
                 <Text style={styles.urgencyText}>{job.urgency_level}</Text>
               </View>
-              <View
-                style={[
-                  styles.urgencyBadge,
-                  { backgroundColor: getUrgencyColor(job.urgency_level) },
-                ]}
-              >
-                <Text style={styles.urgencyText}>{job.status}</Text>
-              </View>
             </View>
             <Text style={styles.customerName}>by {`${customer.username}`}</Text>
             <Text style={styles.jobDescription} numberOfLines={2}>
@@ -98,11 +91,11 @@ const AvailableJobs: React.FC<JobCardProps> = ({
           <LucideIcons.Clock size={14} color="#6b7280" />
           <Text
             style={styles.infoText}
-          >{`${job.min_time} ${job.max_time}`}</Text>
+          >{`${formatTime(job.min_time)} ${formatTime(job.max_time)}`}</Text>
         </View>
         <View style={styles.infoItem}>
           <LucideIcons.Navigation size={14} color="#6b7280" />
-          <Text style={styles.infoText}>5 away</Text>
+          <Text style={styles.infoText}>{job.distance || 0} away</Text>
         </View>
       </View>
 
@@ -118,7 +111,7 @@ const AvailableJobs: React.FC<JobCardProps> = ({
             title="Message"
             style={styles.messageButton}
             element={<LucideIcons.MessageCircle size={16} color="#3b82f6" />}
-            onPress={() => {}}
+            onPress={() => navigateToScreen(navigation, 'chat')}
             textStyle={styles.messageButtonText}
           />
         </View>
@@ -140,7 +133,14 @@ const AvailableJobs: React.FC<JobCardProps> = ({
                 onCounter?.(job.id);
                 Store.dispatch(setBookingData({
                   id: job.id,
+                  name: job.customer.username,
+                  address: job.address,
+                  serve: category.name,
+                  date: job.date,
+                  fromTime: job.min_time,
+                  toTime: job.max_time,
                 }))
+                
                 navigateToScreen(navigation, 'Counter_Offer')
               }}
             />

@@ -7,7 +7,9 @@ interface JobCardProps {
     address: string;
     min_time: string;
     max_time: string;
+    distance?: string;
     postedTime?: string;
+    date?: string;
     category: {
       name: string;
     };
