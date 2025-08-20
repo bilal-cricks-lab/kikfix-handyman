@@ -28,6 +28,10 @@ import { colors, typography } from '../../../design-system';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import StackParamList from '../../../types/stack';
 import CustomButton from '../../../components/Button';
+import {
+  get_single_chat,
+  send_message,
+} from '../../../services/appServices/serviceCategory';
 
 // ------- Types -------
 type Sender = 'customer' | 'handyman';
@@ -51,40 +55,7 @@ interface Message {
 }
 
 const Chat = () => {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      text: "Hi! I'm on my way to your location. I should arrive in about 15 minutes.",
-      sender: 'handyman',
-      timestamp: '2024-01-20T10:30:00Z',
-      type: 'text',
-      status: 'read',
-    },
-    {
-      id: '2',
-      text: "Great! I'll be ready. Do you have all the necessary tools for the plumbing repair?",
-      sender: 'customer',
-      timestamp: '2024-01-20T10:32:00Z',
-      type: 'text',
-      status: 'read',
-    },
-    {
-      id: '3',
-      text: 'Yes, I have everything needed. I also picked up a backup O-ring just in case.',
-      sender: 'handyman',
-      timestamp: '2024-01-20T10:33:00Z',
-      type: 'text',
-      status: 'read',
-    },
-    {
-      id: '4',
-      text: 'Perfect! See you soon.',
-      sender: 'customer',
-      timestamp: '2024-01-20T10:34:00Z',
-      type: 'text',
-      status: 'delivered',
-    },
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
 
   const [newMessage, setNewMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -105,6 +76,97 @@ const Chat = () => {
       useNativeDriver: true,
     }).start();
   }, []);
+
+  const mapApiMessageToLocal = (
+    apiMsg: any,
+    currentUserId: number,
+  ): Message => {
+    return {
+      id: String(apiMsg.id),
+      text: apiMsg.message?.replace(/(^"|"$)/g, '') || '', // remove extra quotes if exist
+      sender: apiMsg.sender_id === currentUserId ? 'customer' : 'handyman',
+      timestamp: apiMsg.created_at,
+      type: 'text',
+      status: 'read', // you can improve later based on API
+      attachments: apiMsg.attachment
+        ? [
+            {
+              type: apiMsg.attachment_type || 'image',
+              url: apiMsg.attachment,
+              name: apiMsg.attachment_name || 'file',
+            },
+          ]
+        : undefined,
+    };
+  };
+
+  useEffect(() => {
+    const fetchMessages = async () => {
+      try {
+        const response = await get_single_chat(18);
+        console.log('API Response:', response);
+
+        if (response?.chat) {
+          // Combine messages from all date groups
+          const allMessages: any[] = [];
+
+          // Iterate through all date groups in the response
+          Object.values(response.chat).forEach((dateGroup: any) => {
+            if (Array.isArray(dateGroup)) {
+              allMessages.push(...dateGroup);
+            }
+          });
+
+          console.log('All messages:', allMessages);
+
+          if (allMessages.length > 0) {
+            const mapped = allMessages.map(
+              (m: any) => mapApiMessageToLocal(m, 3), // 3 = current user id
+            );
+            setMessages(mapped.reverse()); // reverse for FlatList inverted
+          } else {
+            console.log('No messages found in response');
+          }
+        } else {
+          console.log('No chat data in response');
+        }
+      } catch (err) {
+        console.log('Error fetching chat:', err);
+      }
+    };
+
+    fetchMessages();
+  }, []);
+
+  const send_message_api = async (text: string, tempId: string) => {
+    const data = {
+      receiver_id: 18, // <-- dynamic based on your app
+      message: text,
+    };
+
+    try {
+      const response = await send_message(data);
+
+      if (response?.user) {
+        console.log('Message sent successfully');
+        console.log(response);
+        // Update local state → mark as sent
+        setMessages(prev =>
+          prev.map(m => (m.id === tempId ? { ...m, status: 'sent' } : m)),
+        );
+      }
+      return response;
+    } catch (error) {
+      console.log(error);
+
+      // Mark message as failed
+      setMessages(prev =>
+        prev.map(m =>
+          m.id === tempId ? { ...m, status: 'failed' as MsgStatus } : m,
+        ),
+      );
+    }
+  };
 
   useEffect(() => {
     if (isTyping) {
@@ -138,9 +200,11 @@ const Chat = () => {
     }
   }, [newMessage]);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     const trimmed = newMessage.trim();
     if (!trimmed) return;
+    const tempId = Date.now().toString();
+
     const msg: Message = {
       id: Date.now().toString(),
       text: trimmed,
@@ -152,6 +216,8 @@ const Chat = () => {
 
     setMessages(prev => [msg, ...prev]); // FlatList is inverted
     setNewMessage('');
+
+    await send_message_api(newMessage, tempId);
 
     // delivery + read simulation
     setTimeout(() => {
@@ -390,26 +456,12 @@ const Chat = () => {
               onPress={() => navigation.goBack()}
             />
             <View className="flex-row items-center">
-              <View className="mr-3">
-                {/* <View className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">
-                  {contactImage ? (
-                    <Image source={{ uri: contactImage }} className="w-full h-full" />
-                  ) : (
-                    <View className="w-full h-full items-center justify-center">
-                      <Text className="text-gray-600 font-semibold">{contactName?.charAt(0) ?? '?'}</Text>
-                    </View>
-                  )}
-                </View> */}
-                {/* {isOnline && (
-                  <View className="w-5 h-5 rounded-full bg-green-500 border-2 border-white-50 absolute -right-1 -bottom-2" />
-                )} */}
-              </View>
+              <View className="mr-3"></View>
               <View>
                 <View className="flex-row items-center left-4">
                   <Text className="font-semibold text-gray-900 mr-2">
                     Customer
                   </Text>
-                  
                 </View>
                 {/* <Text className="text-xs text-gray-600">{isOnline ? 'Online' : `Last seen ${lastSeen}`}</Text> */}
               </View>
@@ -419,33 +471,6 @@ const Chat = () => {
       </View>
 
       {/* Job Details */}
-      {/* {jobDetails ? (
-        <View className="mx-3 mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-3">
-          <View className="flex-row items-center justify-between">
-            <View className="flex-1 mr-3">
-              <Text className="font-semibold text-gray-900 mb-1">{jobDetails.serviceName}</Text>
-              <View className="flex-row items-center flex-wrap">
-                <View className="flex-row items-center mr-3 mb-1">
-                  <MapPin size={16} color="#374151" />
-                  <Text className="text-sm text-gray-700 ml-1">{jobDetails.location}</Text>
-                </View>
-                <View className="flex-row items-center mr-3 mb-1">
-                  <Clock size={16} color="#374151" />
-                  <Text className="text-sm text-gray-700 ml-1">{jobDetails.timing}</Text>
-                </View>
-                <View className="px-2 py-0.5 rounded-full bg-blue-100">
-                  <Text className="text-xs text-blue-800">{jobDetails.status}</Text>
-                </View>
-              </View>
-            </View>
-            {onViewJob ? (
-              <TouchableOpacity className="px-3 py-2 rounded-xl border border-gray-300">
-                <Text className="text-xs font-medium text-gray-800">View Details</Text>
-              </TouchableOpacity>
-            ) : null}
-          </View>
-        </View>
-      ) : null} */}
 
       {/* Messages (inverted) */}
       <FlatList

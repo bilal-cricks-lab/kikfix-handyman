@@ -19,7 +19,10 @@ export const ENV = {
       CODEVERIFY: '/api/verify-otp',
       FIXERDASHBOARD: '/api/fixer-dashboard',
       FIXERACCEPTJOB: '/api/fixer-accept-job',
-      FIXERCOUNTEROFFER: '/api/counter-offer'
+      FIXERCOUNTEROFFER: '/api/counter-offer',
+      GETALLCHAT: '/api/get-all-chats',
+      GETSINGLECHAT: 'api/get-single-chat/',
+      SENDMESSAGE: '/api/send-message'
     },
   },
 

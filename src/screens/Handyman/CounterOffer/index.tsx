@@ -6,6 +6,7 @@ import {
   ScrollView,
   TextInput,
   TouchableOpacity,
+  StyleSheet,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { fixer_counter } from '../../../services/appServices/serviceCategory';
@@ -54,6 +55,10 @@ export default function CounterOfferScreen() {
   ) => {
     setToast({ visible: true, message, type });
   };
+
+  const is_counter_offer = Boolean(
+    !date && fromTime && toTime && reasons
+  )
 
   const fixerCounterOffer = async () => {
     const data = {
@@ -349,8 +354,12 @@ export default function CounterOfferScreen() {
           <Text className="text-center text-gray-700 font-medium">Cancel</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          className="flex-1 bg-green-500 py-3 rounded-lg"
+          className="flex-1 py-3 rounded-lg"
           onPress={fixerCounterOffer}
+          disabled={!is_counter_offer}
+          style={[!is_counter_offer && styles.btnDisables, {
+            backgroundColor: colors.secondary[500]
+          }]}
         >
           <Text className="text-center text-white-50 font-medium">
             {loading ? 'Sending...' : 'Send Counter Offer'}
@@ -369,3 +378,9 @@ export default function CounterOfferScreen() {
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  btnDisables: {
+    backgroundColor: colors.secondary[200]
+  }
+})

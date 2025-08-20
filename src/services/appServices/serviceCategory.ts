@@ -4,13 +4,16 @@ import {
   callPostApi,
   getLocationServices,
   saveBookingsPost,
+  send_post_message,
 } from '../network';
 
 const fixer_dashboard = getApiUrl('/api/fixer-dashboard');
 const save_url = getApiUrl('/api/save-booking');
 const dashboard_url = getApiUrl('/api/customer-dashboard');
 const fixer_accept_job = getApiUrl('/api/fixer-accept-job');
-const fixer_counter_offer = getApiUrl('/api/counter-offer')
+const fixer_counter_offer = getApiUrl('/api/counter-offer');
+const get_all_chats = getApiUrl('/api/get-all-chats');
+const send_messages_url = getApiUrl('/api/send-message')
 
 export const fixer_dashboard_information = async () => {
   try {
@@ -86,11 +89,8 @@ export const dashboard_data = async () => {
   }
 };
 
-export const service_booking = async (
-) => {
-  const service_history = getApiUrl(
-    `/api/get-booking-history`,
-  );
+export const service_booking = async () => {
+  const service_history = getApiUrl(`/api/get-booking-history`);
   try {
     const response = await callGetApiWithToken(service_history);
     return response;
@@ -106,13 +106,41 @@ export const fixer_accept = async (data: any) => {
   } catch (error) {
     console.log(error);
   }
-}
+};
 
-export const fixer_counter = async (data: any)  => {
+export const fixer_counter = async (data: any) => {
   try {
     const response = await callPostApi(fixer_counter_offer, data);
     return response;
   } catch (error) {
     console.log(error);
   }
-}
+};
+
+export const get_all_chat = async () => {
+  try {
+    const response = await callGetApiWithToken(get_all_chats);
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const get_single_chat = async (id: number | string) => {
+  const get_single_chat_url = getApiUrl(`/api/get-single-chat/${id}`);
+  try {
+    const response = await callGetApiWithToken(get_single_chat_url);
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const send_message = async (data: any) => {
+  try {
+    const response = await send_post_message(send_messages_url, data);
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};

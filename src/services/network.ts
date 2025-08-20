@@ -5,6 +5,7 @@ import {
   auth_Instance,
   otp_Instance,
   service_Instance,
+  send_messages_instance,
 } from './interceptors';
 import { AxiosResponse } from 'axios';
 
@@ -74,3 +75,21 @@ export const getLocationServices = async(url: string): Promise<any>=> {
     console.log(error);
   }
 }
+
+export const send_post_message = async <T extends Record<string, any>>(
+  url: string,
+  data: T,
+): Promise<any> => {
+  try {
+    const formData = new FormData();
+    Object.entries(data).forEach(([key, value]) => {
+      formData.append(key, String(value));
+    });
+
+    const response: AxiosResponse = await send_messages_instance.post(url, formData);
+    return response.data;
+  } catch (error: any) {
+    console.error('callPostApi error:', error.response?.data);
+    throw error;
+  }
+};

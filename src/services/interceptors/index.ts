@@ -131,3 +131,24 @@ locationServices.interceptors.request.use(
     return Promise.reject(error);
   },
 );
+
+export const send_messages_instance = axios.create({
+  headers: {
+    Accept: 'application/json',
+    'Content-Type': 'multipart/form-data',
+  },
+  responseType: 'json',
+});
+
+send_messages_instance.interceptors.request.use(
+  async config => {
+    const token = await AsyncStorage.getItem('user_token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  error => {
+    return Promise.reject(error);
+  },
+);
