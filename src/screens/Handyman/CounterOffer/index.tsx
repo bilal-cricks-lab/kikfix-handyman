@@ -57,7 +57,7 @@ export default function CounterOfferScreen() {
   };
 
   const is_counter_offer = Boolean(
-    !date && fromTime && toTime && reasons
+    date && fromTime && toTime && reasons
   )
 
   const fixerCounterOffer = async () => {

@@ -4,11 +4,9 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
-  Image,
-  StyleSheet,
-  Dimensions,
   SafeAreaView,
   FlatList,
+  StatusBar,
 } from 'react-native';
 import * as LucideIcons from 'lucide-react-native';
 import { colors, typography } from '../../../design-system';
@@ -163,9 +161,13 @@ const HandymanDashboard = () => {
   };
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={{
+      marginTop: StatusBar.currentHeight
+    }}>
+      <StatusBar barStyle={'dark-content'}/>
       <FixedHeader />
       <ScrollView style={styles.container} contentContainerStyle={{
+        paddingBottom: verticalScale(50),
       }}>
         {/* Welcome Section */}
         <View style={styles.welcomeSection}>

@@ -1,4 +1,4 @@
-package com.kikfix
+package com.KikFixHandyman
 
 import android.app.Application
 import com.facebook.react.PackageList
