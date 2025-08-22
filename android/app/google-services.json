@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "323055781324",
+    "project_id": "woven-plane-467411-p8",
+    "storage_bucket": "woven-plane-467411-p8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:323055781324:android:7595639039ce1df71c0969",
+        "android_client_info": {
+          "package_name": "com.KikFixHandyman"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD3OFMIfEuWL_i9gU5Fz8k2MDKtoVIJTzk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:323055781324:android:511334b8259cc0831c0969",
+        "android_client_info": {
+          "package_name": "com.kikfix"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD3OFMIfEuWL_i9gU5Fz8k2MDKtoVIJTzk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

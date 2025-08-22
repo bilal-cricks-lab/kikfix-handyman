@@ -1,7 +1,14 @@
 import { horizontalScale, verticalScale } from '../../../utils/screenSize';
 import IMAGES from '../../../constants/Images';
-import { useState } from 'react';
-import { View, Text, ScrollView, SafeAreaView, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  ScrollView,
+  SafeAreaView,
+  StyleSheet,
+  Platform,
+} from 'react-native';
 import { colors, typography } from '../../../design-system';
 import InputFields from '../../../components/TextInput';
 import useInputText from '../../../json/InputText';
@@ -17,6 +24,7 @@ import { navigateToScreen } from '../../../utils/navigation';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import StackParamList from '../../../types/stack';
 import { setRegData } from '../../../redux/Reducers/regSlice';
+import requestToken from '../../../utils/fcm_token';
 
 export default function AuthScreen() {
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
@@ -25,10 +33,27 @@ export default function AuthScreen() {
     message: '',
     type: 'success' as 'success' | 'error' | 'warning',
   });
+  const [fcmToken, setFcmToken] = useState<string | null>(null);
   const { inputSignin, inputSignUp, formValue } = useInputText();
   const [loading, setLoading] = useState<boolean>(false);
   const { email, password } = formValue.state;
   const navigation = useNavigation<NavigationProp<StackParamList>>();
+
+
+ React.useEffect(() => {
+  const getToken = async () => {
+    try {
+      const token = await requestToken(); // assuming requestToken returns token string
+      console.log("FCM Token:", token);
+      setFcmToken(token as string);
+    } catch (error) {
+      console.log("Error getting FCM token", error);
+    }
+  };
+  getToken();
+}, []);
+
+
   const showToast = (
     message: string,
     type: 'success' | 'error' | 'warning',
@@ -46,12 +71,14 @@ export default function AuthScreen() {
       showToast('Please enter a valid email address.', 'error');
       return;
     }
+    const data = {
+      email: email,
+      password: password,
+      fcm_token: fcmToken,
+    };
+    console.log(data);
     setLoading(true);
     try {
-      const data = {
-        email: email,
-        password: password,
-      };
       const response = await Login(data);
       if (response.data.user_type === 'fixer') {
         AsyncStorage.setItem('user_token', response.data.api_token);
@@ -156,7 +183,11 @@ export default function AuthScreen() {
 
   return (
     <SafeAreaView className="flex-1" style={styles.container}>
-      <ScrollView>
+      <ScrollView
+        style={{
+          marginTop: Platform.OS === 'android' ? verticalScale(40) : null,
+        }}
+      >
         <View className="w-full max-w-md bg-white p-8 shadow-sm">
           {/* Logo + Title */}
           <LogoText

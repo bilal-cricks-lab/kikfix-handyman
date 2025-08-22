@@ -32,6 +32,7 @@ import {
   get_single_chat,
   send_message,
 } from '../../../services/appServices/serviceCategory';
+import messaging from '@react-native-firebase/messaging';
 
 // ------- Types -------
 type Sender = 'customer' | 'handyman';
@@ -83,17 +84,17 @@ const Chat = () => {
   ): Message => {
     return {
       id: String(apiMsg.id),
-      text: apiMsg.message?.replace(/(^"|"$)/g, '') || '', // remove extra quotes if exist
+      text: apiMsg.message || '', // No need to remove quotes
       sender: apiMsg.sender_id === currentUserId ? 'customer' : 'handyman',
       timestamp: apiMsg.created_at,
       type: 'text',
-      status: 'read', // you can improve later based on API
+      status: 'read',
       attachments: apiMsg.attachment
         ? [
             {
-              type: apiMsg.attachment_type || 'image',
+              type: 'image', // Default to image if type not specified
               url: apiMsg.attachment,
-              name: apiMsg.attachment_name || 'file',
+              name: 'attachment',
             },
           ]
         : undefined,
@@ -103,24 +104,14 @@ const Chat = () => {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const response = await get_single_chat(18);
+        const response = await get_single_chat(3);
         console.log('API Response:', response);
 
-        if (response?.chat) {
-          // Combine messages from all date groups
-          const allMessages: any[] = [];
+        if (response.data) {
+          console.log('All messages:', response.data.message);
 
-          // Iterate through all date groups in the response
-          Object.values(response.chat).forEach((dateGroup: any) => {
-            if (Array.isArray(dateGroup)) {
-              allMessages.push(...dateGroup);
-            }
-          });
-
-          console.log('All messages:', allMessages);
-
-          if (allMessages.length > 0) {
-            const mapped = allMessages.map(
+          if (response.data.length > 0) {
+            const mapped = response.data.map(
               (m: any) => mapApiMessageToLocal(m, 3), // 3 = current user id
             );
             setMessages(mapped.reverse()); // reverse for FlatList inverted
@@ -128,7 +119,7 @@ const Chat = () => {
             console.log('No messages found in response');
           }
         } else {
-          console.log('No chat data in response');
+          console.log('No data array in response');
         }
       } catch (err) {
         console.log('Error fetching chat:', err);
@@ -138,9 +129,16 @@ const Chat = () => {
     fetchMessages();
   }, []);
 
+  useEffect(() => {
+    // const unsubscribe = messaging().onMessage(async remoteMessage => {
+    //   console.log('Foreground push:', remoteMessage);
+    // });
+    // return unsubscribe;
+  }, []);
+
   const send_message_api = async (text: string, tempId: string) => {
     const data = {
-      receiver_id: 18, // <-- dynamic based on your app
+      receiver_id: 3, // <-- dynamic based on your app
       message: text,
     };
 

@@ -18,10 +18,25 @@ import StackNav from './src/navigation/StackNavigator';
 import { PersistGate } from 'redux-persist/integration/react';
 import { Store, persistor } from './src/redux/Store/store';
 import { Provider } from 'react-redux';
+import firebase from '@react-native-firebase/app';
+import messaging from '@react-native-firebase/messaging';
 
 LogBox.ignoreAllLogs();
 
 const App: React.FC = () => {
+  React.useEffect(() => {
+    if (firebase.apps.length > 0) {
+      console.log('Firebase is working!');
+    }
+  }, []);
+
+  React.useEffect(() => {
+    const unsubscribe = messaging().onMessage(async remoteMessage => {
+      console.log('A new FCM message arrived!', remoteMessage);
+    });
+    return unsubscribe;
+  }, []);
+  
   return (
     <Provider store={Store}>
       <PersistGate loading={null} persistor={persistor}>

@@ -9,7 +9,7 @@ import {
   StatusBar,
 } from 'react-native';
 import * as LucideIcons from 'lucide-react-native';
-import { colors, typography } from '../../../design-system';
+import { typography } from '../../../design-system';
 import { horizontalScale, verticalScale } from '../../../utils/screenSize';
 import Select from '../../../components/Dropdown';
 import {
