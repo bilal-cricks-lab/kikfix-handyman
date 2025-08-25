@@ -24,18 +24,18 @@ import messaging from '@react-native-firebase/messaging';
 LogBox.ignoreAllLogs();
 
 const App: React.FC = () => {
-  React.useEffect(() => {
-    if (firebase.apps.length > 0) {
-      console.log('Firebase is working!');
-    }
-  }, []);
+  // React.useEffect(() => {
+  //   if (firebase.apps.length > 0) {
+  //     console.log('Firebase is working!');
+  //   }
+  // }, []);
 
-  React.useEffect(() => {
-    const unsubscribe = messaging().onMessage(async remoteMessage => {
-      console.log('A new FCM message arrived!', remoteMessage);
-    });
-    return unsubscribe;
-  }, []);
+  // React.useEffect(() => {
+  //   const unsubscribe = messaging().onMessage(async remoteMessage => {
+  //     console.log('A new FCM message arrived!', remoteMessage);
+  //   });
+  //   return unsubscribe;
+  // }, []);
   
   return (
     <Provider store={Store}>

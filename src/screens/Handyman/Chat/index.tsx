@@ -112,7 +112,7 @@ const Chat = () => {
 
           if (response.data.length > 0) {
             const mapped = response.data.map(
-              (m: any) => mapApiMessageToLocal(m, 3), // 3 = current user id
+              (m: any) => mapApiMessageToLocal(m, 18), // 3 = current user id
             );
             setMessages(mapped.reverse()); // reverse for FlatList inverted
           } else {

@@ -8,6 +8,7 @@ import CounterOfferScreen from '../../screens/Handyman/CounterOffer';
 import { useEffect, useState } from 'react';
 import { getItem } from '../../utils/storage';
 import Chat from '../../screens/Handyman/Chat';
+import Notification from '../../screens/Handyman/Notification';
 
 const Stack = createNativeStackNavigator<StackParamList>();
 
@@ -69,6 +70,13 @@ const StackNav = () => {
       <Stack.Screen
         name="chat"
         component={Chat}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="notification"
+        component={Notification}
         options={{
           headerShown: false,
         }}

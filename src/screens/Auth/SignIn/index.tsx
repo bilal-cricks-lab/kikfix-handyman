@@ -8,6 +8,7 @@ import {
   SafeAreaView,
   StyleSheet,
   Platform,
+  StatusBar,
 } from 'react-native';
 import { colors, typography } from '../../../design-system';
 import InputFields from '../../../components/TextInput';
@@ -183,12 +184,14 @@ export default function AuthScreen() {
 
   return (
     <SafeAreaView className="flex-1" style={styles.container}>
+      <StatusBar translucent backgroundColor={'transparent'} barStyle={'dark-content'}/>
       <ScrollView
         style={{
-          marginTop: Platform.OS === 'android' ? verticalScale(40) : null,
+          marginTop: Platform.OS === 'android' ? verticalScale(50) : null,
         }}
+        showsVerticalScrollIndicator={false}
       >
-        <View className="w-full max-w-md bg-white p-8 shadow-sm">
+        <View className="bg-white-50 shadow-sm items-center py-8">
           {/* Logo + Title */}
           <LogoText
             imageBack={styles.imageView}
@@ -274,6 +277,7 @@ export default function AuthScreen() {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: colors.white[50],
+    alignItems: 'center',
   },
   imageView: {
     width: horizontalScale(200),

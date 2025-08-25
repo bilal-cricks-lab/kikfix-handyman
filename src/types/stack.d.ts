@@ -5,6 +5,7 @@ type StackParamList = {
     Success: undefined;
     Counter_Offer: undefined;
     chat: undefined;
+    notification: undefined;
 };
 
 export default StackParamList;
