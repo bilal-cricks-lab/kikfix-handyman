@@ -61,6 +61,7 @@ const AvailableJobs: React.FC<JobCardProps> = ({
                 <LucideIcons.Clock size={12} color={colors.white[100]} />
                 <Text style={styles.urgencyText}>{job.urgency_level}</Text>
               </View>
+              <Text style={{left: horizontalScale(10)}}>{job.counter_offer === null ? '' : 'Status'}</Text>
             </View>
             <Text style={styles.customerName}>by {`${customer.username}`}</Text>
             <Text style={styles.jobDescription} numberOfLines={2}>
@@ -83,15 +84,13 @@ const AvailableJobs: React.FC<JobCardProps> = ({
       <View style={styles.jobInfoRow}>
         <View style={styles.infoItem}>
           <LucideIcons.MapPin size={14} color="#6b7280" />
-          <Text style={styles.infoText}>
-            {job.address}
-          </Text>
+          <Text style={styles.infoText}>{job.address}</Text>
         </View>
         <View style={styles.infoItem}>
           <LucideIcons.Clock size={14} color="#6b7280" />
-          <Text
-            style={styles.infoText}
-          >{`${formatTime(job.min_time)} ${formatTime(job.max_time)}`}</Text>
+          <Text style={styles.infoText}>{`${formatTime(
+            job.min_time,
+          )} ${formatTime(job.max_time)}`}</Text>
         </View>
         <View style={styles.infoItem}>
           <LucideIcons.Navigation size={14} color="#6b7280" />
@@ -125,23 +124,28 @@ const AvailableJobs: React.FC<JobCardProps> = ({
               textStyle={styles.secondaryButtonText}
             />
             <CustomButton
-              title="Counter Offer"
+              title={job.counter_offer ? 'Countered' : 'Counter Offer'}
+              disabled={!!job.counter_offer} // ✅ disables if counter_offer exists
               style={[styles.secondaryButton, styles.counterButton]}
               element={<LucideIcons.Edit3 size={14} color="#3b82f6" />}
               textStyle={styles.counterButtonText}
               onPress={() => {
-                onCounter?.(job.id);
-                Store.dispatch(setBookingData({
-                  id: job.id,
-                  name: job.customer.username,
-                  address: job.address,
-                  serve: category.name,
-                  date: job.date,
-                  fromTime: job.min_time,
-                  toTime: job.max_time,
-                }))
-                
-                navigateToScreen(navigation, 'Counter_Offer')
+                if (!job.counter_offer) {
+                  // ✅ only allow if no counter_offer
+                  onCounter?.(job.id);
+                  Store.dispatch(
+                    setBookingData({
+                      id: job.id,
+                      name: job.customer.username,
+                      address: job.address,
+                      serve: job.category.name,
+                      date: job.date,
+                      fromTime: job.min_time,
+                      toTime: job.max_time,
+                    }),
+                  );
+                  navigateToScreen(navigation, 'Counter_Offer');
+                }
               }}
             />
           </View>
@@ -290,7 +294,7 @@ const styles = StyleSheet.create({
   infoText: {
     ...typography.bodyXs,
     color: colors.black[400],
-    width: horizontalScale(300)
+    width: horizontalScale(300),
   },
   jobActions: {
     alignItems: 'center',

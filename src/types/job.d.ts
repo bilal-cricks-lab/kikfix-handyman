@@ -49,6 +49,18 @@ interface JobCardProps {
       distance: number | null;
       duration: number | null;
     };
+    counter_offer: {
+      id: number;
+      booking_id: number;
+      fixer_id: number;
+      date: string; // "2025-08-30"
+      min_time: string; // "03:00:00"
+      max_time: string; // "05:00:00"
+      reason: string;
+      status: string | null;
+      created_at: string;
+      updated_at: string;
+    };
   };
   onAccept?: (jobId: any) => void;
   onDecline?: (jobId: string) => void;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   SafeAreaView,
   FlatList,
   StatusBar,
+  Alert,
 } from 'react-native';
 import * as LucideIcons from 'lucide-react-native';
 import { typography } from '../../../design-system';
@@ -26,7 +27,15 @@ import StackParamList from '../../../types/stack';
 import JobCardProps from '../../../types/job';
 import { useSelector } from 'react-redux';
 import { RootSate } from '../../../redux/Store/store';
+import Pusher from 'pusher-js';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 // Types
+interface BookingData {
+  id: string | number;
+  // Add other booking properties as needed
+  [key: string]: any;
+}
 
 const Sorting = [
   {
@@ -47,7 +56,8 @@ const HandymanDashboard = () => {
   const [activeTab, setActiveTab] = useState('available');
   const [date, setDate] = useState<string>('');
   const [acceptedJobs, setAcceptedJobs] = useState<any[]>([]);
-  const [available_jobs, setAvailableJobs] = useState<{ id: string | number }[]>([]);
+  const [available_jobs, setAvailableJobs] = useState<BookingData[]>([]);
+  const [counter_offer, setCounterOffer] = React.useState<any>([]);
   const [fixer_data, setFixerData] = useState({
     weekly_earning: 0,
     today_earning: 0,
@@ -62,8 +72,24 @@ const HandymanDashboard = () => {
   const navigation = useNavigation<NavigationProp<StackParamList>>();
   const user_info = useSelector((state: RootSate) => state.user.user);
 
-  React.useEffect(() => {
+  useEffect(() => {
     fetch_fixer_info();
+  }, []);
+
+  useEffect(() => {
+    let pusher: Pusher | null | any = null;
+
+    const setupPusher = async () => {
+      pusher = await initializePusher();
+    };
+
+    setupPusher();
+
+    return () => {
+      if (pusher) {
+        console.log('Pusher disconnected on unmount');
+      }
+    };
   }, []);
 
   const statsData = [
@@ -102,6 +128,119 @@ const HandymanDashboard = () => {
     },
   ];
 
+  const getAuthToken = async (): Promise<string> => {
+    try {
+      const token = await AsyncStorage.getItem('user_token');
+      console.log(token);
+      return token || '';
+    } catch (error) {
+      console.error('Error getting auth token:', error);
+      return '';
+    }
+  };
+
+  const initializePusher = async () => {
+    try {
+      const authToken = await getAuthToken();
+      const userId = user_info?.id?.toString() || '';
+
+      if (!authToken || !userId) {
+        console.error('Missing auth token or userId');
+        return;
+      }
+
+      console.log('Initializing Pusher for user:', userId);
+
+      // Initialize Pusher with your credentials
+      const pusher = new Pusher('d8f959cdefeb458660a2', {
+        userAuthentication: {
+          endpoint: 'https://kikfix-com.stackstaging.com/broadcasting/auth',
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            'Content-Type': 'application/json',
+          },
+          transport: 'ajax'
+        },
+        channelAuthorization: {
+          endpoint: 'https://kikfix-com.stackstaging.com/broadcasting/auth',
+          transport: 'ajax',
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            'Content-Type': 'application/json',
+          },
+        },
+        enabledTransports: [
+          'ws',
+          'wss',
+          'xhr_streaming',
+          'xhr_polling',
+          'sockjs',
+        ],
+        authEndpoint: 'https://kikfix-com.stackstaging.com/broadcasting/auth',
+        cluster: 'ap2',
+        forceTLS: false,
+        auth: {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            'Content-Type': 'application/json',
+          },
+        },
+      });
+
+      // Subscribe to the private channel for the logged-in fixer
+      const channel = pusher.subscribe(`private-fixer.${userId}`);
+
+      // Listen for new booking events
+      channel.bind('booking.created', (data: any) => {
+        console.log('New booking received:', data);
+
+        // Add the new booking to available jobs
+        if (data.booking) {
+          setAvailableJobs(prevJobs => {
+            const alreadyExists = prevJobs.some(
+              job => job.id === data.booking.id,
+            );
+            console.log(alreadyExists);
+            if (alreadyExists) return prevJobs; // avoid duplicates
+            return [data.booking, ...prevJobs];
+          });
+          // Show an alert notification
+          Alert.alert(
+            'New Booking Available',
+            'A new job has been posted and is available for you to accept.',
+            [{ text: 'OK', onPress: () => console.log('OK Pressed') }],
+          );
+        }
+      });
+
+      // Handle connection events for debugging
+      pusher.connection.bind('connected', () => {
+        console.log('Pusher connected successfully');
+      });
+
+      console.log(channel);
+
+      pusher.connection.bind('error', (err: any) => {
+        console.error('Pusher connection error:', err);
+      });
+
+      channel.bind('pusher:subscription_succeeded', () => {
+        console.log('Successfully subscribed to private channel');
+        console.log('Pusher', pusher);
+      });
+
+      channel.bind('pusher:subscription_error', (status: any) => {
+        console.error('Subscription error:', status);
+      });
+      pusher.connection.bind('state_change', function (states: any) {
+        // states = {previous: 'oldState', current: 'newState'}
+        console.log(states);
+      });
+    } catch (error) {
+      console.error('Error initializing Pusher:', error);
+    }
+  };
+
   const fetch_fixer_info = async () => {
     try {
       const response = await fixer_dashboard_information();
@@ -109,6 +248,7 @@ const HandymanDashboard = () => {
       console.log(result.available_requests);
       setAvailableJobs(result.available_requests);
       setAcceptedJobs(result.fixer_accepted_requests);
+      setCounterOffer(result.counter_offer);
       setFixerData(result);
       return result;
     } catch (error) {
@@ -116,9 +256,9 @@ const HandymanDashboard = () => {
     }
   };
 
-  const fixerAcceptJob = async () => {
+  const fixerAcceptJob = async (jobId: string | number) => {
     const data = {
-      booking_id: available_jobs[0].id
+      booking_id: jobId,
     };
     console.log('Accepting job with data:', data);
     setIsLoading(true);
@@ -126,6 +266,14 @@ const HandymanDashboard = () => {
       const response = await fixer_accept(data);
       console.log('Job accepted successfully:', response);
       setIsLoading(false);
+
+      // Remove the job from available jobs and add to accepted jobs
+      setAvailableJobs(prev => prev.filter(job => job.id !== jobId));
+      setAcceptedJobs(prev => [
+        ...prev,
+        available_jobs.find(job => job.id === jobId),
+      ]);
+
       // Navigate to success screen or show success message
       navigateToScreen(navigation, 'Success');
     } catch (error) {
@@ -161,14 +309,19 @@ const HandymanDashboard = () => {
   };
 
   return (
-    <SafeAreaView style={{
-      marginTop: StatusBar.currentHeight
-    }}>
-      <StatusBar barStyle={'dark-content'}/>
+    <SafeAreaView
+      style={{
+        marginTop: StatusBar.currentHeight,
+      }}
+    >
+      <StatusBar barStyle={'dark-content'} />
       <FixedHeader />
-      <ScrollView style={styles.container} contentContainerStyle={{
-        paddingBottom: verticalScale(50),
-      }}>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={{
+          paddingBottom: verticalScale(50),
+        }}
+      >
         {/* Welcome Section */}
         <View style={styles.welcomeSection}>
           <View style={styles.welcomeHeader}>
@@ -181,8 +334,9 @@ const HandymanDashboard = () => {
               </Text>
               <View style={styles.ratingBadge}>
                 <LucideIcons.Star size={14} color="#166534" />
-
-                <Text style={styles.ratingBadgeText}>4.6 Rating</Text>
+                <Text style={styles.ratingBadgeText}>
+                  {fixer_data.average_rating.toFixed(1)} Rating
+                </Text>
               </View>
             </View>
           </View>
@@ -252,9 +406,7 @@ const HandymanDashboard = () => {
           </View>
 
           {/* Tabs */}
-          <View
-            className={`bg-gray-100 rounded-full flex-row justify-between px-2 py-2 mb-4`}
-          >
+          <View style={styles.tabsContainer}>
             {[
               {
                 key: 'available',
@@ -266,24 +418,18 @@ const HandymanDashboard = () => {
                 label: 'Accepted',
                 count: acceptedJobs.length,
               },
-              { key: 'progress', label: 'Progess', count: 1 },
-              { key: 'done', label: 'Done', count: 1 },
+              { key: 'progress', label: 'Progress', count: 0 },
+              { key: 'done', label: 'Done', count: 0 },
             ].map(tab => {
               const isActive = activeTab === tab.key;
               return (
                 <TouchableOpacity
                   key={tab.key}
                   onPress={() => setActiveTab(tab.key)}
-                  className={`flex-1 mx-1 rounded-full items-center ${
-                    isActive ? 'bg-white-50' : ''
-                  }`}
+                  style={[styles.tab, isActive && styles.activeTab]}
                 >
-                  <Text className="" style={{ ...typography.bodyXs, top: 1 }}>
-                    {tab.label}
-                  </Text>
-                  <Text style={{ ...typography.bodyXs, bottom: 1 }}>
-                    ({tab.count})
-                  </Text>
+                  <Text style={styles.tabText}>{tab.label}</Text>
+                  <Text style={styles.tabCount}>({tab.count})</Text>
                 </TouchableOpacity>
               );
             })}
@@ -301,15 +447,14 @@ const HandymanDashboard = () => {
               ) : (
                 <FlatList
                   data={available_jobs}
-                  keyExtractor={(item: number | string | any) => item.id}
+                  keyExtractor={item => item.id.toString()}
                   renderItem={({ item }) => (
                     <AvailableJobs
                       job={item as JobCardProps['job']}
-                      onAccept={() => fixerAcceptJob()}
+                      onAccept={() => fixerAcceptJob(item.id)}
                       loading={isLoading}
                     />
                   )}
-                  contentContainerStyle={{}}
                 />
               )}
             </View>
@@ -317,9 +462,25 @@ const HandymanDashboard = () => {
 
           {activeTab === 'accepted' && (
             <View style={styles.tabContent}>
-              {acceptedJobs.map((job: any) => (
-                <JobCard job={job} variant={activeTab} onCounter={() => available_jobs[0].id}/>
-              ))}
+              {acceptedJobs.length === 0 ? (
+                renderEmptyState(
+                  'clock',
+                  'No accepted jobs',
+                  'Jobs you accept will appear here.',
+                )
+              ) : (
+                <FlatList
+                  data={acceptedJobs}
+                  keyExtractor={item => item.id.toString()}
+                  renderItem={({ item }) => (
+                    <JobCard
+                      job={item}
+                      variant={activeTab}
+                      onCounter={() => console.log('Counter pressed')}
+                    />
+                  )}
+                />
+              )}
             </View>
           )}
 

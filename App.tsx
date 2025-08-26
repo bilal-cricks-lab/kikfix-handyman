@@ -20,22 +20,24 @@ import { Store, persistor } from './src/redux/Store/store';
 import { Provider } from 'react-redux';
 import firebase from '@react-native-firebase/app';
 import messaging from '@react-native-firebase/messaging';
+import requestNotificationPermission from './src/utils/notification';
 
 LogBox.ignoreAllLogs();
 
 const App: React.FC = () => {
-  // React.useEffect(() => {
-  //   if (firebase.apps.length > 0) {
-  //     console.log('Firebase is working!');
-  //   }
-  // }, []);
+  React.useEffect(() => {
+    if (firebase.apps.length > 0) {
+      console.log('Firebase is working!');
+    }
+    requestNotificationPermission()
+  }, []);
 
-  // React.useEffect(() => {
-  //   const unsubscribe = messaging().onMessage(async remoteMessage => {
-  //     console.log('A new FCM message arrived!', remoteMessage);
-  //   });
-  //   return unsubscribe;
-  // }, []);
+  React.useEffect(() => {
+    const unsubscribe = messaging().onMessage(async remoteMessage => {
+      console.log('A new FCM message arrived!', remoteMessage);
+    });
+    return unsubscribe;
+  }, []);
   
   return (
     <Provider store={Store}>
