@@ -23,12 +23,12 @@ import { colors, typography } from '../../../design-system';
 import CustomButton from '../../../components/Button';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import StackParamList from '../../../types/stack';
+import messaging from '@react-native-firebase/messaging'
 
 type NotificationType = 'booking' | 'reminder' | 'update' | 'promotion';
 
 interface Notification {
   id: number;
-  type: NotificationType;
   title: string;
   message: string;
   timestamp: Date;
@@ -42,58 +42,45 @@ interface Props {
   onBack: () => void;
 }
 
-const MOCK: Notification[] = [
-  {
-    id: 1,
-    type: 'booking',
-    title: 'Handyman Arriving Soon',
-    message: 'John Smith will arrive in 10 minutes for your plumbing repair',
-    timestamp: new Date(Date.now() - 300_000),
-    read: false,
-    actionable: true,
-    providerImage:
-      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=faces',
-    providerName: 'John Smith',
-  },
-  {
-    id: 2,
-    type: 'update',
-    title: 'Service Completed',
-    message:
-      'Your electrical work has been completed. Please rate your experience.',
-    timestamp: new Date(Date.now() - 3_600_000),
-    read: false,
-    actionable: true,
-    providerImage:
-      'https://images.unsplash.com/photo-1494790108755-2616c9564b68?w=300&h=300&fit=crop&crop=faces',
-    providerName: 'Sarah Johnson',
-  },
-  {
-    id: 3,
-    type: 'reminder',
-    title: 'Upcoming Service',
-    message:
-      "Don't forget about your HVAC maintenance scheduled for tomorrow at 9:00 AM",
-    timestamp: new Date(Date.now() - 7_200_000),
-    read: true,
-    actionable: false,
-  },
-  {
-    id: 4,
-    type: 'promotion',
-    title: 'Special Offer',
-    message: 'Get 20% off your next cleaning service! Use code CLEAN20',
-    timestamp: new Date(Date.now() - 86_400_000),
-    read: true,
-    actionable: true,
-  },
-];
-
 export default function Notification() {
-  const [notifications, setNotifications] = useState<Notification[]>(MOCK);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [selectedTab, setSelectedTab] = useState<'all' | 'unread'>('all');
 
-  const navigation = useNavigation<NavigationProp<StackParamList>>()
+  const navigation = useNavigation<NavigationProp<StackParamList>>();
+
+  const getTypeFromRemote = (type?: string): NotificationType => {
+  switch (type) {
+    case 'booking':
+    case 'reminder':
+    case 'update':
+    case 'promotion':
+      return type;
+    default:
+      return 'update';
+  }
+};
+
+
+  React.useEffect(() => {
+    // Foreground listener
+    const unsubscribe = messaging().onMessage(async remoteMessage => {
+      console.log('FCM Notification:', remoteMessage);
+      const newNotification: Notification = {
+        id: Date.now(), // unique id
+        title: remoteMessage.notification?.title || 'New Notification',
+        message: remoteMessage.notification?.body || '',
+        timestamp: new Date(),
+        read: false,
+        actionable: remoteMessage.data?.actionable === 'true',
+        providerImage: remoteMessage.data?.providerImage as string,
+        providerName: remoteMessage.data?.providerName as string,
+      };
+
+      setNotifications(prev => [newNotification, ...prev]);
+    });
+
+    return unsubscribe;
+  }, []);
 
   const unreadCount = useMemo(
     () => notifications.filter(n => !n.read).length,
@@ -170,7 +157,6 @@ export default function Notification() {
             />
           ) : (
             <View className="w-12 h-12 rounded-full bg-gray-100 items-center justify-center">
-              {getIcon(item.type)}
             </View>
           )}
 
@@ -207,23 +193,18 @@ export default function Notification() {
 
             <View className="flex-row justify-between items-center mt-3">
               <View
-                className={`px-2 rounded-sm text-xs ${getBadgeClasses(
-                  item.type,
-                )} border border-transparent`}
+                
               >
                 <Text
-                  className={`${getBadgeClasses(item.type)}`}
                   style={{
                     ...typography.link,
                   }}
                 >
-                  {item.type}
                 </Text>
               </View>
 
               {item.actionable ? (
                 <View className="flex-row items-center gap-7">
-                  {item.type === 'booking' && (
                     <>
                       <CustomButton
                         className=""
@@ -248,9 +229,8 @@ export default function Notification() {
                         onPress={() => {}}
                       />
                     </>
-                  )}
+                  
 
-                  {item.type === 'update' && (
                     <CustomButton
                       className="px-3 py-1 rounded-md"
                       title="Rate Service"
@@ -263,9 +243,8 @@ export default function Notification() {
                       }}
                       onPress={() => {}}
                     />
-                  )}
+                  
 
-                  {item.type === 'promotion' && (
                     <CustomButton
                       className="px-3 py-1 rounded-md"
                       title="Use Offer"
@@ -278,7 +257,7 @@ export default function Notification() {
                       }}
                       onPress={() => {}}
                     />
-                  )}
+                  
                 </View>
               ) : (
                 <View />

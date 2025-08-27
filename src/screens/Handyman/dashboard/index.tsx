@@ -154,10 +154,11 @@ const HandymanDashboard = () => {
       // Initialize Pusher with your credentials
       const pusher = new Pusher('d8f959cdefeb458660a2', {
         userAuthentication: {
-          endpoint: 'https://kikfix-com.stackstaging.com/broadcasting/auth',
+          endpoint: '/broadcasting/auth',
           headers: {
             Authorization: `Bearer ${authToken}`,
             'Content-Type': 'application/json',
+            "X-CSRF-Token": `${authToken}`
           },
           transport: 'ajax'
         },
@@ -171,14 +172,13 @@ const HandymanDashboard = () => {
         },
         enabledTransports: [
           'ws',
-          'wss',
-          'xhr_streaming',
-          'xhr_polling',
-          'sockjs',
+          'sockjs'
         ],
-        authEndpoint: 'https://kikfix-com.stackstaging.com/broadcasting/auth',
+        authTransport: 'ajax',
+        disabledTransports: ['xhr_streaming'],
+        authEndpoint: '/broadcasting/auth',
         cluster: 'ap2',
-        forceTLS: false,
+        forceTLS: true,
         auth: {
           headers: {
             Authorization: `Bearer ${authToken}`,
@@ -187,8 +187,20 @@ const HandymanDashboard = () => {
         },
       });
 
+      
+
       // Subscribe to the private channel for the logged-in fixer
-      const channel = pusher.subscribe(`private-fixer.${userId}`);
+      const channel = pusher.subscribe(`chat`);
+
+      channel.bind('pusher:subscription_succeeded', (status: any) => {
+        console.log('Successfully subscribed to private channel');
+        console.log(status)
+        console.log('Pusher', pusher);
+      });
+
+      channel.bind('pusher:subscription_error', (status: any) => {
+        console.error('Subscription error:', status);
+      });
 
       // Listen for new booking events
       channel.bind('booking.created', (data: any) => {
@@ -216,6 +228,7 @@ const HandymanDashboard = () => {
       // Handle connection events for debugging
       pusher.connection.bind('connected', () => {
         console.log('Pusher connected successfully');
+        console.log('Socket ID:', pusher.connection.socket_id);
       });
 
       console.log(channel);
@@ -224,18 +237,12 @@ const HandymanDashboard = () => {
         console.error('Pusher connection error:', err);
       });
 
-      channel.bind('pusher:subscription_succeeded', () => {
-        console.log('Successfully subscribed to private channel');
-        console.log('Pusher', pusher);
-      });
-
-      channel.bind('pusher:subscription_error', (status: any) => {
-        console.error('Subscription error:', status);
-      });
+      
       pusher.connection.bind('state_change', function (states: any) {
         // states = {previous: 'oldState', current: 'newState'}
         console.log(states);
       });
+      pusher.signin();
     } catch (error) {
       console.error('Error initializing Pusher:', error);
     }

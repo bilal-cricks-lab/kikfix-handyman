@@ -77,9 +77,12 @@ const FixedHeader = ({}: {}) => {
 
           {/* Bell & Avatar */}
           <View className="flex-row items-center space-x-3 gap-4">
-            <TouchableOpacity className="relative p-2 items-center justify-center" onPress={() => {
-              navigation.navigate('chat');
-            }}>
+            <TouchableOpacity
+              className="relative p-2 items-center justify-center"
+              onPress={() => {
+                navigation.navigate('notification');
+              }}
+            >
               <Bell className="w-5 h-5" />
               <View className="absolute -top-2 -right-1 bg-green-500 w-5 h-5 rounded-full items-center justify-center">
                 <Text className="text-white-50 text-[10px] font-semibold">
