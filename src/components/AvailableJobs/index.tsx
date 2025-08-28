@@ -23,9 +23,12 @@ const AvailableJobs: React.FC<JobCardProps> = ({
   isExpired = false,
   loading = false,
 }) => {
-  const category = job.category;
-  const customer = job.customer;
-  const fixer_service = job.fixer_service;
+  const category = React.useMemo(() => job?.category ?? {}, [job.category]);
+  const customer = React.useMemo(() => job?.customer ?? {}, [job.customer]);
+  const fixer_service = React.useMemo(
+    () => job?.fixer_service ?? {},
+    [job.fixer_service],
+  );
   const navigation = useNavigation<NavigationProp<StackParamList>>();
 
   const getUrgencyColor = (level: string) => {
@@ -39,14 +42,49 @@ const AvailableJobs: React.FC<JobCardProps> = ({
     }
   };
 
+   const handleCounterOffer = React.useCallback(() => {
+    if (!job?.counter_offer) {
+      onCounter?.(job?.id);
+      Store.dispatch(
+        setBookingData({
+          id: job?.id,
+          name: customer?.username,
+          address: job?.address,
+          serve: category?.name,
+          date: job?.date,
+          fromTime: job?.min_time,
+          toTime: job?.max_time,
+        }),
+      );
+      navigateToScreen(navigation, 'Counter_Offer');
+    }
+  }, [job, customer, category, navigation, onCounter]);
+
+  const handleAccept = React.useCallback(() => {
+    onAccept?.(job?.id);
+    Store.dispatch(
+      setBookingData({
+        fixer_id: fixer_service?.fixer_id,
+        name: category?.name,
+        instruction: job?.instruction,
+        price: fixer_service?.price,
+        time: `${job?.min_time} - ${job?.max_time}`,
+        address: job?.address,
+      }),
+    );
+  }, [job, fixer_service, category, onAccept]);
+
   return (
     <View style={[styles.jobCard, isExpired && styles.expiredJobCard]}>
       <View style={styles.jobHeader}>
         <View style={styles.jobCustomerInfo}>
-          <Image
-            source={{ uri: customer.profile_image }}
-            style={styles.avatar}
-          />
+          {customer.profile_image ? (
+            <Image
+              source={{ uri: customer.profile_image }}
+              style={styles.avatar}
+            />
+          ) : null}
+
           <View style={styles.jobDetails}>
             <View style={styles.jobTitleRow}>
               <Text style={styles.jobTitle} numberOfLines={1}>
@@ -61,7 +99,9 @@ const AvailableJobs: React.FC<JobCardProps> = ({
                 <LucideIcons.Clock size={12} color={colors.white[100]} />
                 <Text style={styles.urgencyText}>{job.urgency_level}</Text>
               </View>
-              <Text style={{left: horizontalScale(10)}}>{job.counter_offer === null ? '' : 'Status'}</Text>
+              <Text style={{ left: horizontalScale(10) }}>
+                {job.counter_offer === null ? '' : 'Status'}
+              </Text>
             </View>
             <Text style={styles.customerName}>by {`${customer.username}`}</Text>
             <Text style={styles.jobDescription} numberOfLines={2}>
@@ -129,41 +169,12 @@ const AvailableJobs: React.FC<JobCardProps> = ({
               style={[styles.secondaryButton, styles.counterButton]}
               element={<LucideIcons.Edit3 size={14} color="#3b82f6" />}
               textStyle={styles.counterButtonText}
-              onPress={() => {
-                if (!job.counter_offer) {
-                  // ✅ only allow if no counter_offer
-                  onCounter?.(job.id);
-                  Store.dispatch(
-                    setBookingData({
-                      id: job.id,
-                      name: job.customer.username,
-                      address: job.address,
-                      serve: job.category.name,
-                      date: job.date,
-                      fromTime: job.min_time,
-                      toTime: job.max_time,
-                    }),
-                  );
-                  navigateToScreen(navigation, 'Counter_Offer');
-                }
-              }}
+              onPress={handleCounterOffer}
             />
           </View>
           <CustomButton
             style={[styles.primaryButton, isExpired && styles.disabledButton]}
-            onPress={() => {
-              onAccept?.(job.id);
-              Store.dispatch(
-                setBookingData({
-                  fixer_id: fixer_service.fixer_id,
-                  name: category.name,
-                  instruction: job.instruction,
-                  price: fixer_service.price,
-                  time: `${job.min_time} - ${job.max_time}`,
-                  address: job.address,
-                }),
-              );
-            }}
+            onPress={handleAccept}
             title={loading ? 'Accepting...' : 'Accept Job'}
             textStyle={styles.primaryButtonText}
           />

@@ -21,10 +21,6 @@ import { Provider } from 'react-redux';
 import firebase from '@react-native-firebase/app';
 import messaging from '@react-native-firebase/messaging';
 import requestNotificationPermission from './src/utils/notification';
-import 'react-native-url-polyfill/auto'
-import {Buffer} from 'buffer'
-
-global.Buffer = Buffer;
 
 LogBox.ignoreAllLogs();
 

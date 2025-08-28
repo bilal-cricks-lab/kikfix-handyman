@@ -75,7 +75,6 @@ export default function Notification() {
         providerImage: remoteMessage.data?.providerImage as string,
         providerName: remoteMessage.data?.providerName as string,
       };
-
       setNotifications(prev => [newNotification, ...prev]);
     });
 
