@@ -26,19 +26,19 @@ LogBox.ignoreAllLogs();
 
 const App: React.FC = () => {
   React.useEffect(() => {
-    if (firebase.apps.length > 0) {
-      console.log('Firebase is working!');
-    }
+    // if (firebase.apps.length > 0) {
+    //   console.log('Firebase is working!');
+    // }
     requestNotificationPermission()
   }, []);
 
 
-  React.useEffect(() => {
-    const unsubscribe = messaging().onMessage(async remoteMessage => {
-      console.log('A new FCM message arrived!', remoteMessage);
-    });
-    return unsubscribe;
-  }, []);
+  // React.useEffect(() => {
+  //   const unsubscribe = messaging().onMessage(async remoteMessage => {
+  //     console.log('A new FCM message arrived!', remoteMessage);
+  //   });
+  //   return unsubscribe;
+  // }, []);
   
   return (
     <Provider store={Store}>

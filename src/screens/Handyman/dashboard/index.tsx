@@ -7,7 +7,7 @@ import {
   SafeAreaView,
   FlatList,
   StatusBar,
-  Alert,
+  Image,
 } from 'react-native';
 import * as LucideIcons from 'lucide-react-native';
 import { typography } from '../../../design-system';
@@ -60,6 +60,7 @@ const HandymanDashboard = () => {
   const [acceptedJobs, setAcceptedJobs] = useState<any[]>([]);
   const [availableJobs, setAvailableJobs] = useState<BookingData[]>([]);
   const [visibleJobs, setVisibleJobs] = useState<BookingData[]>([]);
+  const [in_progress_jobs, setInProgressJobs] = useState<BookingData[]>([]);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -82,43 +83,43 @@ const HandymanDashboard = () => {
     fetchFixerInfo();
   }, []);
 
-  useEffect(() => {
-    const unsubscribe = messaging().onMessage(async remoteMessage => {
-      try {
-        const data = remoteMessage?.notification?.body
-          ? JSON.parse(remoteMessage.notification.body)
-          : null;
+  // useEffect(() => {
+  //   const unsubscribe = messaging().onMessage(async remoteMessage => {
+  //     try {
+  //       const data = remoteMessage?.notification?.body
+  //         ? JSON.parse(remoteMessage.notification.body)
+  //         : null;
 
-        if (data) {
-          const data_booking = {
-            ...data,
-            name: remoteMessage.notification?.title ?? 'New Booking',
-            category: {
-              id: data.category_id,
-              name: data.category_name ?? 'Unknown Service',
-            },
-            customer: {
-              id: data.customer_id,
-              username: data.customer_name ?? 'Anonymous',
-              profile_image: data.customer_image ?? null,
-            },
-            fixer_service: {
-              fixer_id: data.fixer_id,
-              price: data.price ?? 0,
-              estimated_time: data.estimated_time ?? 1,
-            },
-          };
+  //       if (data) {
+  //         const data_booking = {
+  //           ...data,
+  //           name: remoteMessage.notification?.title ?? 'New Booking',
+  //           category: {
+  //             id: data.category_id,
+  //             name: data.category_name ?? 'Unknown Service',
+  //           },
+  //           customer: {
+  //             id: data.customer_id,
+  //             username: data.customer_name ?? 'Anonymous',
+  //             profile_image: data.customer_image ?? null,
+  //           },
+  //           fixer_service: {
+  //             fixer_id: data.fixer_id,
+  //             price: data.price ?? 0,
+  //             estimated_time: data.estimated_time ?? 1,
+  //           },
+  //         };
 
-          setAvailableJobs(prev => [data_booking, ...prev]);
-          setVisibleJobs(prev => [data_booking, ...prev]); // push into visible list
-        }
-      } catch (err) {
-        console.error('Failed to parse FCM notification:', err);
-      }
-    });
+  //         setAvailableJobs(prev => [data_booking, ...prev]);
+  //         setVisibleJobs(prev => [data_booking, ...prev]); // push into visible list
+  //       }
+  //     } catch (err) {
+  //       console.error('Failed to parse FCM notification:', err);
+  //     }
+  //   });
 
-    return unsubscribe;
-  }, []);
+  //   return unsubscribe;
+  // }, []);
 
   const fetchFixerInfo = async () => {
     try {
@@ -128,6 +129,7 @@ const HandymanDashboard = () => {
       setVisibleJobs(result.available_requests.slice(0, PAGE_SIZE));
       setAcceptedJobs(result.fixer_accepted_requests);
       setFixerData(result);
+      setInProgressJobs(result.in_progress_requests);
     } catch (error) {
       console.log(error);
     }
@@ -232,6 +234,48 @@ const HandymanDashboard = () => {
         {IconComponent}
         <Text style={styles.emptyStateTitle}>{title}</Text>
         <Text style={styles.emptyStateDescription}>{description}</Text>
+      </View>
+    );
+  };
+
+  const renderServiceItem = ({ item }: any) => {
+    const category = item.customer?.id ? item.category : null;
+    const service = item.customer?.id ? item.fixer_service : null;
+    const fixer = item.customer.id ? item.fixer : null;
+
+    return (
+      <View
+        className={`flex-row items-center justify-between p-2 py-8 bg-gray-50 rounded-lg mb-2`}
+      >
+        <View className={`flex-row items-center`}>
+          <Image
+            source={{ uri: fixer.profile_image }}
+            className={`w-10 h-10 rounded-full`}
+          />
+          <View className="">
+            <Text style={{ ...typography.h6, left: 8 }}>{category.name}</Text>
+            <Text style={{ ...typography.link, left: 8 }}>
+              {`${fixer.first_name} ${fixer.last_name}`} •{' '}
+              {`${item.min_time} ${item.max_time}`}
+            </Text>
+          </View>
+        </View>
+        <View className={`flex-row items-center gap-2`}>
+          <View
+            className={`flex-row items-center bg-blue-100 rounded-md px-1 py-1`}
+          >
+            <LucideIcons.CheckCircle size={16} color="#3b82f6" />
+            <Text className={`text-xs text-blue-800 ml-1 capitalize`}>
+              {item.status}
+            </Text>
+          </View>
+          <TouchableOpacity
+            className={`border border-gray-200 rounded-md px-3 py-1`}
+            // onPress={() => navigateToScreen(navigation, 'track')}
+          >
+            <Text className={`text-xs`}>Track</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   };
@@ -346,7 +390,11 @@ const HandymanDashboard = () => {
                 label: 'Accepted',
                 count: acceptedJobs.length,
               },
-              { key: 'progress', label: 'Progress', count: 0 },
+              {
+                key: 'progress',
+                label: 'Progress',
+                count: in_progress_jobs.length,
+              },
               { key: 'done', label: 'Done', count: 0 },
             ].map(tab => {
               const isActive = activeTab === tab.key;
@@ -413,11 +461,21 @@ const HandymanDashboard = () => {
           )}
 
           {activeTab === 'progress' && (
-            <View style={styles.tabContent}>
-              {renderEmptyState(
-                'clock',
-                'No jobs in progress',
-                "Jobs you're currently working on will appear here.",
+            <View>
+              {in_progress_jobs.length > 0 ? (
+                <FlatList
+                  data={in_progress_jobs}
+                  renderItem={renderServiceItem}
+                  keyExtractor={(item: any) => item.customer.id}
+                />
+              ) : (
+                <View style={styles.tabContent}>
+                  {renderEmptyState(
+                    'clock',
+                    'No jobs in progress',
+                    "Jobs you're currently working on will appear here.",
+                  )}
+                </View>
               )}
             </View>
           )}

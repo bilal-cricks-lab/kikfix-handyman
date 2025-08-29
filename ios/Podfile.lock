@@ -1708,9 +1708,9 @@ PODS:
     - React-RCTFBReactNativeSpec
     - ReactCommon/turbomodule/core
     - SocketRocket
-  - react-native-config (1.5.6):
-    - react-native-config/App (= 1.5.6)
-  - react-native-config/App (1.5.6):
+  - react-native-config (1.5.7):
+    - react-native-config/App (= 1.5.7)
+  - react-native-config/App (1.5.7):
     - React-Core
   - react-native-geolocation (3.4.0):
     - boost
@@ -1742,6 +1742,8 @@ PODS:
     - SocketRocket
     - Yoga
   - react-native-get-random-values (1.11.0):
+    - React-Core
+  - react-native-netinfo (11.4.1):
     - React-Core
   - react-native-safe-area-context (5.6.1):
     - boost
@@ -2336,10 +2338,10 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - RNFBApp (23.1.0):
+  - RNFBApp (23.1.2):
     - Firebase/CoreOnly (= 12.1.0)
     - React-Core
-  - RNFBMessaging (23.1.0):
+  - RNFBMessaging (23.1.2):
     - Firebase/Messaging (= 12.1.0)
     - FirebaseCoreExtension
     - React-Core
@@ -2522,7 +2524,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - RNScreens (4.15.0):
+  - RNScreens (4.15.3):
     - boost
     - DoubleConversion
     - fast_float
@@ -2550,10 +2552,10 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
-    - RNScreens/common (= 4.15.0)
+    - RNScreens/common (= 4.15.3)
     - SocketRocket
     - Yoga
-  - RNScreens/common (4.15.0):
+  - RNScreens/common (4.15.3):
     - boost
     - DoubleConversion
     - fast_float
@@ -2690,6 +2692,7 @@ DEPENDENCIES:
   - react-native-config (from `../node_modules/react-native-config`)
   - "react-native-geolocation (from `../node_modules/@react-native-community/geolocation`)"
   - react-native-get-random-values (from `../node_modules/react-native-get-random-values`)
+  - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
   - React-oscompat (from `../node_modules/react-native/ReactCommon/oscompat`)
@@ -2834,6 +2837,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-community/geolocation"
   react-native-get-random-values:
     :path: "../node_modules/react-native-get-random-values"
+  react-native-netinfo:
+    :path: "../node_modules/@react-native-community/netinfo"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
   React-NativeModulesApple:
@@ -2966,9 +2971,10 @@ SPEC CHECKSUMS:
   React-logger: 984ebd897afad067555d081deaf03f57c4315723
   React-Mapbuffer: 1c4f922460dc5f7006f1d5e89bf2d42aa77b0904
   React-microtasksnativemodule: dd33f28d1022f35430c973ee46add9b91f719026
-  react-native-config: f1dde39f8468ad922fc7e8bd4308c8e6223d5ee8
+  react-native-config: 963b5efabc864cf69412e54b5de49b6a23e4af03
   react-native-geolocation: b7f68b8c04e36ee669c630dbc48dd42cf93a0a41
   react-native-get-random-values: d16467cf726c618e9c7a8c3c39c31faa2244bbba
+  react-native-netinfo: cec9c4e86083cb5b6aba0e0711f563e2fbbff187
   react-native-safe-area-context: 4df6c897ab5bd841a5bba6f734785c0c9ef4c206
   React-NativeModulesApple: 2a261739a86fb0fc82de4b9cc8c9199083b4cea2
   React-oscompat: 114036cd8f064558c9c1a0c04fc9ae5e1453706a
@@ -3002,11 +3008,11 @@ SPEC CHECKSUMS:
   ReactCodegen: 08105625e801766da74078b4b122c16d539d6872
   ReactCommon: 4c7015a078757bb1f3032df5f75dd61b2121f297
   RNCAsyncStorage: f30b3a83064e28b0fc46f1fbd3834589ed64c7b9
-  RNFBApp: fcac8339a5ffd5a735c62d5f0101f79e4d9a7670
-  RNFBMessaging: 8c72e2f7d5eb2cc24d87e60c8be21eb2c94da272
+  RNFBApp: 3155b54dc88e7bf8d7aad86c014bed54747f4e0f
+  RNFBMessaging: 1d82bba6185f157386c6d023079b812e02ced46f
   RNPermissions: b1c6a42e2065d6e3907c624af0b5b0ce323e402d
   RNReanimated: 0b4147a00b6e539c484a12e182396dfc7443f310
-  RNScreens: e7f4e69d74886811b3782d5150f0826d8b3742d3
+  RNScreens: 3f15a6626203e48560847d7ec3a60e70e56507b7
   RNSVG: 05951f386c4b23c484335dab2346f53e6210e8dc
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: 2b7a0cd38b4b0b4fdd7f353017fde11914148f98
