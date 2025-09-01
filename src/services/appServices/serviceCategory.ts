@@ -13,7 +13,9 @@ const dashboard_url = getApiUrl('/api/customer-dashboard');
 const fixer_accept_job = getApiUrl('/api/fixer-accept-job');
 const fixer_counter_offer = getApiUrl('/api/counter-offer');
 const get_all_chats = getApiUrl('/api/get-all-chats');
-const send_messages_url = getApiUrl('/api/send-message')
+const send_messages_url = getApiUrl('/api/send-message');
+const fixer_complete_url = getApiUrl(`/api/job-complete-fixer`);
+
 
 export const fixer_dashboard_information = async () => {
   try {
@@ -144,3 +146,12 @@ export const send_message = async (data: any) => {
     throw error;
   }
 };
+
+export const job_complete_fixer = async (data: any) => {
+  try {
+    const response = await callPostApi(fixer_complete_url, data);
+    return response;
+  } catch (error) {
+    console.log(error);
+  }
+}

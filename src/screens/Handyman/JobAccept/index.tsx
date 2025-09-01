@@ -30,38 +30,7 @@ import { NavigationProp } from '@react-navigation/native';
 import StackParamList from '../../../types/stack';
 import { navigateToScreen } from '../../../utils/navigation';
 import { horizontalScale, verticalScale } from '../../../utils/screenSize';
-
-interface Job {
-  id: number;
-  customerName: string;
-  customerImage: string;
-  serviceName: string;
-  description: string;
-  location: {
-    address: string;
-    latitude: number;
-    longitude: number;
-    type?: 'home' | 'office' | 'other';
-  };
-  timing: {
-    date: string;
-    timeSlot: string;
-    urgency: 'standard' | 'urgent' | 'emergency';
-  };
-  budget: number;
-  status: 'pending' | 'accepted' | 'in-progress' | 'completed' | 'cancelled';
-  urgency: 'standard' | 'urgent' | 'emergency';
-  distance: string;
-  estimatedDuration: string;
-}
-
-interface Props {
-  job: Job;
-  onStartNavigation: (job: Job) => void;
-  onContactCustomer: () => void;
-  onViewDashboard: () => void;
-  onChat: () => void;
-}
+import { formatTime, time_duration } from '../../../utils/time_format';
 
 export default function JobAcceptanceSuccess() {
   const [showConfetti, setShowConfetti] = useState(true);
@@ -91,7 +60,7 @@ export default function JobAcceptanceSuccess() {
   useEffect(() => {
     const notifyTimer = setTimeout(() => setNotificationSent(true), 2000);
     const confettiTimer = setTimeout(() => setShowConfetti(false), 3000);
-
+    console.log(user_booking);
     // launch confetti animations
     Animated.stagger(
       30,
@@ -222,7 +191,7 @@ export default function JobAcceptanceSuccess() {
                     ...typography.h5,
                   }}
                 >
-                  Service Name
+                  {user_booking?.serve}
                 </Text>
                 <View
                   className={
@@ -249,14 +218,14 @@ export default function JobAcceptanceSuccess() {
                   ...typography.bodySmall,
                 }}
               >
-                for John Dohn
+                for {user_booking?.name}
               </Text>
               <Text
                 style={{
                   ...typography.bodySmall,
                 }}
               >
-                Kitchen is sinking
+                {user_booking?.instruction}
               </Text>
             </View>
           </View>
@@ -265,33 +234,16 @@ export default function JobAcceptanceSuccess() {
           <View className="flex-row flex-wrap -mx-2 mb-4">
             <View className="w-1/2 px-2 mb-3">
               <View className="flex-row items-center space-x-2">
-                <DollarSign width={18} height={18} color="#10b981" />
-                <View className="ml-3">
-                  <Text
-                    style={{
-                      ...typography.bodySmall,
-                    }}
-                  >
-                    Payment
-                  </Text>
-                  <Text
-                    style={{
-                      ...typography.h5,
-                      color: colors.secondary[400],
-                    }}
-                  >
-                    $ 19000
-                  </Text>
-                </View>
-              </View>
-            </View>
-
-            <View className="w-1/2 px-2 mb-3">
-              <View className="flex-row items-center space-x-2">
                 <Clock width={18} height={18} color="#2563eb" />
                 <View className="ml-3">
                   <Text className="text-sm text-gray-600">Duration</Text>
-                  <Text className="font-medium text-gray-900">2 min</Text>
+                  <Text className="font-medium text-gray-900">
+                    {time_duration(
+                      String(user_booking?.fromTime),
+                      String(user_booking?.toTime),
+                    )}
+                    Hours
+                  </Text>
                 </View>
               </View>
             </View>
@@ -301,7 +253,9 @@ export default function JobAcceptanceSuccess() {
                 <MapPin width={18} height={18} color="#7c3aed" />
                 <View className="ml-3">
                   <Text className="text-sm text-gray-600">Location</Text>
-                  <Text className="font-medium text-gray-900">1900 away</Text>
+                  <Text className="font-medium text-gray-900">
+                    {user_booking?.distance} away
+                  </Text>
                 </View>
               </View>
             </View>
@@ -311,7 +265,9 @@ export default function JobAcceptanceSuccess() {
                 <Calendar width={18} height={18} color="#f97316" />
                 <View className="ml-3">
                   <Text className="text-sm text-gray-600">Scheduled</Text>
-                  <Text className="font-medium text-gray-900">2 to 3</Text>
+                  <Text className="font-medium text-gray-900">{`${formatTime(
+                    user_booking?.fromTime,
+                  )} to ${formatTime(user_booking?.toTime)}`}</Text>
                 </View>
               </View>
             </View>
@@ -320,9 +276,9 @@ export default function JobAcceptanceSuccess() {
           {/* Address */}
           <View className="bg-gray-50 rounded-lg p-4">
             <Text className="font-semibold text-gray-900">Service Address</Text>
-            <Text className="text-gray-700 mt-4">Township</Text>
+            <Text className="text-gray-700 mt-4">{user_booking?.address}</Text>
             <Text className="text-sm text-gray-600 mt-1">
-              {formatDate(user_booking?.time ?? '')}
+              {user_booking?.date}
             </Text>
           </View>
         </View>
@@ -402,9 +358,14 @@ export default function JobAcceptanceSuccess() {
             onPress={() => navigateToScreen(navigation, 'Serv')}
             className="w-full rounded-xl py-3 items-center justify-center mt-4"
           >
-            <Text className="text-gray-600" style={{
-                ...typography.h6
-            }}>Back to Dashboard</Text>
+            <Text
+              className="text-gray-600"
+              style={{
+                ...typography.h6,
+              }}
+            >
+              Back to Dashboard
+            </Text>
           </Pressable>
         </View>
 
@@ -422,24 +383,36 @@ export default function JobAcceptanceSuccess() {
                 Pro Tips for Success
               </Text>
               <View>
-                <Text className=" text-gray-700" style={{
-                    ...typography.bodyXs
-                }}>
+                <Text
+                  className=" text-gray-700"
+                  style={{
+                    ...typography.bodyXs,
+                  }}
+                >
                   • Contact the customer before heading
                 </Text>
-                <Text className=" text-gray-700" style={{
-                    ...typography.bodyXs
-                }}>
+                <Text
+                  className=" text-gray-700"
+                  style={{
+                    ...typography.bodyXs,
+                  }}
+                >
                   • Arrive on time and call if you're running late
                 </Text>
-                <Text className=" text-gray-700" style={{
-                    ...typography.bodyXs
-                }}>
+                <Text
+                  className=" text-gray-700"
+                  style={{
+                    ...typography.bodyXs,
+                  }}
+                >
                   • Take before/after photos for your portfolio
                 </Text>
-                <Text className=" text-gray-700" style={{
-                    ...typography.bodyXs
-                }}>
+                <Text
+                  className=" text-gray-700"
+                  style={{
+                    ...typography.bodyXs,
+                  }}
+                >
                   • Provide excellent service to earn 5-star reviews
                 </Text>
               </View>

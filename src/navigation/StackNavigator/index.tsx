@@ -33,7 +33,7 @@ const StackNav = () => {
   }, []);
 
   if (isLoading || initialRoute === null) {
-    return null; // Or a loading component
+    return null;
   }
 
   return (

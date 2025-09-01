@@ -8,14 +8,17 @@ import {
   FlatList,
   StatusBar,
   Image,
+  Pressable,
+  Alert,
 } from 'react-native';
 import * as LucideIcons from 'lucide-react-native';
-import { typography } from '../../../design-system';
+import { colors, typography } from '../../../design-system';
 import { horizontalScale, verticalScale } from '../../../utils/screenSize';
 import Select from '../../../components/Dropdown';
 import {
   fixer_accept,
   fixer_dashboard_information,
+  job_complete_fixer,
 } from '../../../services/appServices/serviceCategory';
 import FixedHeader from '../../../components/NavBar';
 import { JobCard } from '../../../components/JobCard';
@@ -26,9 +29,13 @@ import { NavigationProp, useNavigation } from '@react-navigation/native';
 import StackParamList from '../../../types/stack';
 import JobCardProps from '../../../types/job';
 import { useSelector } from 'react-redux';
-import { RootSate } from '../../../redux/Store/store';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { RootSate, Store } from '../../../redux/Store/store';
 import messaging from '@react-native-firebase/messaging';
+import { formatTime } from '../../../utils/time_format';
+import { setBookingData } from '../../../redux/Reducers/bookingSlice';
+import { BookingRequest } from '../../../types/booking';
+import Pusher from 'pusher-js';
+import { getAuthToken } from '../../../utils/fcm_token';
 
 // Types
 interface BookingData {
@@ -80,46 +87,61 @@ const HandymanDashboard = () => {
   const user_info = useSelector((state: RootSate) => state.user.user);
 
   useEffect(() => {
-    fetchFixerInfo();
+    let pusher: Pusher | null | any = null;
+
+    const setupPusher = async () => {
+      pusher = await initializePusher();
+    };
+    setupPusher();
+    return () => {
+      if (pusher) {
+        console.log('Pusher disconnected on unmount');
+      }
+    };
   }, []);
 
-  // useEffect(() => {
-  //   const unsubscribe = messaging().onMessage(async remoteMessage => {
-  //     try {
-  //       const data = remoteMessage?.notification?.body
-  //         ? JSON.parse(remoteMessage.notification.body)
-  //         : null;
+  useEffect(() => {
+    fetchFixerInfo();
+    console.log('available jobs', availableJobs);
+  }, []);
 
-  //       if (data) {
-  //         const data_booking = {
-  //           ...data,
-  //           name: remoteMessage.notification?.title ?? 'New Booking',
-  //           category: {
-  //             id: data.category_id,
-  //             name: data.category_name ?? 'Unknown Service',
-  //           },
-  //           customer: {
-  //             id: data.customer_id,
-  //             username: data.customer_name ?? 'Anonymous',
-  //             profile_image: data.customer_image ?? null,
-  //           },
-  //           fixer_service: {
-  //             fixer_id: data.fixer_id,
-  //             price: data.price ?? 0,
-  //             estimated_time: data.estimated_time ?? 1,
-  //           },
-  //         };
+  useEffect(() => {
+    const unsubscribe = messaging().onMessage(async remoteMessage => {
+      try {
+        const data = remoteMessage?.notification?.body
+          ? JSON.parse(remoteMessage.notification.body)
+          : null;
+        console.log(data);
+        if (data) {
+          const data_booking = {
+            ...data,
+            name: remoteMessage.notification?.title ?? 'New Booking',
+            category: {
+              id: data.category_id,
+              name: data.category_name ?? 'Unknown Service',
+            },
+            customer: {
+              id: data.customer_id,
+              username: data.customer_name ?? 'Anonymous',
+              profile_image: data.customer_image ?? null,
+            },
+            fixer_service: {
+              fixer_id: data.fixer_id,
+              price: data.price ?? 0,
+              estimated_time: data.estimated_time ?? 1,
+            },
+          };
 
-  //         setAvailableJobs(prev => [data_booking, ...prev]);
-  //         setVisibleJobs(prev => [data_booking, ...prev]); // push into visible list
-  //       }
-  //     } catch (err) {
-  //       console.error('Failed to parse FCM notification:', err);
-  //     }
-  //   });
+          setAvailableJobs(prev => [data_booking, ...prev]);
+          setVisibleJobs(prev => [data_booking, ...prev]); // push into visible list
+        }
+      } catch (err) {
+        console.error('Failed to parse FCM notification:', err);
+      }
+    });
 
-  //   return unsubscribe;
-  // }, []);
+    return unsubscribe;
+  }, []);
 
   const fetchFixerInfo = async () => {
     try {
@@ -135,6 +157,147 @@ const HandymanDashboard = () => {
     }
   };
 
+  const mapApiToBooking = (job: any): BookingRequest => {
+    return {
+      id: job?.id?.toString(),
+      fixer_id: job?.fixer_id,
+      category_id: job?.category_id,
+      subcategory_id: job?.subcategory_id,
+      service_id: job?.service_id,
+      service_detail_id: job?.service_detail_id,
+      date: job?.date, // already in DD-MM-YYYY
+      time: job?.min_time, // you can also merge min_time + max_time if needed
+      address: job?.address,
+      name: `${job?.customer?.first_name} ${job?.customer?.last_name}`,
+      serve: job?.service?.name, // or category/service detail name
+      latitude: job?.latitude,
+      longitude: job?.longitude,
+      urgency_level: job?.urgency_level,
+      duration: job?.duration ?? null,
+      price: job?.fixer_service?.price ?? null,
+      fromTime: job?.min_time,
+      toTime: job?.max_time,
+      instruction: job?.instruction,
+      distance: job?.distance,
+    };
+  };
+
+  const initializePusher = async () => {
+    try {
+      const authToken = await getAuthToken();
+      const userId = user_info?.id;
+
+      if (!authToken || !userId) {
+        console.error('Missing auth token or userId');
+        return;
+      }
+
+      console.log('Initializing Pusher for user:', userId);
+
+      // Initialize Pusher with your credentials
+      const pusher = new Pusher('d8f959cdefeb458660a2', {
+        
+        userAuthentication: {
+          endpoint: 'https://kikfix-com.stackstaging.com/broadcasting/auth',
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            'Content-Type': 'application/json',
+          },
+          transport: 'ajax',
+        },
+        channelAuthorization: {
+          endpoint: 'https://kikfix-com.stackstaging.com/broadcasting/auth',
+          transport: 'ajax',
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            'Content-Type': 'application/json',
+          },
+          
+        },
+        
+        enabledTransports: [
+          'ws',
+          'wss',
+          'xhr_streaming',
+          'xhr_polling',
+          'sockjs',
+        ],
+        authEndpoint: 'https://kikfix-com.stackstaging.com/broadcasting/auth',
+        cluster: 'ap2',
+        forceTLS: true,
+        auth: {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            Accept: 'application/json',       // ✅ required
+            'Content-Type': 'application/json',
+          },
+        },
+      });
+
+      // Subscribe to the private channel for the logged-in fixer
+      const channel = pusher.subscribe(`private-fixer.${userId}`);
+
+      // Listen for new booking events
+      channel.bind('booking.created', (data: any) => {
+        console.log('New booking received:', data);
+
+        // Add the new booking to available jobs
+        if (data.booking) {
+          setAvailableJobs(prevJobs => {
+            const alreadyExists = prevJobs.some(
+              job => job.id === data.booking.id,
+            );
+            console.log(alreadyExists);
+            if (alreadyExists) return prevJobs; // avoid duplicates
+            return [data.booking, ...prevJobs];
+          });
+          // Show an alert notification
+          Alert.alert(
+            'New Booking Available',
+            'A new job has been posted and is available for you to accept.',
+            [{ text: 'OK', onPress: () => console.log('OK Pressed') }],
+          );
+        }
+      });
+
+      // Handle connection events for debugging
+      pusher.connection.bind('connected', () => {
+        console.log('Pusher connected successfully');
+      });
+
+      console.log(channel);
+
+      pusher.connection.bind('error', (err: any) => {
+        console.error('Pusher connection error:', err);
+      });
+
+      channel.authorize('71543.549424', (events, authData) => {
+        console.log('Successfully subscribed to this channel without private channel');
+        console.log("Event Name", events?.message);
+        console.log("Another response", authData);
+        console.log('Pusher', pusher);
+        channel.bind('join', (data: any) => {
+          console.log(data.name);
+        })
+      });
+
+      channel.bind('pusher:subscription_succeeded', () => {
+        console.log('Successfully subscribed to private channel');
+        console.log('Pusher', pusher);
+      })
+
+      channel.bind('pusher:subscription_error', (status: Error) => {
+        console.error('Subscription error:', status);
+      });
+      pusher.connection.bind('state_change', function (states: any) {
+        // states = {previous: 'oldState', current: 'newState'}
+        console.log(states);
+      });
+    } catch (error) {
+      console.error('Error initializing Pusher:', error);
+    }
+  };
+
   const fixerAcceptJob = async (jobId: string | number) => {
     setIsLoading(true);
     try {
@@ -144,11 +307,32 @@ const HandymanDashboard = () => {
         ...prev,
         availableJobs.find(job => job.id === jobId),
       ]);
+      console.log(availableJobs);
+      const acceptedJob = availableJobs.find(job => job.id === jobId);
+      const bookingData = mapApiToBooking(acceptedJob);
+      Store.dispatch(setBookingData(bookingData));
       navigateToScreen(navigation, 'Success');
     } catch (error) {
       console.log('Error accepting job:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fixer_complete_job = async (id: number | string) => {
+    const data = {
+      booking_id: id,
+    };
+    console.log(data);
+    setIsLoading(true);
+    try {
+      const response = await job_complete_fixer(data);
+      console.log(response);
+      setIsLoading(false);
+      return response;
+    } catch (error) {
+      setIsLoading(false);
+      console.log(error);
     }
   };
 
@@ -240,12 +424,11 @@ const HandymanDashboard = () => {
 
   const renderServiceItem = ({ item }: any) => {
     const category = item.customer?.id ? item.category : null;
-    const service = item.customer?.id ? item.fixer_service : null;
     const fixer = item.customer.id ? item.fixer : null;
 
     return (
       <View
-        className={`flex-row items-center justify-between p-2 py-8 bg-gray-50 rounded-lg mb-2`}
+        className={`flex-row items-center justify-between p-2 py-6 bg-gray-50 rounded-lg mb-2`}
       >
         <View className={`flex-row items-center`}>
           <Image
@@ -256,25 +439,30 @@ const HandymanDashboard = () => {
             <Text style={{ ...typography.h6, left: 8 }}>{category.name}</Text>
             <Text style={{ ...typography.link, left: 8 }}>
               {`${fixer.first_name} ${fixer.last_name}`} •{' '}
-              {`${item.min_time} ${item.max_time}`}
+              {`${formatTime(item.min_time)} ${formatTime(item.max_time)}`}
             </Text>
           </View>
         </View>
         <View className={`flex-row items-center gap-2`}>
-          <View
-            className={`flex-row items-center bg-blue-100 rounded-md px-1 py-1`}
+          <Pressable
+            className={`flex-row items-center bg-green-100 rounded-md px-10 py-1`}
+            onPress={() => fixer_complete_job(item.id)}
           >
-            <LucideIcons.CheckCircle size={16} color="#3b82f6" />
-            <Text className={`text-xs text-blue-800 ml-1 capitalize`}>
-              {item.status}
+            <Text
+              style={{
+                ...typography.link,
+                color: colors.secondary[500],
+              }}
+            >
+              Done
             </Text>
-          </View>
-          <TouchableOpacity
+          </Pressable>
+          {/* <TouchableOpacity
             className={`border border-gray-200 rounded-md px-3 py-1`}
             // onPress={() => navigateToScreen(navigation, 'track')}
           >
             <Text className={`text-xs`}>Track</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       </View>
     );
@@ -423,6 +611,7 @@ const HandymanDashboard = () => {
               ) : (
                 <FlatList
                   data={availableJobs}
+                  scrollEnabled={false}
                   keyExtractor={item => item.id.toString()}
                   renderItem={renderAvailableJob}
                   onEndReached={loadMoreJobs}
@@ -448,6 +637,7 @@ const HandymanDashboard = () => {
                 <FlatList
                   data={acceptedJobs}
                   keyExtractor={item => item.id.toString()}
+                  scrollEnabled={false}
                   renderItem={({ item }) => (
                     <JobCard
                       job={item}
@@ -467,6 +657,7 @@ const HandymanDashboard = () => {
                   data={in_progress_jobs}
                   renderItem={renderServiceItem}
                   keyExtractor={(item: any) => item.customer.id}
+                  scrollEnabled={false}
                 />
               ) : (
                 <View style={styles.tabContent}>

@@ -20,6 +20,7 @@ interface BookingRequest {
   fromTime?: string | number;
   toTime?: string | number;
   instruction?: string;
+  distance?: string
 };
 
 export interface BookingArray {

@@ -11,4 +11,13 @@ const generateTimeOptions = () => {
   return times;
 };
 
-export { generateTimeOptions, formatTime };
+const time_duration = (fromTime: string, toTime: string) => {
+  const [fromHour, fromMinute] = fromTime.split(':').map(Number);
+  const [toHour, toMinute] = toTime.split(':').map(Number);
+  const start = fromHour + fromMinute / 60;
+  const end = toHour + toMinute / 60;
+  const durationInHours = end - start; // 2
+  return durationInHours;
+};
+
+export { generateTimeOptions, formatTime, time_duration };

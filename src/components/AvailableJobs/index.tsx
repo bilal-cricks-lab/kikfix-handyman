@@ -42,7 +42,7 @@ const AvailableJobs: React.FC<JobCardProps> = ({
     }
   };
 
-   const handleCounterOffer = React.useCallback(() => {
+  const handleCounterOffer = React.useCallback(() => {
     if (!job?.counter_offer) {
       onCounter?.(job?.id);
       Store.dispatch(
@@ -61,17 +61,21 @@ const AvailableJobs: React.FC<JobCardProps> = ({
   }, [job, customer, category, navigation, onCounter]);
 
   const handleAccept = React.useCallback(() => {
-    onAccept?.(job?.id);
-    Store.dispatch(
-      setBookingData({
-        fixer_id: fixer_service?.fixer_id,
-        name: category?.name,
-        instruction: job?.instruction,
-        price: fixer_service?.price,
-        time: `${job?.min_time} - ${job?.max_time}`,
-        address: job?.address,
-      }),
-    );
+    try {
+      onAccept?.(job?.id);
+      Store.dispatch(
+        setBookingData({
+          fixer_id: fixer_service?.fixer_id,
+          name: category?.name,
+          instruction: job?.instruction,
+          price: fixer_service?.price,
+          time: `${job?.min_time} - ${job?.max_time}`,
+          address: job?.address,
+        }),
+      );
+    } catch (error) {
+      console.log(error);
+    }
   }, [job, fixer_service, category, onAccept]);
 
   return (

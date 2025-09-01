@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import messaging from '@react-native-firebase/messaging';
 
 const requestToken = async () => {
@@ -11,4 +12,18 @@ const requestToken = async () => {
   }
 };
 
-export default requestToken;
+const getAuthToken = async (): Promise<string> => {
+  try {
+    const token = await AsyncStorage.getItem('user_token');
+    console.log(token);
+    return token || '';
+  } catch (error) {
+    console.error('Error getting auth token:', error);
+    return '';
+  }
+};
+
+export {
+  requestToken,
+  getAuthToken
+};

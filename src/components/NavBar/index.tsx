@@ -146,10 +146,7 @@ const FixedHeader = ({}: {}) => {
                 console.log('Go to earnings');
                 setIsProfileVisible(false);
                 AsyncStorage.removeItem('user_token');
-                navigation.reset({
-                  index: 0,
-                  routes: [{ name: 'SignIn' }],
-                });
+                navigation.navigate('SignIn');
                 await persistor.purge();
               }}
             />
