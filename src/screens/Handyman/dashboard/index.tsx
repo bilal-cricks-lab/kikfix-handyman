@@ -202,7 +202,7 @@ const HandymanDashboard = () => {
       console.log('Initializing Pusher for user:', userId);
 
       // Initialize Pusher with your credentials
-      const pusher = new Pusher('d8f959cdefeb458660a2', {
+      const pusher = new Pusher('', {
         userAuthentication: {
           endpoint: 'https://kikfix-com.stackstaging.com/broadcasting/auth',
           headers: {
