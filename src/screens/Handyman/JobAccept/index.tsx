@@ -60,7 +60,7 @@ export default function JobAcceptanceSuccess() {
   useEffect(() => {
     const notifyTimer = setTimeout(() => setNotificationSent(true), 2000);
     const confettiTimer = setTimeout(() => setShowConfetti(false), 3000);
-    console.log(user_booking);
+    console.log("User Booking", user_booking);
     // launch confetti animations
     Animated.stagger(
       30,

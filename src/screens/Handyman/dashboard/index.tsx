@@ -36,6 +36,7 @@ import { setBookingData } from '../../../redux/Reducers/bookingSlice';
 import { BookingRequest } from '../../../types/booking';
 import Pusher from 'pusher-js';
 import { getAuthToken } from '../../../utils/fcm_token';
+import { useRoute } from '@react-navigation/native';
 
 // Types
 interface BookingData {
@@ -71,6 +72,8 @@ const HandymanDashboard = () => {
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
 
+  const route = useRoute();
+
   const PAGE_SIZE = 5; // control how many jobs load per batch
 
   const [fixer_data, setFixerData] = useState({
@@ -88,7 +91,6 @@ const HandymanDashboard = () => {
 
   useEffect(() => {
     let pusher: Pusher | null | any = null;
-
     const setupPusher = async () => {
       pusher = await initializePusher();
     };
@@ -100,9 +102,12 @@ const HandymanDashboard = () => {
     };
   }, []);
 
+  const {bookingId} = route.params as any ?? {}
+
   useEffect(() => {
     fetchFixerInfo();
     console.log('available jobs', availableJobs);
+    console.log("Booking id", bookingId);
   }, []);
 
   useEffect(() => {
@@ -152,6 +157,8 @@ const HandymanDashboard = () => {
       setAcceptedJobs(result.fixer_accepted_requests);
       setFixerData(result);
       setInProgressJobs(result.in_progress_requests);
+      console.log(result.available_requests);
+      return response;
     } catch (error) {
       console.log(error);
     }
@@ -196,7 +203,6 @@ const HandymanDashboard = () => {
 
       // Initialize Pusher with your credentials
       const pusher = new Pusher('d8f959cdefeb458660a2', {
-        
         userAuthentication: {
           endpoint: 'https://kikfix-com.stackstaging.com/broadcasting/auth',
           headers: {
@@ -212,9 +218,8 @@ const HandymanDashboard = () => {
             Authorization: `Bearer ${authToken}`,
             'Content-Type': 'application/json',
           },
-          
         },
-        
+
         enabledTransports: [
           'ws',
           'wss',
@@ -228,7 +233,7 @@ const HandymanDashboard = () => {
         auth: {
           headers: {
             Authorization: `Bearer ${authToken}`,
-            Accept: 'application/json',       // ✅ required
+            Accept: 'application/json', // ✅ required
             'Content-Type': 'application/json',
           },
         },
@@ -272,19 +277,21 @@ const HandymanDashboard = () => {
       });
 
       channel.authorize('71543.549424', (events, authData) => {
-        console.log('Successfully subscribed to this channel without private channel');
-        console.log("Event Name", events?.message);
-        console.log("Another response", authData);
+        console.log(
+          'Successfully subscribed to this channel without private channel',
+        );
+        console.log('Event Name', events?.message);
+        console.log('Another response', authData);
         console.log('Pusher', pusher);
         channel.bind('join', (data: any) => {
           console.log(data.name);
-        })
+        });
       });
 
       channel.bind('pusher:subscription_succeeded', () => {
         console.log('Successfully subscribed to private channel');
         console.log('Pusher', pusher);
-      })
+      });
 
       channel.bind('pusher:subscription_error', (status: Error) => {
         console.error('Subscription error:', status);

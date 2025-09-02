@@ -36,6 +36,7 @@ const StackNav = () => {
     return null;
   }
 
+  
   return (
     <Stack.Navigator initialRouteName={initialRoute as keyof StackParamList}>
       {initialRoute === 'SignIn' && (

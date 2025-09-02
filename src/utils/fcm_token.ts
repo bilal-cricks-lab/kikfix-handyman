@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import messaging from '@react-native-firebase/messaging';
 
-const requestToken = async () => {
+export const requestToken = async () => {
   try {
     await messaging().registerDeviceForRemoteMessages();
     const token = await messaging().getToken();
@@ -12,7 +12,7 @@ const requestToken = async () => {
   }
 };
 
-const getAuthToken = async (): Promise<string> => {
+export const getAuthToken = async (): Promise<string> => {
   try {
     const token = await AsyncStorage.getItem('user_token');
     console.log(token);
@@ -21,9 +21,4 @@ const getAuthToken = async (): Promise<string> => {
     console.error('Error getting auth token:', error);
     return '';
   }
-};
-
-export {
-  requestToken,
-  getAuthToken
 };

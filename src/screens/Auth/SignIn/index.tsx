@@ -25,7 +25,7 @@ import { navigateToScreen } from '../../../utils/navigation';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import StackParamList from '../../../types/stack';
 import { setRegData } from '../../../redux/Reducers/regSlice';
-import requestToken from '../../../utils/fcm_token';
+import { requestToken } from '../../../utils/fcm_token';
 
 export default function AuthScreen() {
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
@@ -40,20 +40,18 @@ export default function AuthScreen() {
   const { email, password } = formValue.state;
   const navigation = useNavigation<NavigationProp<StackParamList>>();
 
-
- React.useEffect(() => {
-  const getToken = async () => {
-    try {
-      const token = await requestToken(); // assuming requestToken returns token string
-      console.log("FCM Token:", token);
-      setFcmToken(token as string);
-    } catch (error) {
-      console.log("Error getting FCM token", error);
-    }
-  };
-  getToken();
-}, []);
-
+  React.useEffect(() => {
+    const getToken = async () => {
+      try {
+        const token = await requestToken(); // assuming requestToken returns token string
+        console.log('FCM Token:', token);
+        setFcmToken(token as string);
+      } catch (error) {
+        console.log('Error getting FCM token', error);
+      }
+    };
+    getToken();
+  }, []);
 
   const showToast = (
     message: string,
@@ -163,7 +161,7 @@ export default function AuthScreen() {
       if (response) {
         showToast('Account Created Successfully', 'success');
         setTimeout(() => {
-          navigateToScreen(navigation, 'Serv');
+          // navigateToScreen(navigation, 'Serv');
         }, 2000);
         console.log(response.data);
       }
@@ -184,7 +182,11 @@ export default function AuthScreen() {
 
   return (
     <SafeAreaView className="flex-1" style={styles.container}>
-      <StatusBar translucent backgroundColor={'transparent'} barStyle={'dark-content'}/>
+      <StatusBar
+        translucent
+        backgroundColor={'transparent'}
+        barStyle={'dark-content'}
+      />
       <ScrollView
         style={{
           marginTop: Platform.OS === 'android' ? verticalScale(50) : null,
