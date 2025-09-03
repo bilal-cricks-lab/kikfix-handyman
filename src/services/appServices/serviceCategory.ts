@@ -119,6 +119,16 @@ export const fixer_counter = async (data: any) => {
   }
 };
 
+export const get_single_booking = async (id: number | string) => {
+  const get_single_booking_id = getApiUrl(`/api/get-single-booking?id=${id}`);
+  try {
+    const response = await callGetApiWithToken(get_single_booking_id);
+    return response;
+  } catch (error) {
+    throw error;
+  }
+}
+
 export const get_all_chat = async () => {
   try {
     const response = await callGetApiWithToken(get_all_chats);

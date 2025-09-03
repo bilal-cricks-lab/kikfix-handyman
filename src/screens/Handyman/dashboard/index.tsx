@@ -18,6 +18,7 @@ import Select from '../../../components/Dropdown';
 import {
   fixer_accept,
   fixer_dashboard_information,
+  get_single_booking,
   job_complete_fixer,
 } from '../../../services/appServices/serviceCategory';
 import FixedHeader from '../../../components/NavBar';
@@ -34,8 +35,8 @@ import messaging from '@react-native-firebase/messaging';
 import { formatTime } from '../../../utils/time_format';
 import { setBookingData } from '../../../redux/Reducers/bookingSlice';
 import { BookingRequest } from '../../../types/booking';
-import Pusher from 'pusher-js';
-import { getAuthToken } from '../../../utils/fcm_token';
+// import Pusher from 'pusher-js';
+// import { getAuthToken } from '../../../utils/fcm_token';
 import { useRoute } from '@react-navigation/native';
 
 // Types
@@ -89,64 +90,38 @@ const HandymanDashboard = () => {
   const navigation = useNavigation<NavigationProp<StackParamList>>();
   const user_info = useSelector((state: RootSate) => state.user.user);
 
-  useEffect(() => {
-    let pusher: Pusher | null | any = null;
-    const setupPusher = async () => {
-      pusher = await initializePusher();
-    };
-    setupPusher();
-    return () => {
-      if (pusher) {
-        console.log('Pusher disconnected on unmount');
-      }
-    };
-  }, []);
+  // useEffect(() => {
+  //   let pusher: Pusher | null | any = null;
+  //   const setupPusher = async () => {
+  //     pusher = await initializePusher();
+  //   };
+  //   setupPusher();
+  //   return () => {
+  //     if (pusher) {
+  //       console.log('Pusher disconnected on unmount');
+  //     }
+  //   };
+  // }, []);
 
-  const {bookingId} = route.params as any ?? {}
+  const { bookingId } = (route.params as any) ?? {};
 
+  // Ensure bookingId is cleaned (avoid "undefined" string issue)
+  const parsedBookingId =
+    bookingId && bookingId !== 'undefined' ? bookingId : null;
   useEffect(() => {
     fetchFixerInfo();
-    console.log('available jobs', availableJobs);
-    console.log("Booking id", bookingId);
+    parsedBookingId && single_booking(parsedBookingId);
   }, []);
 
-  useEffect(() => {
-    const unsubscribe = messaging().onMessage(async remoteMessage => {
-      try {
-        const data = remoteMessage?.notification?.body
-          ? JSON.parse(remoteMessage.notification.body)
-          : null;
-        console.log(data);
-        if (data) {
-          const data_booking = {
-            ...data,
-            name: remoteMessage.notification?.title ?? 'New Booking',
-            category: {
-              id: data.category_id,
-              name: data.category_name ?? 'Unknown Service',
-            },
-            customer: {
-              id: data.customer_id,
-              username: data.customer_name ?? 'Anonymous',
-              profile_image: data.customer_image ?? null,
-            },
-            fixer_service: {
-              fixer_id: data.fixer_id,
-              price: data.price ?? 0,
-              estimated_time: data.estimated_time ?? 1,
-            },
-          };
-
-          setAvailableJobs(prev => [data_booking, ...prev]);
-          setVisibleJobs(prev => [data_booking, ...prev]); // push into visible list
-        }
-      } catch (err) {
-        console.error('Failed to parse FCM notification:', err);
-      }
-    });
-
-    return unsubscribe;
-  }, []);
+  const single_booking = async (id: string | number) => {
+    try {
+      const response = await get_single_booking(id);
+      console.group(response);
+      return response;
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const fetchFixerInfo = async () => {
     try {
@@ -166,7 +141,7 @@ const HandymanDashboard = () => {
 
   const mapApiToBooking = (job: any): BookingRequest => {
     return {
-      id: job?.id?.toString(),
+      id: job?.id,
       fixer_id: job?.fixer_id,
       category_id: job?.category_id,
       subcategory_id: job?.subcategory_id,
@@ -189,140 +164,137 @@ const HandymanDashboard = () => {
     };
   };
 
-  const initializePusher = async () => {
-    try {
-      const authToken = await getAuthToken();
-      const userId = user_info?.id;
+  // const initializePusher = async () => {
+  //   try {
+  //     const authToken = await getAuthToken();
+  //     const userId = user_info?.id;
 
-      if (!authToken || !userId) {
-        console.error('Missing auth token or userId');
-        return;
-      }
+  //     if (!authToken || !userId) {
+  //       console.error('Missing auth token or userId');
+  //       return;
+  //     }
 
-      console.log('Initializing Pusher for user:', userId);
+  //     console.log('Initializing Pusher for user:', userId);
 
-      // Initialize Pusher with your credentials
-      const pusher = new Pusher('', {
-        userAuthentication: {
-          endpoint: 'https://kikfix-com.stackstaging.com/broadcasting/auth',
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-            'Content-Type': 'application/json',
-          },
-          transport: 'ajax',
-        },
-        channelAuthorization: {
-          endpoint: 'https://kikfix-com.stackstaging.com/broadcasting/auth',
-          transport: 'ajax',
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-            'Content-Type': 'application/json',
-          },
-        },
+  //     // Initialize Pusher with your credentials
+  //     const pusher = new Pusher('', {
+  //       userAuthentication: {
+  //         endpoint: 'https://kikfix-com.stackstaging.com/broadcasting/auth',
+  //         headers: {
+  //           Authorization: `Bearer ${authToken}`,
+  //           'Content-Type': 'application/json',
+  //         },
+  //         transport: 'ajax',
+  //       },
+  //       channelAuthorization: {
+  //         endpoint: 'https://kikfix-com.stackstaging.com/broadcasting/auth',
+  //         transport: 'ajax',
+  //         headers: {
+  //           Authorization: `Bearer ${authToken}`,
+  //           'Content-Type': 'application/json',
+  //         },
+  //       },
 
-        enabledTransports: [
-          'ws',
-          'wss',
-          'xhr_streaming',
-          'xhr_polling',
-          'sockjs',
-        ],
-        authEndpoint: 'https://kikfix-com.stackstaging.com/broadcasting/auth',
-        cluster: 'ap2',
-        forceTLS: true,
-        auth: {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-            Accept: 'application/json', // ✅ required
-            'Content-Type': 'application/json',
-          },
-        },
-      });
+  //       enabledTransports: [
+  //         'ws',
+  //         'wss',
+  //         'xhr_streaming',
+  //         'xhr_polling',
+  //         'sockjs',
+  //       ],
+  //       authEndpoint: 'https://kikfix-com.stackstaging.com/broadcasting/auth',
+  //       cluster: 'ap2',
+  //       forceTLS: true,
+  //       auth: {
+  //         headers: {
+  //           Authorization: `Bearer ${authToken}`,
+  //           Accept: 'application/json', // ✅ required
+  //           'Content-Type': 'application/json',
+  //         },
+  //       },
+  //     });
 
-      // Subscribe to the private channel for the logged-in fixer
-      const channel = pusher.subscribe(`private-fixer.${userId}`);
+  //     // Subscribe to the private channel for the logged-in fixer
+  //     const channel = pusher.subscribe(`private-fixer.${userId}`);
 
-      // Listen for new booking events
-      channel.bind('booking.created', (data: any) => {
-        console.log('New booking received:', data);
+  //     // Listen for new booking events
+  //     channel.bind('booking.created', (data: any) => {
+  //       console.log('New booking received:', data);
 
-        // Add the new booking to available jobs
-        if (data.booking) {
-          setAvailableJobs(prevJobs => {
-            const alreadyExists = prevJobs.some(
-              job => job.id === data.booking.id,
-            );
-            console.log(alreadyExists);
-            if (alreadyExists) return prevJobs; // avoid duplicates
-            return [data.booking, ...prevJobs];
-          });
-          // Show an alert notification
-          Alert.alert(
-            'New Booking Available',
-            'A new job has been posted and is available for you to accept.',
-            [{ text: 'OK', onPress: () => console.log('OK Pressed') }],
-          );
-        }
-      });
+  //       // Add the new booking to available jobs
+  //       if (data.booking) {
+  //         setAvailableJobs(prevJobs => {
+  //           const alreadyExists = prevJobs.some(
+  //             job => job.id === data.booking.id,
+  //           );
+  //           console.log(alreadyExists);
+  //           if (alreadyExists) return prevJobs; // avoid duplicates
+  //           return [data.booking, ...prevJobs];
+  //         });
+  //         // Show an alert notification
+  //         Alert.alert(
+  //           'New Booking Available',
+  //           'A new job has been posted and is available for you to accept.',
+  //           [{ text: 'OK', onPress: () => console.log('OK Pressed') }],
+  //         );
+  //       }
+  //     });
 
-      // Handle connection events for debugging
-      pusher.connection.bind('connected', () => {
-        console.log('Pusher connected successfully');
-      });
+  //     // Handle connection events for debugging
+  //     pusher.connection.bind('connected', () => {
+  //       console.log('Pusher connected successfully');
+  //     });
 
-      console.log(channel);
+  //     console.log(channel);
 
-      pusher.connection.bind('error', (err: any) => {
-        console.error('Pusher connection error:', err);
-      });
+  //     pusher.connection.bind('error', (err: any) => {
+  //       console.error('Pusher connection error:', err);
+  //     });
 
-      channel.authorize('71543.549424', (events, authData) => {
-        console.log(
-          'Successfully subscribed to this channel without private channel',
-        );
-        console.log('Event Name', events?.message);
-        console.log('Another response', authData);
-        console.log('Pusher', pusher);
-        channel.bind('join', (data: any) => {
-          console.log(data.name);
-        });
-      });
+  //     channel.authorize('71543.549424', (events, authData) => {
+  //       console.log(
+  //         'Successfully subscribed to this channel without private channel',
+  //       );
+  //       console.log('Event Name', events?.message);
+  //       console.log('Another response', authData);
+  //       console.log('Pusher', pusher);
+  //       channel.bind('join', (data: any) => {
+  //         console.log(data.name);
+  //       });
+  //     });
 
-      channel.bind('pusher:subscription_succeeded', () => {
-        console.log('Successfully subscribed to private channel');
-        console.log('Pusher', pusher);
-      });
+  //     channel.bind('pusher:subscription_succeeded', () => {
+  //       console.log('Successfully subscribed to private channel');
+  //       console.log('Pusher', pusher);
+  //     });
 
-      channel.bind('pusher:subscription_error', (status: Error) => {
-        console.error('Subscription error:', status);
-      });
-      pusher.connection.bind('state_change', function (states: any) {
-        // states = {previous: 'oldState', current: 'newState'}
-        console.log(states);
-      });
-    } catch (error) {
-      console.error('Error initializing Pusher:', error);
-    }
-  };
+  //     channel.bind('pusher:subscription_error', (status: Error) => {
+  //       console.error('Subscription error:', status);
+  //     });
+  //     pusher.connection.bind('state_change', function (states: any) {
+  //       // states = {previous: 'oldState', current: 'newState'}
+  //       console.log(states);
+  //     });
+  //   } catch (error) {
+  //     console.error('Error initializing Pusher:', error);
+  //   }
+  // };
 
-  const fixerAcceptJob = async (jobId: string | number) => {
+  const fixerAcceptJob = async () => {
+    const data = {
+      booking_id: availableJobs[0].id
+    };
+    console.log('Accepting job with data:', data);
     setIsLoading(true);
     try {
-      await fixer_accept({ booking_id: jobId });
-      setAvailableJobs(prev => prev.filter(job => job.id !== jobId));
-      setAcceptedJobs(prev => [
-        ...prev,
-        availableJobs.find(job => job.id === jobId),
-      ]);
-      console.log(availableJobs);
-      const acceptedJob = availableJobs.find(job => job.id === jobId);
-      const bookingData = mapApiToBooking(acceptedJob);
-      Store.dispatch(setBookingData(bookingData));
+      const response = await fixer_accept(data);
+      console.log('Job accepted successfully:', response);
+      setIsLoading(false);
       navigateToScreen(navigation, 'Success');
+      return response;
     } catch (error) {
       console.log('Error accepting job:', error);
-    } finally {
-      setIsLoading(false);
+      // Handle error (e.g., show error message)
     }
   };
 
@@ -396,7 +368,7 @@ const HandymanDashboard = () => {
     ({ item }: any) => (
       <AvailableJobs
         job={item as JobCardProps['job']}
-        onAccept={() => fixerAcceptJob(item.id)}
+        onAccept={() => fixerAcceptJob()}
         loading={isLoading}
       />
     ),

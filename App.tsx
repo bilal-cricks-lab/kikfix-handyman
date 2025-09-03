@@ -9,7 +9,7 @@ import {
 } from '@react-navigation/native';
 import StackNav from './src/navigation/StackNavigator';
 import { PersistGate } from 'redux-persist/integration/react';
-import { RootSate, Store, persistor } from './src/redux/Store/store';
+import { Store, persistor } from './src/redux/Store/store';
 import { Provider } from 'react-redux';
 import firebase from '@react-native-firebase/app';
 import messaging from '@react-native-firebase/messaging';
@@ -17,106 +17,106 @@ import requestNotificationPermission from './src/utils/notification';
 
 LogBox.ignoreAllLogs();
 
-const navigationRef = createNavigationContainerRef();
+const NAVIGATION_IDS = ["booking", "chat"];
 
-const InnerApp = () => {
-  const navigateToChatScreen = () => {
-    if (navigationRef.isReady()) {
-      // navigationRef.navigate('chat')
+// 🔹 Build deep link from notification data
+function buildDeepLinkFromNotificationData(data: any): string | null {
+  const navigationId = data?.notification_type;
+
+  if (!NAVIGATION_IDS.includes(navigationId)) {
+    console.warn('🚨 Unverified navigationId', navigationId);
+    return null;
+  }
+
+  if (navigationId === "booking") {
+    const bookingId = data?.id;
+    if (typeof bookingId === 'string') {
+      const url_booking = `kikfixhandyman://app/booking/${bookingId}`
+      console.log(url_booking)
+      return url_booking;
     }
-  };
-
-  const shouldNavigateToChat = (remoteMessage: any) => {
-    const hasChatMessage = remoteMessage.notification?.body || 
-                          remoteMessage.data?.body || 
-                          remoteMessage.data?.message;
-    
-    console.log('📩 Notification received:', {
-      body: remoteMessage.notification?.body,
-      data: remoteMessage.data,
-      shouldNavigate: !!hasChatMessage
-    });
-
-    return !!hasChatMessage;
-  };
-
-  React.useEffect(() => {
-    if (firebase.apps.length > 0) {
-      console.log('Firebase is working!');
+    console.error('🚨 Missing bookingId');
+    return null;
+  }
+  if(navigationId === "chat"){
+    const id = data?.id;
+    if(typeof id === 'string'){
+      const url_chat = `kikfixhandyman://app/chat/${id}`;
+      console.log(url_chat);
+      return url_chat;
     }
-    requestNotificationPermission();
+    return null;
+  }
 
-    // Check if app was opened from notification (killed state)
-    messaging()
-      .getInitialNotification()
-      .then(remoteMessage => {
-        if (remoteMessage && shouldNavigateToChat(remoteMessage)) {
-          console.log('📩 Opened from killed state - navigating to chat');
-          navigateToChatScreen();
-        }
-      });
-  }, []);
+  return null;
+}
 
-  React.useEffect(() => {
-    // Foreground message - just show notification, no navigation
-    const unsubscribeForeground = messaging().onMessage(async remoteMessage => {
-      console.log('📩 Foreground FCM message:', remoteMessage);
-      // In foreground, you might want to show an in-app notification
-      // but not navigate automatically
-    });
+// 🔹 Linking config
+const linking = {
+  prefixes: ['kikfixhandyman://app'],
+  config: {
+    screens: {
+      Serv: 'booking/:bookingId',
+      chat: 'chat/:id'
+    },
+  },
+  async getInitialURL() {
+    // 1. Check if app was opened by deep link
+    const url = await Linking.getInitialURL();
+    if (typeof url === 'string') {
+      return url;
+    }
 
-    // Background -> app open (user tapped notification)
-    const unsubscribeBackground = messaging().onNotificationOpenedApp(remoteMessage => {
-      console.log('📩 Opened from background:', remoteMessage);
-      
-      if (shouldNavigateToChat(remoteMessage)) {
-        console.log('📩 Navigating to chat screen from background');
-        navigateToChatScreen();
-      }
-    });
+    // 2. Check if opened from FCM notification (killed state)
+    const message = await messaging().getInitialNotification();
+    const deeplinkURL = buildDeepLinkFromNotificationData(message?.data);
+    if (typeof deeplinkURL === 'string') {
+      return deeplinkURL;
+    }
 
-    // Handle deep links
-    const linkingSubscription = Linking.addEventListener('url', ({ url }) => {
-      console.log('🔗 Deep link received:', url);
-      if (url.includes('chat')) {
-        navigateToChatScreen();
+    return null;
+  },
+  subscribe(listener: (url: string) => void) {
+    // Handle standard deep links
+    const onReceiveURL = ({ url }: { url: string }) => listener(url);
+    const linkingSubscription = Linking.addEventListener('url', onReceiveURL);
+
+    // Handle notifications (background -> app open)
+    const unsubscribe = messaging().onNotificationOpenedApp(remoteMessage => {
+      const url = buildDeepLinkFromNotificationData(remoteMessage.data);
+      if (typeof url === 'string') {
+        listener(url);
       }
     });
 
     return () => {
-      unsubscribeForeground();
-      unsubscribeBackground();
       linkingSubscription.remove();
+      unsubscribe();
+    };
+  },
+};
+
+const InnerApp = () => {
+  React.useEffect(() => {
+    if (firebase.apps.length > 0) {
+      console.log('✅ Firebase is working!');
+    }
+    requestNotificationPermission();
+
+    // Foreground handling (don’t navigate, just alert/sound)
+    const unsubscribeForeground = messaging().onMessage(async remoteMessage => {
+      console.log('📩 Foreground FCM:', remoteMessage.data);
+      // play sound / show in-app banner here
+    });
+
+    return () => {
+      unsubscribeForeground();
     };
   }, []);
 
   return (
     <LanguageProvider>
-      <NavigationContainer
-        ref={navigationRef}
-        linking={{
-          prefixes: ['kikfixhandyman://app'],
-          config: {
-            screens: {
-              Serv: {
-                path: 'main/:bookingId',
-                parse: {
-                  bookingId: bookingId => `${bookingId}`,
-                },
-              },
-              chat: 'chat'
-            },
-          },
-        }}
-        onReady={() => {
-          // Handle initial URL when app starts
-          Linking.getInitialURL().then(url => {
-            if (url && url.includes('chat')) {
-              navigateToChatScreen();
-            }
-          });
-        }}
-      >
+      <NavigationContainer linking={linking}>
         <StackNav />
       </NavigationContainer>
     </LanguageProvider>
