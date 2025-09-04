@@ -170,18 +170,17 @@ export default function JobAcceptanceSuccess() {
               className="w-16 h-16 rounded-full"
               style={{ borderColor: 'rgba(16,185,129,0.16)' }}
             >
-              {user_data && user_data.social_image ? (
+              {user_data && user_data.social_image && (
                 <Image
                   source={{ uri: user_data.social_image || '' }}
                   className="w-full h-full rounded-full"
                 />
-              ) : (
+              )}
                 <View className="flex-1 items-center justify-center bg-gray-200">
                   <Text className="text-lg text-gray-700">
-                    {user_data ? user_data.display_name?.charAt(0) : ''}
+                    {user_data? user_data?.display_name?.charAt(0) : ''}
                   </Text>
                 </View>
-              )}
             </View>
 
             <View className="flex-1 left-4">

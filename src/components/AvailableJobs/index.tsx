@@ -11,7 +11,7 @@ import { setBookingData } from '../../redux/Reducers/bookingSlice';
 import { navigateToScreen } from '../../utils/navigation';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import StackParamList from '../../types/stack';
-import { formatTime, generateTimeOptions } from '../../utils/time_format';
+import { formatTime, time_duration } from '../../utils/time_format';
 
 const AvailableJobs: React.FC<JobCardProps> = ({
   job,
@@ -54,6 +54,7 @@ const AvailableJobs: React.FC<JobCardProps> = ({
           date: job?.date,
           fromTime: job?.min_time,
           toTime: job?.max_time,
+          duration: time_duration(job?.min_time, job.max_time),
         }),
       );
       navigateToScreen(navigation, 'Counter_Offer');
@@ -65,12 +66,15 @@ const AvailableJobs: React.FC<JobCardProps> = ({
       onAccept?.(job?.id);
       Store.dispatch(
         setBookingData({
-          fixer_id: fixer_service?.fixer_id,
-          name: category?.name,
-          instruction: job?.instruction,
-          price: fixer_service?.price,
-          time: `${job?.min_time} - ${job?.max_time}`,
+          id: job?.id,
+          name: customer?.username,
           address: job?.address,
+          serve: category?.name,
+          date: job?.date,
+          fromTime: job?.min_time,
+          distance: job?.distance,
+          toTime: job?.max_time,
+          duration: time_duration(job?.min_time, job.max_time),
         }),
       );
     } catch (error) {

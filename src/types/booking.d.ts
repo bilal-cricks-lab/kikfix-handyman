@@ -2,6 +2,7 @@ interface BookingRequest {
   id?: string;
   fixer_id?: number;
   per_page?: number;
+  display?: string;
   page?: number;
   category_id?: number | string;
   subcategory_id?: number | string;

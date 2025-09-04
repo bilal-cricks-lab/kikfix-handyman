@@ -12,7 +12,7 @@ export const requestToken = async () => {
   }
 };
 
-export const getAuthToken = async (): Promise<string> => {
+export const getAuthToken = async () => {
   try {
     const token = await AsyncStorage.getItem('user_token');
     console.log(token);
