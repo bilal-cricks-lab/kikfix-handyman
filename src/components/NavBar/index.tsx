@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   View,
   Platform,
@@ -22,11 +22,13 @@ import { colors, typography } from '../../design-system';
 import { Bell, ArrowLeft } from 'lucide-react-native';
 import UserCard from '../Card';
 import { useSelector } from 'react-redux';
-import { persistor, RootSate } from '../../redux/Store/store';
+import { persistor, RootSate, Store } from '../../redux/Store/store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { NavigationProp } from '@react-navigation/native';
 import StackParamList from '@/types/stack';
+import { get_all_notification } from '../../services/appServices/serviceCategory';
+import { setUnreadCount } from '../../redux/Reducers/unreadSlice';
 
 const FixedHeader = ({}: {}) => {
   const [isProfileVisible, setIsProfileVisible] = useState(false);
@@ -36,6 +38,9 @@ const FixedHeader = ({}: {}) => {
   const userData = useSelector((state: RootSate) => state.user.user);
   const steps = ['Service Category', 'Specific SubCat', 'Specific Service'];
   const navigation = useNavigation<NavigationProp<StackParamList>>();
+  const count_unread = useSelector(
+    (state: RootSate) => state.unread.unreadCount,
+  );
 
   const openMenu = () => {
     const handle = findNodeHandle(buttonRef.current);
@@ -46,6 +51,24 @@ const FixedHeader = ({}: {}) => {
       });
     }
   };
+
+  React.useEffect(() => {
+    const fetchUnreadCount = async () => {
+      try {
+        const res = await get_all_notification();
+        if (res?.status && res?.data?.data) {
+          const unread = res.data.data.filter(
+            (n: any) => !n.read_at && n.is_read !== 1,
+          ).length;
+          Store.dispatch(setUnreadCount(unread));
+        }
+      } catch (error) {
+        console.log('Error fetching unread count:', error);
+      }
+    };
+
+    fetchUnreadCount();
+  }, []);
 
   return (
     <View
@@ -79,16 +102,16 @@ const FixedHeader = ({}: {}) => {
           <View className="flex-row items-center space-x-3 gap-4">
             <TouchableOpacity
               className="relative p-2 items-center justify-center"
-              onPress={() => {
-                navigation.navigate('notification');
-              }}
+              onPress={() => navigation.navigate('notification')}
             >
               <Bell className="w-5 h-5" />
-              <View className="absolute -top-2 -right-1 bg-green-500 w-5 h-5 rounded-full items-center justify-center">
-                <Text className="text-white-50 text-[10px] font-semibold">
-                  3
-                </Text>
-              </View>
+              {count_unread === 0 ? null : (
+                <View className="absolute -top-2 -right-1 bg-green-500 w-5 h-5 rounded-full items-center justify-center">
+                  <Text className="text-white-50 text-[10px] font-semibold">
+                    {count_unread}
+                  </Text>
+                </View>
+              )}
             </TouchableOpacity>
 
             {/* Avatar Clickable */}

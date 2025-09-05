@@ -15,7 +15,8 @@ const fixer_counter_offer = getApiUrl('/api/counter-offer');
 const get_all_chats = getApiUrl('/api/get-all-chats');
 const send_messages_url = getApiUrl('/api/send-message');
 const fixer_complete_url = getApiUrl(`/api/job-complete-fixer`);
-
+const get_notification_url = getApiUrl('/api/get-all-notifications');
+const read_notification_url = getApiUrl('/api/notification-read');
 
 export const fixer_dashboard_information = async () => {
   try {
@@ -165,3 +166,21 @@ export const job_complete_fixer = async (data: any) => {
     console.log(error);
   }
 }
+
+export const get_all_notification = async () => {
+  try {
+    const response = await callGetApiWithToken(get_notification_url);
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const read_notification = async (data: any) => {
+  try {
+    const response = await callPostApi(read_notification_url, data);
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};

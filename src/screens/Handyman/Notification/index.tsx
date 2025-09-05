@@ -8,24 +8,23 @@ import {
   Image,
   Pressable,
   StatusBar,
+  ActivityIndicator,
 } from 'react-native';
 import {
   ArrowLeft,
   Bell,
-  Clock,
-  MapPin,
-  Star,
-  Check,
-  X as XIcon,
 } from 'lucide-react-native';
 import { formatDistanceToNowStrict } from 'date-fns';
 import { colors, typography } from '../../../design-system';
 import CustomButton from '../../../components/Button';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import StackParamList from '../../../types/stack';
-import messaging from '@react-native-firebase/messaging'
-
-type NotificationType = 'booking' | 'reminder' | 'update' | 'promotion';
+import {
+  get_all_notification,
+  read_notification,
+} from '../../../services/appServices/serviceCategory';
+import { setUnreadCount, clearUnread, decrementUnread } from '../../../redux/Reducers/unreadSlice';
+import { Store } from '../../../redux/Store/store';
 
 interface Notification {
   id: number;
@@ -38,48 +37,59 @@ interface Notification {
   providerName?: string;
 }
 
-interface Props {
-  onBack: () => void;
-}
-
 export default function Notification() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [selectedTab, setSelectedTab] = useState<'all' | 'unread'>('all');
+  const [loading, setLoading] = useState(false);
 
   const navigation = useNavigation<NavigationProp<StackParamList>>();
 
-  const getTypeFromRemote = (type?: string): NotificationType => {
-  switch (type) {
-    case 'booking':
-    case 'reminder':
-    case 'update':
-    case 'promotion':
-      return type;
-    default:
-      return 'update';
-  }
-};
-
-
   React.useEffect(() => {
-    // Foreground listener
-    const unsubscribe = messaging().onMessage(async remoteMessage => {
-      console.log('FCM Notification:', remoteMessage);
-      const newNotification: Notification = {
-        id: Date.now(), // unique id
-        title: remoteMessage.notification?.title || 'New Notification',
-        message: remoteMessage.notification?.body || '',
-        timestamp: new Date(),
-        read: false,
-        actionable: remoteMessage.data?.actionable === 'true',
-        providerImage: remoteMessage.data?.providerImage as string,
-        providerName: remoteMessage.data?.providerName as string,
-      };
-      setNotifications(prev => [newNotification, ...prev]);
-    });
+    const fetchNotifications = async () => {
+      setLoading(true);
+      try {
+        const res = await get_all_notification();
+        if (res?.status && res?.data?.data) {
+          const mapped = res.data.data.map((n: any) => {
+            return {
+              id: n.id,
+              title: n.title || 'Notification',
+              message: n.message || '',
+              timestamp: new Date(n.created_at),
+              read: !!n.read_at || n.is_read === 1,
+              actionable: !!n.action_label, // decide when to show actions
+              providerImage: n.sender?.profile_image ?? undefined,
+              providerName: n.sender?.display_name ?? 'Unknown',
+              senderId: n.sender_id,
+              receiverId: n.receiver_id,
+            } as Notification;
+          });
+          setNotifications(mapped);
+          setLoading(false);
+          const unread = mapped.filter((n: any) => !n.read).length;
+          Store.dispatch(setUnreadCount(unread));
+        }
+      } catch (error) {
+        console.log('Error fetching notifications:', error);
+        setLoading(false);
+      }
+    };
 
-    return unsubscribe;
+    fetchNotifications();
   }, []);
+
+  const marked_notification = async (id: number | string | null) => {
+    const data = {
+      notification_id: id,
+    };
+    try {
+      const response = await read_notification(data);
+      console.log(response.message);
+      return response;
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const unreadCount = useMemo(
     () => notifications.filter(n => !n.read).length,
@@ -93,42 +103,32 @@ export default function Notification() {
   );
 
   const markAsRead = (id: number) => {
+    marked_notification(id);
     setNotifications(prev =>
       prev.map(n => (n.id === id ? { ...n, read: true } : n)),
     );
+    Store.dispatch(decrementUnread()); // ✅ decrease global unread count
   };
 
-  const markAllAsRead = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-  };
+  const markAllAsRead = async () => {
+    try {
+      // get all unread notifications
+      const unreadNotifications = notifications.filter(n => !n.read);
 
-  const getIcon = (type: NotificationType) => {
-    switch (type) {
-      case 'booking':
-        return <MapPin width={18} height={18} color="#1E40AF" />;
-      case 'reminder':
-        return <Clock width={18} height={18} color="#C2410C" />;
-      case 'update':
-        return <Check width={18} height={18} color="#047857" />;
-      case 'promotion':
-        return <Star width={18} height={18} color="#B45309" />;
-      default:
-        return <Bell width={18} height={18} color="#374151" />;
-    }
-  };
+      // optimized and update UI first
+      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+      Store.dispatch(clearUnread()); // ✅ reset to 0 globally
 
-  const getBadgeClasses = (type: NotificationType) => {
-    switch (type) {
-      case 'booking':
-        return 'bg-blue-100 text-blue-800';
-      case 'reminder':
-        return 'bg-orange-100 text-orange-800';
-      case 'update':
-        return 'bg-green-100 text-green-800';
-      case 'promotion':
-        return 'bg-yellow-100 text-yellow-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
+      // call API for each unread notification
+      for (const n of unreadNotifications) {
+        try {
+          await read_notification({ notification_id: n.id });
+        } catch (err) {
+          console.log(`Error marking notification ${n.id} as read`, err);
+        }
+      }
+    } catch (error) {
+      console.log('Error in markAllAsRead:', error);
     }
   };
 
@@ -138,6 +138,7 @@ export default function Notification() {
   };
 
   const renderItem = ({ item }: { item: Notification }) => {
+    console.log(item.id);
     return (
       <Pressable
         onPress={() => markAsRead(item.id)}
@@ -155,8 +156,7 @@ export default function Notification() {
               resizeMode="cover"
             />
           ) : (
-            <View className="w-12 h-12 rounded-full bg-gray-100 items-center justify-center">
-            </View>
+            <View className="w-12 h-12 rounded-full bg-gray-100 items-center justify-center"></View>
           )}
 
           {/* Content */}
@@ -191,48 +191,30 @@ export default function Notification() {
             </View>
 
             <View className="flex-row justify-between items-center mt-3">
-              <View
-                
-              >
+              <View>
                 <Text
                   style={{
                     ...typography.link,
                   }}
-                >
-                </Text>
+                ></Text>
               </View>
 
               {item.actionable ? (
                 <View className="flex-row items-center gap-7">
-                    <>
-                      <CustomButton
-                        className=""
-                        title="Track"
-                        textStyle={{
-                          ...typography.link,
-                          color: colors.black[900],
-                        }}
-                        style={{}}
-                        onPress={() => {}}
-                      />
-                      <CustomButton
-                        className="px-3 py-1 rounded-md"
-                        title="Message"
-                        textStyle={{
-                          ...typography.link,
-                          color: colors.white[100],
-                        }}
-                        style={{
-                          backgroundColor: colors.secondary[500],
-                        }}
-                        onPress={() => {}}
-                      />
-                    </>
-                  
-
+                  <>
+                    <CustomButton
+                      className=""
+                      title="Track"
+                      textStyle={{
+                        ...typography.link,
+                        color: colors.black[900],
+                      }}
+                      style={{}}
+                      onPress={() => {}}
+                    />
                     <CustomButton
                       className="px-3 py-1 rounded-md"
-                      title="Rate Service"
+                      title="Message"
                       textStyle={{
                         ...typography.link,
                         color: colors.white[100],
@@ -242,21 +224,33 @@ export default function Notification() {
                       }}
                       onPress={() => {}}
                     />
-                  
+                  </>
 
-                    <CustomButton
-                      className="px-3 py-1 rounded-md"
-                      title="Use Offer"
-                      textStyle={{
-                        ...typography.link,
-                        color: colors.white[100],
-                      }}
-                      style={{
-                        backgroundColor: colors.secondary[500],
-                      }}
-                      onPress={() => {}}
-                    />
-                  
+                  <CustomButton
+                    className="px-3 py-1 rounded-md"
+                    title="Rate Service"
+                    textStyle={{
+                      ...typography.link,
+                      color: colors.white[100],
+                    }}
+                    style={{
+                      backgroundColor: colors.secondary[500],
+                    }}
+                    onPress={() => {}}
+                  />
+
+                  <CustomButton
+                    className="px-3 py-1 rounded-md"
+                    title="Use Offer"
+                    textStyle={{
+                      ...typography.link,
+                      color: colors.white[100],
+                    }}
+                    style={{
+                      backgroundColor: colors.secondary[500],
+                    }}
+                    onPress={() => {}}
+                  />
                 </View>
               ) : (
                 <View />
@@ -349,8 +343,8 @@ export default function Notification() {
                 Unread
               </Text>
               {unreadCount > 0 && (
-                <View className="bg-blue-600 px-2 items-center justify-center rounded-full">
-                  <Text className="text-xs text-white">{unreadCount}</Text>
+                <View className="bg-green-500 px-2 items-center justify-center rounded-full">
+                  <Text className="text-xs text-white-50">{unreadCount}</Text>
                 </View>
               )}
             </View>
@@ -359,8 +353,12 @@ export default function Notification() {
       </View>
 
       {/* List */}
-      <View className="px-4 pb-6 ">
-        {filtered.length === 0 ? (
+      <View className="px-4 pb-6 flex-1">
+        {loading ? (
+          <View className="flex-1 items-center justify-center">
+            <ActivityIndicator size="large" color="#2563EB" />
+          </View>
+        ) : filtered.length === 0 ? (
           <View className="">
             <View className="bg-white-50 p-8 rounded-lg items-center">
               <Bell width={48} height={48} color="#9CA3AF" />

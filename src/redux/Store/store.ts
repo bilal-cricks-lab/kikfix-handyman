@@ -5,6 +5,7 @@ import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { user_Reg } from '../Reducers/regSlice';
 import { booking_Slice } from '../Reducers/bookingSlice';
+import { unread_Slice } from '../Reducers/unreadSlice';
 
 // Combine reducers
 const rootReducer = combineReducers({
@@ -12,6 +13,7 @@ const rootReducer = combineReducers({
   error: error_Slice.reducer,
   user_reg: user_Reg.reducer,
   booking: booking_Slice.reducer,
+  unread: unread_Slice.reducer,
 });
 
 // Persist configuration

@@ -214,6 +214,7 @@ const HandymanDashboard = () => {
           endpoint: 'https://kikfix-com.stackstaging.com/broadcasting/auth',
           headers: {
             Authorization: `Bearer ${authToken}`,
+                  Accept: 'application/json',   // ✅ important
             'Content-Type': 'application/json',
           },
           transport: 'ajax',
@@ -221,12 +222,12 @@ const HandymanDashboard = () => {
         channelAuthorization: {
           endpoint: 'https://kikfix-com.stackstaging.com/broadcasting/auth',
           transport: 'ajax',
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            'Accept': 'application/json',   // ✅ important
+            'Content-Type': 'application/json',
+          },
         },
-
-        httpHost: 'sockjs-ap2.pusher.com',
-        httpPath: '/pusher',
-        httpsPort: 443,
-
         enabledTransports: [
           'ws',
           'wss',
@@ -241,6 +242,7 @@ const HandymanDashboard = () => {
         auth: {
           headers: {
             Authorization: `Bearer ${authToken}`,
+            
             Accept: 'application/json', // ✅ required
             'Content-Type': 'application/json',
           },
