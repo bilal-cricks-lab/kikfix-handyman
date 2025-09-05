@@ -32,8 +32,7 @@ import JobCardProps from '../../../types/job';
 import { useSelector } from 'react-redux';
 import { RootSate, Store } from '../../../redux/Store/store';
 import { formatTime } from '../../../utils/time_format';
-import Pusher from 'pusher-js';
-import { getAuthToken, requestToken } from '../../../utils/fcm_token';
+import { pusherService } from '../../../services/pusherService';
 import { useRoute } from '@react-navigation/native';
 
 // Types
@@ -92,17 +91,54 @@ const HandymanDashboard = () => {
   const user_info = useSelector((state: RootSate) => state.user.user);
 
   useEffect(() => {
-    let pusher: Pusher | null | any = null;
+    let isMounted = true;
+
     const setupPusher = async () => {
-      pusher = await initializePusher();
-    };
-    setupPusher();
-    return () => {
-      if (pusher) {
-        console.log('Pusher disconnected on unmount');
+      if (!isMounted || !user_info?.id) return;
+      
+      try {
+        // Initialize Pusher service
+        await pusherService.initialize();
+        
+        // Subscribe to fixer-specific channel
+        await pusherService.subscribeToChannel(
+          `private-fixer.${user_info.id}`,
+          'booking.created',
+          (data) => {
+            console.log('📨 New booking received:', data);
+            
+            if (data.booking && isMounted) {
+              // Add the new booking to available jobs
+              setAvailableJobs(prevJobs => {
+                const alreadyExists = prevJobs.some(
+                  job => job.id === data.booking.id,
+                );
+                if (alreadyExists) return prevJobs; // avoid duplicates
+                return [data.booking, ...prevJobs];
+              });
+              
+              // Show notification
+              Alert.alert(
+                'New Booking Available',
+                'A new job has been posted and is available for you to accept.',
+                [{ text: 'OK', onPress: () => console.log('OK Pressed') }],
+              );
+            }
+          }
+        );
+        
+      } catch (error) {
+        console.error('Failed to setup Pusher:', error);
       }
     };
-  }, []);
+
+    setupPusher();
+
+    return () => {
+      isMounted = false;
+      pusherService.disconnect();
+    };
+  }, [user_info?.id]);
 
   // const flatListRef = React.useRef<FlatList>(null);
 
@@ -196,112 +232,6 @@ const HandymanDashboard = () => {
   //   };
   // };
 
-  const initializePusher = async () => {
-    try {
-      const authToken = await getAuthToken();
-      const userId = user_info?.id;
-
-      if (!authToken || !userId) {
-        console.error('Missing auth token or userId');
-        return;
-      }
-
-      console.log('Initializing Pusher for user:', userId);
-
-      // Initialize Pusher with your credentials
-      const pusher = new Pusher('d8f959cdefeb458660a2', {
-        userAuthentication: {
-          endpoint: 'https://kikfix-com.stackstaging.com/broadcasting/auth',
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-                  Accept: 'application/json',   // ✅ important
-            'Content-Type': 'application/json',
-          },
-          transport: 'ajax',
-        },
-        channelAuthorization: {
-          endpoint: 'https://kikfix-com.stackstaging.com/broadcasting/auth',
-          transport: 'ajax',
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-            'Accept': 'application/json',   // ✅ important
-            'Content-Type': 'application/json',
-          },
-        },
-        enabledTransports: [
-          'ws',
-          'wss',
-          'xhr_streaming',
-          'xhr_polling',
-          'sockjs',
-        ],
-        authEndpoint: 'https://kikfix-com.stackstaging.com/broadcasting/auth',
-        cluster: 'ap2',
-        forceTLS: true,
-
-        auth: {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-            
-            Accept: 'application/json', // ✅ required
-            'Content-Type': 'application/json',
-          },
-        },
-      });
-
-      // Subscribe to the private channel for the logged-in fixer
-      const channel = pusher.subscribe(`private-fixer.${userId}`);
-
-      // Listen for new booking events
-      channel.bind('booking.created', (data: any) => {
-        console.log('New booking received:', data);
-
-        // Add the new booking to available jobs
-        if (data.booking) {
-          setAvailableJobs(prevJobs => {
-            const alreadyExists = prevJobs.some(
-              job => job.id === data.booking.id,
-            );
-            console.log(alreadyExists);
-            if (alreadyExists) return prevJobs; // avoid duplicates
-            return [data.booking, ...prevJobs];
-          });
-          // Show an alert notification
-          Alert.alert(
-            'New Booking Available',
-            'A new job has been posted and is available for you to accept.',
-            [{ text: 'OK', onPress: () => console.log('OK Pressed') }],
-          );
-        }
-      });
-
-      // Handle connection events for debugging
-      pusher.connection.bind('connected', () => {
-        console.log('Pusher connected successfully');
-      });
-
-      console.log(channel);
-
-      pusher.connection.bind('error', (err: any) => {
-        console.error('Pusher connection error:', err);
-      });
-
-      channel.bind('pusher:subscription_succeeded', () => {
-        console.log('Successfully subscribed to private channel');
-        console.log('Pusher', pusher);
-      });
-
-      channel.bind('pusher:subscription_error', (status: Error) => {
-        console.error('Subscription error:', status);
-      });
-      pusher.connection.bind('state_change', function (states: any) {
-        // states = {previous: 'oldState', current: 'newState'}
-        console.log(states);
-      });
-    } catch (error) {
-      console.error('Error initializing Pusher:', error);
-    }
-  };
 
   const fixerAcceptJob = async (id: string | number) => {
     console.log('The id is: ', id);
